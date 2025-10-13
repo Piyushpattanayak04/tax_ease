@@ -4,6 +4,7 @@ import '../../../../core/constants/app_colors.dart';
 import '../../../../core/constants/app_dimensions.dart';
 import '../../../../shared/animations/smooth_animations.dart';
 import '../../../../core/theme/theme_controller.dart';
+import '../../../tax_forms/data/services/t1_form_storage_service.dart';
 
 class DashboardPage extends StatefulWidget {
   const DashboardPage({super.key});
@@ -389,82 +390,132 @@ class _DashboardPageState extends State<DashboardPage> with AutomaticKeepAliveCl
 
 
   Widget _buildProgressCard() {
-    const double progressValue = 0.7; // 70% completed
-    return Container(
-      padding: const EdgeInsets.all(12),
-      decoration: BoxDecoration(
-        color: Theme.of(context).cardColor,
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(
-          color: Theme.of(context).dividerColor,
-          width: 1,
-        ),
-        boxShadow: [
-          BoxShadow(
-            color: AppColors.shadowLight,
-            blurRadius: 4,
-            offset: const Offset(0, 2),
-          ),
-        ],
-      ),
-      child: Row(
-        children: [
-          // Circular progress indicator
-          SizedBox(
-            width: 40,
-            height: 40,
-            child: Stack(
-              children: [
-                CircularProgressIndicator(
-                  value: progressValue,
-                  backgroundColor: Theme.of(context).dividerColor,
-                  valueColor: const AlwaysStoppedAnimation<Color>(
-                    AppColors.primary,
-                  ),
-                  strokeWidth: 3,
+    return FutureBuilder<Map<String, dynamic>>(
+      future: _getProgressStatus(),
+      builder: (context, snapshot) {
+        final progressData = snapshot.data ?? {
+          'progress': 0.0,
+          'progressText': 'Get Started',
+          'isComplete': false,
+        };
+        
+        final progress = progressData['progress'] as double;
+        final progressText = progressData['progressText'] as String;
+        final isComplete = progressData['isComplete'] as bool;
+        
+        return GestureDetector(
+          onTap: () => context.go('/tax-forms/personal'),
+          child: Container(
+            padding: const EdgeInsets.all(12),
+            decoration: BoxDecoration(
+              color: Theme.of(context).cardColor,
+              borderRadius: BorderRadius.circular(12),
+              border: Border.all(
+                color: Theme.of(context).dividerColor,
+                width: 1,
+              ),
+              boxShadow: [
+                BoxShadow(
+                  color: AppColors.shadowLight,
+                  blurRadius: 4,
+                  offset: const Offset(0, 2),
                 ),
-                Center(
-                  child: Text(
-                    '${(progressValue * 100).toInt()}%',
-                    style: TextStyle(
-                      color: Theme.of(context).textTheme.bodySmall?.color,
-                      fontSize: 10,
-                      fontWeight: FontWeight.w600,
-                    ),
+              ],
+            ),
+            child: Row(
+              children: [
+                // Progress indicator
+                SizedBox(
+                  width: 40,
+                  height: 40,
+                  child: progress == 0.0
+                      ? Container(
+                          decoration: BoxDecoration(
+                            color: AppColors.primary.withOpacity(0.1),
+                            borderRadius: BorderRadius.circular(20),
+                          ),
+                          child: Icon(
+                            Icons.play_arrow,
+                            color: AppColors.primary,
+                            size: 20,
+                          ),
+                        )
+                      : Stack(
+                          children: [
+                            CircularProgressIndicator(
+                              value: progress,
+                              backgroundColor: Theme.of(context).dividerColor,
+                              valueColor: AlwaysStoppedAnimation<Color>(
+                                isComplete ? AppColors.success : AppColors.primary,
+                              ),
+                              strokeWidth: 3,
+                            ),
+                            Center(
+                              child: isComplete
+                                  ? Icon(
+                                      Icons.check,
+                                      color: AppColors.success,
+                                      size: 16,
+                                    )
+                                  : Text(
+                                      '${(progress * 100).toInt()}%',
+                                      style: TextStyle(
+                                        color: Theme.of(context).textTheme.bodySmall?.color,
+                                        fontSize: 10,
+                                        fontWeight: FontWeight.w600,
+                                      ),
+                                    ),
+                            ),
+                          ],
+                        ),
+                ),
+                const SizedBox(width: 12),
+                // Progress text
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        'T1 Tax Form Progress',
+                        style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                      const SizedBox(height: 2),
+                      Text(
+                        progressText,
+                        style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                          color: isComplete ? AppColors.success : null,
+                          fontWeight: isComplete ? FontWeight.w600 : null,
+                        ),
+                      ),
+                    ],
                   ),
+                ),
+                // Arrow icon
+                Icon(
+                  Icons.arrow_forward_ios,
+                  color: AppColors.grey500,
+                  size: 16,
                 ),
               ],
             ),
           ),
-          const SizedBox(width: 12),
-          // Progress text
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  'Tax Form Progress',
-                  style: Theme.of(context).textTheme.titleSmall?.copyWith(
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
-                const SizedBox(height: 2),
-                Text(
-                  'Complete now to finish filing',
-                  style: Theme.of(context).textTheme.bodySmall,
-                ),
-              ],
-            ),
-          ),
-          // Arrow icon
-          Icon(
-            Icons.arrow_forward_ios,
-            color: AppColors.grey500,
-            size: 16,
-          ),
-        ],
-      ),
+        );
+      },
     );
+  }
+  
+  Future<Map<String, dynamic>> _getProgressStatus() async {
+    try {
+      return await T1FormStorageService.instance.getProgressStatus();
+    } catch (e) {
+      return {
+        'progress': 0.0,
+        'progressText': 'Get Started',
+        'isComplete': false,
+      };
+    }
   }
 
 

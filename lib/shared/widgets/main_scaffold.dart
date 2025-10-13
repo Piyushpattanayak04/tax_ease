@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import '../../core/constants/app_colors.dart';
-import '../../core/constants/app_dimensions.dart';
 
 class MainScaffold extends StatelessWidget {
   final Widget child;
@@ -35,7 +34,7 @@ class MainScaffold extends StatelessWidget {
 
 class _BottomNavigationBar extends StatefulWidget {
   final String currentPath;
-  const _BottomNavigationBar({super.key, required this.currentPath});
+  const _BottomNavigationBar({required this.currentPath});
 
   @override
   State<_BottomNavigationBar> createState() => _BottomNavigationBarState();
@@ -46,7 +45,6 @@ class _BottomNavigationBarState extends State<_BottomNavigationBar> {
   Widget build(BuildContext context) {
     // Always read the router's current location so the highlight updates on navigation
     final String location = widget.currentPath;
-    final isDark = Theme.of(context).brightness == Brightness.dark;
 
     debugPrint('Current location: $location');
 
@@ -146,7 +144,7 @@ class _BottomNavigationBarState extends State<_BottomNavigationBar> {
               duration: const Duration(milliseconds: 200),
               child: Icon(
                 isActive ? activeIcon : icon,
-                key: ValueKey('${route}_${isActive}'),
+                key: ValueKey('${route}_$isActive'),
                 color: isActive
                     ? AppColors.white
                     : (isDark ? AppColors.grey400 : AppColors.grey600),

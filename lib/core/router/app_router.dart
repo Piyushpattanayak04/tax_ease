@@ -100,7 +100,7 @@ class AppRouter {
         },
       ),
 
-      // Main App Shell with Bottom Navigation
+      // Main App Shell with Bottom Navigation - Only 4 main screens
       ShellRoute(
         navigatorKey: _shellNavigatorKey,
         builder: (context, state, child) {
@@ -117,45 +117,18 @@ class AppRouter {
             pageBuilder: (context, state) => _page(const DashboardPage()),
           ),
 
-          // Tax Forms
+          // Tax Forms (main list page only)
           GoRoute(
             path: '/tax-forms',
             name: 'tax-forms',
             pageBuilder: (context, state) => _page(const TaxFormsPage()),
-            routes: [
-              GoRoute(
-                path: '/personal',
-                name: 'personal-tax-form',
-                pageBuilder: (context, state) => _page(const PersonalTaxFormPage()),
-              ),
-              GoRoute(
-                path: '/business',
-                name: 'business-tax-form',
-                pageBuilder: (context, state) => _page(const BusinessTaxFormPage()),
-              ),
-              GoRoute(
-                path: '/review',
-                name: 'form-review',
-                pageBuilder: (context, state) {
-                  final formType = state.uri.queryParameters['type'] ?? 'personal';
-                  return _page(FormReviewPage(formType: formType));
-                },
-              ),
-            ],
           ),
 
-          // Documents
+          // Documents (main page only)
           GoRoute(
             path: '/documents',
             name: 'documents',
             pageBuilder: (context, state) => _page(const DocumentsPage()),
-            routes: [
-              GoRoute(
-                path: '/upload',
-                name: 'upload-documents',
-                pageBuilder: (context, state) => _page(const UploadDocumentsPage()),
-              ),
-            ],
           ),
 
           // Profile
@@ -167,7 +140,36 @@ class AppRouter {
         ],
       ),
 
-      // Full Screen Routes (outside main shell)
+      // Full Screen Routes (outside main shell) - All other screens
+      
+      // Tax Form Sub-routes (full screen)
+      GoRoute(
+        path: '/tax-forms/personal',
+        name: 'personal-tax-form',
+        pageBuilder: (context, state) => _page(const PersonalTaxFormPage()),
+      ),
+      GoRoute(
+        path: '/tax-forms/business',
+        name: 'business-tax-form',
+        pageBuilder: (context, state) => _page(const BusinessTaxFormPage()),
+      ),
+      GoRoute(
+        path: '/tax-forms/review',
+        name: 'form-review',
+        pageBuilder: (context, state) {
+          final formType = state.uri.queryParameters['type'] ?? 'personal';
+          return _page(FormReviewPage(formType: formType));
+        },
+      ),
+
+      // Document Sub-routes (full screen)
+      GoRoute(
+        path: '/documents/upload',
+        name: 'upload-documents',
+        pageBuilder: (context, state) => _page(const UploadDocumentsPage()),
+      ),
+
+      // Filing Routes (full screen)
       GoRoute(
         path: '/filing-status',
         name: 'filing-status',
@@ -182,7 +184,7 @@ class AppRouter {
         },
       ),
 
-      // Settings Routes
+      // Settings Routes (full screen)
       GoRoute(
         path: '/settings',
         name: 'settings',
