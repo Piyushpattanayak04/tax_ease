@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import '../../../../core/constants/app_colors.dart';
 import '../../../../core/constants/app_dimensions.dart';
+import '../../../../core/utils/smooth_scroll_physics.dart';
+import '../../../../core/utils/responsive.dart';
 import '../../../../core/theme/theme_controller.dart';
 import '../../../../shared/animations/smooth_animations.dart';
 
@@ -15,9 +17,17 @@ class ProfilePage extends StatelessWidget {
         title: const Text('Profile'),
         automaticallyImplyLeading: false,
       ),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.all(AppDimensions.screenPadding),
-        child: Column(
+      body: ResponsiveContainer(
+        centerContent: false,
+        padding: EdgeInsets.all(Responsive.responsive(
+          context: context,
+          mobile: AppDimensions.screenPadding,
+          tablet: AppDimensions.screenPaddingLarge,
+          desktop: AppDimensions.spacingXl,
+        )),
+        child: SingleChildScrollView(
+          physics: const SmoothBouncingScrollPhysics(),
+          child: Column(
           children: [
             SmoothAnimations.slideUp(
               child: _buildProfileHeader(),
@@ -27,7 +37,10 @@ class ProfilePage extends StatelessWidget {
               delay: const Duration(milliseconds: 200),
               child: _buildProfileOptions(context),
             ),
+            // Extra bottom padding to account for bottom nav
+            const SizedBox(height: 100),
           ],
+        ),
         ),
       ),
     );

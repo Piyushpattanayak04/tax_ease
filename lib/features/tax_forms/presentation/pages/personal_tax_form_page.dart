@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import '../../../../core/constants/app_colors.dart';
 import '../../../../core/constants/app_dimensions.dart';
 import '../../data/models/t1_form_models_simple.dart';
@@ -9,7 +10,9 @@ import '../widgets/t1_questionnaire_step.dart';
 import '../widgets/t1_form_progress_bar.dart';
 
 class PersonalTaxFormPage extends StatefulWidget {
-  const PersonalTaxFormPage({super.key});
+  final String? formId;
+  
+  const PersonalTaxFormPage({super.key, this.formId});
 
   @override
   State<PersonalTaxFormPage> createState() => _PersonalTaxFormPageState();
@@ -24,7 +27,7 @@ class _PersonalTaxFormPageState extends State<PersonalTaxFormPage>
   int _currentStep = 0;
   final int _totalSteps = 2; // Personal Info, Questionnaire
   
-  T1FormData _formData = const T1FormData();
+  T1FormData _formData = const T1FormData.empty();
   bool _isLoading = true;
   bool _isSaving = false;
 
@@ -54,9 +57,22 @@ class _PersonalTaxFormPageState extends State<PersonalTaxFormPage>
   }
 
   Future<void> _loadFormData() async {
-    final savedData = await T1FormStorageService.instance.loadT1FormData();
+    T1FormData? savedData;
+    
+    if (widget.formId != null) {
+      // Load specific form by ID
+      savedData = await T1FormStorageService.instance.getFormById(widget.formId!);
+    }
+    
+    if (savedData == null) {
+      // Create a new form if no existing form found
+      savedData = T1FormStorageService.instance.createNewForm();
+      // Save the new form immediately
+      await T1FormStorageService.instance.saveForm(savedData);
+    }
+    
     setState(() {
-      _formData = savedData ?? const T1FormData();
+      _formData = savedData!;
       _isLoading = false;
     });
   }
@@ -69,7 +85,7 @@ class _PersonalTaxFormPageState extends State<PersonalTaxFormPage>
     });
     
     try {
-      final success = await T1FormStorageService.instance.saveT1FormData(_formData);
+      final success = await T1FormStorageService.instance.saveForm(_formData);
       
       if (success && mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -135,6 +151,8 @@ class _PersonalTaxFormPageState extends State<PersonalTaxFormPage>
   }
 
   Future<void> _submitForm() async {
+    // Update form status to submitted
+    _formData = _formData.copyWith(status: 'submitted');
     await _saveFormData();
     
     if (mounted) {
@@ -157,7 +175,7 @@ class _PersonalTaxFormPageState extends State<PersonalTaxFormPage>
             TextButton(
               onPressed: () {
                 Navigator.of(context).pop(); // Close dialog
-                Navigator.of(context).pop(); // Go back to previous screen
+                context.go('/tax-forms/filled-forms?refresh=true'); // Navigate with refresh parameter
               },
               child: const Text('OK'),
             ),
@@ -188,7 +206,7 @@ class _PersonalTaxFormPageState extends State<PersonalTaxFormPage>
     if (!mounted) return;
     
     try {
-      await T1FormStorageService.instance.saveT1FormData(_formData);
+      await T1FormStorageService.instance.saveForm(_formData);
       // Silent auto-save, no user notification
     } catch (e) {
       // Only log error, don't show user notification for auto-save failures
@@ -200,7 +218,13 @@ class _PersonalTaxFormPageState extends State<PersonalTaxFormPage>
   Widget build(BuildContext context) {
     if (_isLoading) {
       return Scaffold(
-        appBar: AppBar(title: const Text('T1 Personal Tax Form')),
+        appBar: AppBar(
+          title: const Text('T1 Personal Tax Form'),
+          leading: IconButton(
+            icon: const Icon(Icons.arrow_back),
+            onPressed: () => context.go('/tax-forms/filled-forms'),
+          ),
+        ),
         body: const Center(
           child: CircularProgressIndicator(),
         ),
@@ -212,6 +236,10 @@ class _PersonalTaxFormPageState extends State<PersonalTaxFormPage>
         title: const Text('T1 Personal Tax Form'),
         centerTitle: true,
         elevation: 0,
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back),
+          onPressed: () => context.go('/tax-forms/filled-forms'),
+        ),
         actions: [
           if (_isSaving)
             const Padding(

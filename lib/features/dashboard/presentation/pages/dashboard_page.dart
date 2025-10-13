@@ -13,7 +13,7 @@ class DashboardPage extends StatefulWidget {
   State<DashboardPage> createState() => _DashboardPageState();
 }
 
-class _DashboardPageState extends State<DashboardPage> with AutomaticKeepAliveClientMixin {
+class _DashboardPageState extends State<DashboardPage> with AutomaticKeepAliveClientMixin, WidgetsBindingObserver {
   // Add unique keys to prevent GlobalKey duplication during rebuilds
   static const _welcomeKey = ValueKey('dashboard_welcome');
   static const _quickStatsKey = ValueKey('dashboard_quick_stats');
@@ -30,12 +30,22 @@ class _DashboardPageState extends State<DashboardPage> with AutomaticKeepAliveCl
   void initState() {
     super.initState();
     _scrollController = ScrollController();
+    WidgetsBinding.instance.addObserver(this);
   }
 
   @override
   void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
     _scrollController.dispose();
     super.dispose();
+  }
+  
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.resumed && mounted) {
+      // Refresh the page when app comes back into focus
+      setState(() {});
+    }
   }
 
   @override
@@ -404,7 +414,7 @@ class _DashboardPageState extends State<DashboardPage> with AutomaticKeepAliveCl
         final isComplete = progressData['isComplete'] as bool;
         
         return GestureDetector(
-          onTap: () => context.go('/tax-forms/personal'),
+          onTap: () => _handleProgressCardTap(progressData),
           child: Container(
             padding: const EdgeInsets.all(12),
             decoration: BoxDecoration(
@@ -506,6 +516,60 @@ class _DashboardPageState extends State<DashboardPage> with AutomaticKeepAliveCl
     );
   }
   
+  Future<void> _handleProgressCardTap(Map<String, dynamic> progressData) async {
+    try {
+      final forms = await T1FormStorageService.instance.loadAllForms();
+      
+      // If no forms exist, create a new one
+      if (forms.isEmpty) {
+        final newForm = T1FormStorageService.instance.createNewForm();
+        context.go('/tax-forms/personal?formId=${newForm.id}');
+        return;
+      }
+      
+      // Find the most recent draft form
+      final draftForms = forms.where((f) => f.status == 'draft').toList();
+      
+      if (draftForms.isNotEmpty) {
+        // Navigate to the most recent draft
+        final mostRecentDraft = draftForms.reduce((a, b) => 
+          (a.updatedAt ?? DateTime(0)).isAfter(b.updatedAt ?? DateTime(0)) ? a : b);
+        context.go('/tax-forms/personal?formId=${mostRecentDraft.id}');
+      } else {
+        // All forms are submitted, show the filled forms page
+        context.go('/tax-forms/filled-forms');
+      }
+    } catch (e) {
+      // Fallback to creating a new form
+      final newForm = T1FormStorageService.instance.createNewForm();
+      context.go('/tax-forms/personal?formId=${newForm.id}');
+    }
+  }
+  
+  Future<void> _handlePersonalTaxTap() async {
+    try {
+      final forms = await T1FormStorageService.instance.loadAllForms();
+      
+      // Find the most recent draft form
+      final draftForms = forms.where((f) => f.status == 'draft').toList();
+      
+      if (draftForms.isNotEmpty) {
+        // Navigate to the most recent draft
+        final mostRecentDraft = draftForms.reduce((a, b) => 
+          (a.updatedAt ?? DateTime(0)).isAfter(b.updatedAt ?? DateTime(0)) ? a : b);
+        context.go('/tax-forms/personal?formId=${mostRecentDraft.id}');
+      } else {
+        // Create a new form
+        final newForm = T1FormStorageService.instance.createNewForm();
+        context.go('/tax-forms/personal?formId=${newForm.id}');
+      }
+    } catch (e) {
+      // Fallback to creating a new form
+      final newForm = T1FormStorageService.instance.createNewForm();
+      context.go('/tax-forms/personal?formId=${newForm.id}');
+    }
+  }
+  
   Future<Map<String, dynamic>> _getProgressStatus() async {
     try {
       return await T1FormStorageService.instance.getProgressStatus();
@@ -514,6 +578,32 @@ class _DashboardPageState extends State<DashboardPage> with AutomaticKeepAliveCl
         'progress': 0.0,
         'progressText': 'Get Started',
         'isComplete': false,
+      };
+    }
+  }
+  
+  Future<Map<String, int>> _getFormCounts() async {
+    try {
+      final forms = await T1FormStorageService.instance.loadAllForms();
+      int submittedCount = 0;
+      int draftsCount = 0;
+      
+      for (final form in forms) {
+        if (form.status == 'submitted') {
+          submittedCount++;
+        } else if (form.status == 'draft') {
+          draftsCount++;
+        }
+      }
+      
+      return {
+        'submitted': submittedCount,
+        'drafts': draftsCount,
+      };
+    } catch (e) {
+      return {
+        'submitted': 0,
+        'drafts': 0,
       };
     }
   }
@@ -530,28 +620,37 @@ class _DashboardPageState extends State<DashboardPage> with AutomaticKeepAliveCl
           ),
         ),
         const SizedBox(height: 16),
-        Row(
-          children: [
-            Expanded(
-              child: _buildStatCard(
-                icon: Icons.description_outlined,
-                title: 'Forms Filed',
-                value: '2',
-                subtitle: 'This year',
-                color: AppColors.success,
-              ),
-            ),
-            const SizedBox(width: 16),
-            Expanded(
-              child: _buildStatCard(
-                icon: Icons.pending_outlined,
-                title: 'In Progress',
-                value: '1',
-                subtitle: 'Draft saved',
-                color: AppColors.warning,
-              ),
-            ),
-          ],
+        FutureBuilder<Map<String, int>>(
+          future: _getFormCounts(),
+          builder: (context, snapshot) {
+            final formCounts = snapshot.data ?? {'submitted': 0, 'drafts': 0};
+            final submittedCount = formCounts['submitted'] ?? 0;
+            final draftsCount = formCounts['drafts'] ?? 0;
+            
+            return Row(
+              children: [
+                Expanded(
+                  child: _buildStatCard(
+                    icon: Icons.description_outlined,
+                    title: 'Forms Filed',
+                    value: '$submittedCount',
+                    subtitle: 'This year',
+                    color: AppColors.success,
+                  ),
+                ),
+                const SizedBox(width: 16),
+                Expanded(
+                  child: _buildStatCard(
+                    icon: Icons.pending_outlined,
+                    title: 'In Progress',
+                    value: '$draftsCount',
+                    subtitle: 'Draft saved',
+                    color: AppColors.warning,
+                  ),
+                ),
+              ],
+            );
+          },
         ),
       ],
     );
@@ -627,7 +726,14 @@ class _DashboardPageState extends State<DashboardPage> with AutomaticKeepAliveCl
         LayoutBuilder(
           builder: (context, constraints) {
             const spacing = 16.0;
-            final itemWidth = (constraints.maxWidth - spacing) / 2;
+            final availableWidth = constraints.maxWidth;
+            final itemWidth = availableWidth > spacing ? (availableWidth - spacing) / 2 : availableWidth / 2;
+            
+            // Ensure we have positive width
+            if (itemWidth <= 0 || availableWidth <= 0) {
+              return const SizedBox.shrink();
+            }
+            
             return Wrap(
               spacing: spacing,
               runSpacing: spacing,
@@ -638,7 +744,7 @@ class _DashboardPageState extends State<DashboardPage> with AutomaticKeepAliveCl
                     icon: Icons.person_outline,
                     title: 'Personal Tax',
                     subtitle: 'File T1 return',
-                    onTap: () => context.go('/tax-forms/personal'),
+                    onTap: () => _handlePersonalTaxTap(),
                   ),
                 ),
                 SizedBox(
@@ -685,7 +791,11 @@ class _DashboardPageState extends State<DashboardPage> with AutomaticKeepAliveCl
     return GestureDetector(
       onTap: onTap,
       child: Container(
-        padding: const EdgeInsets.all(AppDimensions.spacingMd),
+        constraints: const BoxConstraints(
+          minHeight: 120,
+          maxHeight: 140, // Prevent overflow
+        ),
+        padding: const EdgeInsets.all(AppDimensions.spacingSm),
         decoration: BoxDecoration(
           color: Theme.of(context).cardColor,
           borderRadius: BorderRadius.circular(AppDimensions.radiusLg),
@@ -700,35 +810,45 @@ class _DashboardPageState extends State<DashboardPage> with AutomaticKeepAliveCl
         ),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
+          mainAxisSize: MainAxisSize.min,
           children: [
             Container(
-              width: 48,
-              height: 48,
+              width: 40,
+              height: 40,
               decoration: BoxDecoration(
                 color: AppColors.primary.withOpacity(0.1),
-                borderRadius: BorderRadius.circular(24),
+                borderRadius: BorderRadius.circular(20),
               ),
               child: Icon(
                 icon,
                 color: AppColors.primary,
-                size: 24,
+                size: 20,
               ),
             ),
-            const SizedBox(height: 12),
-            Text(
-              title,
-              style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                fontWeight: FontWeight.w600,
+            const SizedBox(height: 8),
+            Flexible(
+              child: Text(
+                title,
+                style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                  fontWeight: FontWeight.w600,
+                ),
+                textAlign: TextAlign.center,
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
               ),
-              textAlign: TextAlign.center,
             ),
-            const SizedBox(height: 4),
-            Text(
-              subtitle,
-              style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                color: AppColors.grey500,
+            const SizedBox(height: 2),
+            Flexible(
+              child: Text(
+                subtitle,
+                style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                  color: AppColors.grey500,
+                  fontSize: 11,
+                ),
+                textAlign: TextAlign.center,
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
               ),
-              textAlign: TextAlign.center,
             ),
           ],
         ),

@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import '../../../../core/constants/app_colors.dart';
 import '../../../../core/constants/app_dimensions.dart';
+import '../../../../core/utils/smooth_scroll_physics.dart';
+import '../../../../core/utils/responsive.dart';
 import '../../data/models/t1_form_models_simple.dart';
 
 class T1PersonalInfoStep extends StatefulWidget {
@@ -135,9 +137,16 @@ class _T1PersonalInfoStepState extends State<T1PersonalInfoStep> {
 
   @override
   Widget build(BuildContext context) {
-    return SingleChildScrollView(
-      padding: const EdgeInsets.all(AppDimensions.spacingMd),
-      child: Column(
+    return ResponsiveContainer(
+      padding: EdgeInsets.all(Responsive.responsive(
+        context: context,
+        mobile: AppDimensions.spacingMd,
+        tablet: AppDimensions.spacingLg,
+        desktop: AppDimensions.spacingXl,
+      )),
+      child: SingleChildScrollView(
+        physics: const SmoothBouncingScrollPhysics(),
+        child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           // Header
@@ -185,92 +194,66 @@ class _T1PersonalInfoStepState extends State<T1PersonalInfoStep> {
                   ),
                 ),
                 const SizedBox(height: 12),
-                Row(
-                  children: [
-                    Expanded(
-                      child: _buildTextField(
-                        controller: _firstNameController,
-                        label: 'First Name *',
-                        onChanged: (_) => _updatePersonalInfo(),
-                      ),
-                    ),
-                    const SizedBox(width: 12),
-                    Expanded(
-                      child: _buildTextField(
-                        controller: _middleNameController,
-                        label: 'Middle Name',
-                        onChanged: (_) => _updatePersonalInfo(),
-                      ),
-                    ),
-                    const SizedBox(width: 12),
-                    Expanded(
-                      child: _buildTextField(
-                        controller: _lastNameController,
-                        label: 'Last Name *',
-                        onChanged: (_) => _updatePersonalInfo(),
-                      ),
-                    ),
-                  ],
+                _buildTextField(
+                  controller: _firstNameController,
+                  label: 'First Name *',
+                  onChanged: (_) => _updatePersonalInfo(),
                 ),
                 const SizedBox(height: 16),
-                Row(
-                  children: [
-                    Expanded(
-                      child: _buildTextField(
-                        controller: _sinController,
-                        label: 'SIN (Individual) *',
-                        keyboardType: TextInputType.number,
-                        inputFormatters: [
-                          FilteringTextInputFormatter.digitsOnly,
-                          LengthLimitingTextInputFormatter(9),
-                        ],
-                        onChanged: (_) => _updatePersonalInfo(),
-                      ),
-                    ),
-                    const SizedBox(width: 12),
-                    Expanded(
-                      child: _buildDateField(
-                        label: 'Date of Birth *',
-                        date: _dateOfBirth,
-                        onDateChanged: (date) {
-                          setState(() {
-                            _dateOfBirth = date;
-                          });
-                          _updatePersonalInfo();
-                        },
-                      ),
-                    ),
-                  ],
+                _buildTextField(
+                  controller: _middleNameController,
+                  label: 'Middle Name',
+                  onChanged: (_) => _updatePersonalInfo(),
                 ),
                 const SizedBox(height: 16),
+                _buildTextField(
+                  controller: _lastNameController,
+                  label: 'Last Name *',
+                  onChanged: (_) => _updatePersonalInfo(),
+                ),
+                const SizedBox(height: 20),
+                _buildTextField(
+                  controller: _sinController,
+                  label: 'SIN (Individual) *',
+                  keyboardType: TextInputType.number,
+                  inputFormatters: [
+                    FilteringTextInputFormatter.digitsOnly,
+                    LengthLimitingTextInputFormatter(9),
+                  ],
+                  onChanged: (_) => _updatePersonalInfo(),
+                ),
+                const SizedBox(height: 16),
+                _buildDateField(
+                  label: 'Date of Birth *',
+                  date: _dateOfBirth,
+                  onDateChanged: (date) {
+                    setState(() {
+                      _dateOfBirth = date;
+                    });
+                    _updatePersonalInfo();
+                  },
+                ),
+                const SizedBox(height: 20),
                 _buildTextField(
                   controller: _addressController,
                   label: 'Current Address with Postal Code *',
                   onChanged: (_) => _updatePersonalInfo(),
                 ),
-                const SizedBox(height: 16),
-                Row(
-                  children: [
-                    Expanded(
-                      child: _buildTextField(
-                        controller: _phoneController,
-                        label: 'Phone Number *',
-                        keyboardType: TextInputType.phone,
-                        onChanged: (_) => _updatePersonalInfo(),
-                      ),
-                    ),
-                    const SizedBox(width: 12),
-                    Expanded(
-                      child: _buildTextField(
-                        controller: _emailController,
-                        label: 'Email *',
-                        keyboardType: TextInputType.emailAddress,
-                        onChanged: (_) => _updatePersonalInfo(),
-                      ),
-                    ),
-                  ],
+                const SizedBox(height: 20),
+                _buildTextField(
+                  controller: _phoneController,
+                  label: 'Phone Number *',
+                  keyboardType: TextInputType.phone,
+                  onChanged: (_) => _updatePersonalInfo(),
                 ),
                 const SizedBox(height: 16),
+                _buildTextField(
+                  controller: _emailController,
+                  label: 'Email *',
+                  keyboardType: TextInputType.emailAddress,
+                  onChanged: (_) => _updatePersonalInfo(),
+                ),
+                const SizedBox(height: 20),
                 _buildRadioSection(
                   title: 'Are you a Canadian Citizen? *',
                   value: _personalInfo.isCanadianCitizen,
@@ -280,7 +263,7 @@ class _T1PersonalInfoStepState extends State<T1PersonalInfoStep> {
                     setState(() {});
                   },
                 ),
-                const SizedBox(height: 16),
+                const SizedBox(height: 20),
                 _buildDropdownField(
                   label: 'Marital Status *',
                   value: _personalInfo.maritalStatus.isEmpty ? null : _personalInfo.maritalStatus,
@@ -317,62 +300,44 @@ class _T1PersonalInfoStepState extends State<T1PersonalInfoStep> {
                     ),
                   ),
                   const SizedBox(height: 12),
-                  Row(
-                    children: [
-                      Expanded(
-                        child: _buildTextField(
-                          controller: _spouseFirstNameController,
-                          label: 'First Name *',
-                          onChanged: (_) => _updatePersonalInfo(),
-                        ),
-                      ),
-                      const SizedBox(width: 12),
-                      Expanded(
-                        child: _buildTextField(
-                          controller: _spouseMiddleNameController,
-                          label: 'Middle Name',
-                          onChanged: (_) => _updatePersonalInfo(),
-                        ),
-                      ),
-                      const SizedBox(width: 12),
-                      Expanded(
-                        child: _buildTextField(
-                          controller: _spouseLastNameController,
-                          label: 'Last Name *',
-                          onChanged: (_) => _updatePersonalInfo(),
-                        ),
-                      ),
-                    ],
+                  _buildTextField(
+                    controller: _spouseFirstNameController,
+                    label: 'First Name *',
+                    onChanged: (_) => _updatePersonalInfo(),
                   ),
                   const SizedBox(height: 16),
-                  Row(
-                    children: [
-                      Expanded(
-                        child: _buildTextField(
-                          controller: _spouseSinController,
-                          label: 'SIN (Spouse) *',
-                          keyboardType: TextInputType.number,
-                          inputFormatters: [
-                            FilteringTextInputFormatter.digitsOnly,
-                            LengthLimitingTextInputFormatter(9),
-                          ],
-                          onChanged: (_) => _updatePersonalInfo(),
-                        ),
-                      ),
-                      const SizedBox(width: 12),
-                      Expanded(
-                        child: _buildDateField(
-                          label: 'Date of Birth *',
-                          date: _spouseDateOfBirth,
-                          onDateChanged: (date) {
-                            setState(() {
-                              _spouseDateOfBirth = date;
-                            });
-                            _updatePersonalInfo();
-                          },
-                        ),
-                      ),
+                  _buildTextField(
+                    controller: _spouseMiddleNameController,
+                    label: 'Middle Name',
+                    onChanged: (_) => _updatePersonalInfo(),
+                  ),
+                  const SizedBox(height: 16),
+                  _buildTextField(
+                    controller: _spouseLastNameController,
+                    label: 'Last Name *',
+                    onChanged: (_) => _updatePersonalInfo(),
+                  ),
+                  const SizedBox(height: 16),
+                  _buildTextField(
+                    controller: _spouseSinController,
+                    label: 'SIN (Spouse) *',
+                    keyboardType: TextInputType.number,
+                    inputFormatters: [
+                      FilteringTextInputFormatter.digitsOnly,
+                      LengthLimitingTextInputFormatter(9),
                     ],
+                    onChanged: (_) => _updatePersonalInfo(),
+                  ),
+                  const SizedBox(height: 16),
+                  _buildDateField(
+                    label: 'Date of Birth *',
+                    date: _spouseDateOfBirth,
+                    onDateChanged: (date) {
+                      setState(() {
+                        _spouseDateOfBirth = date;
+                      });
+                      _updatePersonalInfo();
+                    },
                   ),
                 ],
               ),
@@ -417,6 +382,7 @@ class _T1PersonalInfoStepState extends State<T1PersonalInfoStep> {
 
           const SizedBox(height: 32),
         ],
+      ),
       ),
     );
   }
@@ -576,9 +542,11 @@ class _T1PersonalInfoStepState extends State<T1PersonalInfoStep> {
       margin: const EdgeInsets.only(bottom: 16),
       padding: const EdgeInsets.all(AppDimensions.spacingMd),
       decoration: BoxDecoration(
-        color: AppColors.grey50,
+        color: Theme.of(context).brightness == Brightness.dark 
+            ? Theme.of(context).colorScheme.surface.withOpacity(0.7)
+            : AppColors.grey50,
         borderRadius: BorderRadius.circular(AppDimensions.radiusMd),
-        border: Border.all(color: AppColors.grey200),
+        border: Border.all(color: Theme.of(context).dividerColor),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -599,59 +567,41 @@ class _T1PersonalInfoStepState extends State<T1PersonalInfoStep> {
             ],
           ),
           const SizedBox(height: 12),
-          Row(
-            children: [
-              Expanded(
-                child: _buildTextField(
-                  controller: firstNameController,
-                  label: 'First Name',
-                  onChanged: (_) => updateChild(),
-                ),
-              ),
-              const SizedBox(width: 12),
-              Expanded(
-                child: _buildTextField(
-                  controller: middleNameController,
-                  label: 'Middle Name',
-                  onChanged: (_) => updateChild(),
-                ),
-              ),
-              const SizedBox(width: 12),
-              Expanded(
-                child: _buildTextField(
-                  controller: lastNameController,
-                  label: 'Last Name',
-                  onChanged: (_) => updateChild(),
-                ),
-              ),
-            ],
+          _buildTextField(
+            controller: firstNameController,
+            label: 'First Name',
+            onChanged: (_) => updateChild(),
           ),
           const SizedBox(height: 16),
-          Row(
-            children: [
-              Expanded(
-                child: _buildTextField(
-                  controller: sinController,
-                  label: 'SIN',
-                  keyboardType: TextInputType.number,
-                  inputFormatters: [
-                    FilteringTextInputFormatter.digitsOnly,
-                    LengthLimitingTextInputFormatter(9),
-                  ],
-                  onChanged: (_) => updateChild(),
-                ),
-              ),
-              const SizedBox(width: 12),
-              Expanded(
-                child: _buildDateField(
-                  label: 'Date of Birth',
-                  date: child.dateOfBirth,
-                  onDateChanged: (date) {
-                    onChildChanged(child.copyWith(dateOfBirth: date));
-                  },
-                ),
-              ),
+          _buildTextField(
+            controller: middleNameController,
+            label: 'Middle Name',
+            onChanged: (_) => updateChild(),
+          ),
+          const SizedBox(height: 16),
+          _buildTextField(
+            controller: lastNameController,
+            label: 'Last Name',
+            onChanged: (_) => updateChild(),
+          ),
+          const SizedBox(height: 16),
+          _buildTextField(
+            controller: sinController,
+            label: 'SIN',
+            keyboardType: TextInputType.number,
+            inputFormatters: [
+              FilteringTextInputFormatter.digitsOnly,
+              LengthLimitingTextInputFormatter(9),
             ],
+            onChanged: (_) => updateChild(),
+          ),
+          const SizedBox(height: 16),
+          _buildDateField(
+            label: 'Date of Birth',
+            date: child.dateOfBirth,
+            onDateChanged: (date) {
+              onChildChanged(child.copyWith(dateOfBirth: date));
+            },
           ),
         ],
       ),

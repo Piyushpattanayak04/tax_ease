@@ -262,6 +262,10 @@ class T1SelfEmployment {
 
 // Main form data class
 class T1FormData {
+  final String id;
+  final String status; // 'draft', 'submitted'
+  final DateTime? createdAt;
+  final DateTime? updatedAt;
   final T1PersonalInfo personalInfo;
   final bool? hasForeignProperty;
   final List<T1ForeignProperty> foreignProperties;
@@ -285,7 +289,11 @@ class T1FormData {
   final bool? hasChildArtSportCredit;
   final bool? isProvinceFiler;
 
-  const T1FormData({
+  T1FormData({
+    this.id = '',
+    this.status = 'draft',
+    DateTime? createdAt,
+    DateTime? updatedAt,
     this.personalInfo = const T1PersonalInfo(),
     this.hasForeignProperty,
     this.foreignProperties = const [],
@@ -308,10 +316,44 @@ class T1FormData {
     this.hasRrspFhsaInvestment,
     this.hasChildArtSportCredit,
     this.isProvinceFiler,
-  });
+  }) : createdAt = createdAt ?? DateTime.now(),
+       updatedAt = updatedAt ?? DateTime.now();
+
+  // Create const empty constructor with placeholder dates
+  const T1FormData.empty()
+      : id = '',
+        status = 'draft',
+        createdAt = null,
+        updatedAt = null,
+        personalInfo = const T1PersonalInfo(),
+        hasForeignProperty = null,
+        foreignProperties = const [],
+        hasMedicalExpenses = null,
+        hasCharitableDonations = null,
+        hasMovingExpenses = null,
+        isSelfEmployed = null,
+        selfEmployment = null,
+        isFirstHomeBuyer = null,
+        soldPropertyLongTerm = null,
+        soldPropertyShortTerm = null,
+        hasWorkFromHomeExpense = null,
+        wasStudentLastYear = null,
+        isUnionMember = null,
+        hasDaycareExpenses = null,
+        isFirstTimeFiler = null,
+        hasOtherIncome = null,
+        otherIncomeDescription = '',
+        hasProfessionalDues = null,
+        hasRrspFhsaInvestment = null,
+        hasChildArtSportCredit = null,
+        isProvinceFiler = null;
 
   factory T1FormData.fromJson(Map<String, dynamic> json) {
     return T1FormData(
+      id: json['id'] ?? '',
+      status: json['status'] ?? 'draft',
+      createdAt: json['createdAt'] != null ? DateTime.parse(json['createdAt']) : DateTime.now(),
+      updatedAt: json['updatedAt'] != null ? DateTime.parse(json['updatedAt']) : DateTime.now(),
       personalInfo: json['personalInfo'] != null 
           ? T1PersonalInfo.fromJson(json['personalInfo']) 
           : const T1PersonalInfo(),
@@ -345,6 +387,10 @@ class T1FormData {
 
   Map<String, dynamic> toJson() {
     return {
+      'id': id,
+      'status': status,
+      'createdAt': createdAt?.toIso8601String(),
+      'updatedAt': updatedAt?.toIso8601String(),
       'personalInfo': personalInfo.toJson(),
       'hasForeignProperty': hasForeignProperty,
       'foreignProperties': foreignProperties.map((e) => e.toJson()).toList(),
@@ -371,6 +417,10 @@ class T1FormData {
   }
 
   T1FormData copyWith({
+    String? id,
+    String? status,
+    DateTime? createdAt,
+    DateTime? updatedAt,
     T1PersonalInfo? personalInfo,
     bool? hasForeignProperty,
     List<T1ForeignProperty>? foreignProperties,
@@ -395,6 +445,10 @@ class T1FormData {
     bool? isProvinceFiler,
   }) {
     return T1FormData(
+      id: id ?? this.id,
+      status: status ?? this.status,
+      createdAt: createdAt ?? this.createdAt,
+      updatedAt: updatedAt ?? DateTime.now(), // Always update the timestamp
       personalInfo: personalInfo ?? this.personalInfo,
       hasForeignProperty: hasForeignProperty ?? this.hasForeignProperty,
       foreignProperties: foreignProperties ?? this.foreignProperties,

@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import '../../../../core/constants/app_colors.dart';
 import '../../../../core/constants/app_dimensions.dart';
+import '../../../../core/utils/smooth_scroll_physics.dart';
+import '../../../../core/utils/responsive.dart';
 import '../../../../shared/animations/smooth_animations.dart';
 
 class TaxFormsPage extends StatelessWidget {
@@ -14,9 +16,17 @@ class TaxFormsPage extends StatelessWidget {
         title: const Text('Tax Forms'),
         automaticallyImplyLeading: false,
       ),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.all(AppDimensions.screenPadding),
-        child: Column(
+      body: ResponsiveContainer(
+        centerContent: false,
+        padding: EdgeInsets.all(Responsive.responsive(
+          context: context,
+          mobile: AppDimensions.screenPadding,
+          tablet: AppDimensions.screenPaddingLarge,
+          desktop: AppDimensions.spacingXl,
+        )),
+        child: SingleChildScrollView(
+          physics: const SmoothBouncingScrollPhysics(),
+          child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             SmoothAnimations.slideUp(
@@ -35,7 +45,7 @@ class TaxFormsPage extends StatelessWidget {
                 icon: Icons.person_outline,
                 title: 'Personal Tax Filing (T1)',
                 subtitle: 'File your individual tax return',
-                onTap: () => context.go('/tax-forms/personal'),
+                onTap: () => context.go('/tax-forms/filled-forms'),
               ),
             ),
             const SizedBox(height: 16),
@@ -50,6 +60,7 @@ class TaxFormsPage extends StatelessWidget {
               ),
             ),
           ],
+        ),
         ),
       ),
     );

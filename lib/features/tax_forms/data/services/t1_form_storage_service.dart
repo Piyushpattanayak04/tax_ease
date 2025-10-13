@@ -7,6 +7,7 @@ class T1FormStorageService {
   static const String _t1FormDataKey = 'T1_FORM_DATA';
   static const String _t1FormProgressKey = 'T1_FORM_PROGRESS';
   static const String _t1FormLastSavedKey = 'T1_FORM_LAST_SAVED';
+  static const String _t1FormsListKey = 'T1_FORMS_LIST'; // New key for multiple forms
 
   static T1FormStorageService? _instance;
   static T1FormStorageService get instance {
@@ -17,6 +18,91 @@ class T1FormStorageService {
   final Logger _logger = Logger();
 
   T1FormStorageService._();
+
+  /// Create a new T1 form with unique ID
+  T1FormData createNewForm() {
+    final id = 'T1_${DateTime.now().millisecondsSinceEpoch}';
+    return T1FormData(
+      id: id,
+      status: 'draft',
+      createdAt: DateTime.now(),
+      updatedAt: DateTime.now(),
+    );
+  }
+
+  /// Save multiple forms to SharedPreferences
+  Future<bool> saveAllForms(List<T1FormData> forms) async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      final jsonList = forms.map((form) => form.toJson()).toList();
+      final jsonString = json.encode(jsonList);
+      
+      await prefs.setString(_t1FormsListKey, jsonString);
+      return true;
+    } catch (e) {
+      _logger.e('Error saving T1 forms: $e');
+      return false;
+    }
+  }
+
+  /// Load all T1 forms from SharedPreferences
+  Future<List<T1FormData>> loadAllForms() async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      final jsonString = prefs.getString(_t1FormsListKey);
+      
+      if (jsonString == null) {
+        // Try to migrate old single form to new format
+        final oldForm = await loadT1FormData();
+        if (oldForm != null) {
+          final migratedForm = oldForm.copyWith(
+            id: oldForm.id.isEmpty ? 'T1_${DateTime.now().millisecondsSinceEpoch}' : oldForm.id,
+          );
+          await saveAllForms([migratedForm]);
+          return [migratedForm];
+        }
+        return [];
+      }
+      
+      final jsonList = json.decode(jsonString) as List;
+      return jsonList.map((json) => T1FormData.fromJson(json)).toList();
+    } catch (e) {
+      _logger.e('Error loading T1 forms: $e');
+      return [];
+    }
+  }
+
+  /// Save a specific form (update existing or add new)
+  Future<bool> saveForm(T1FormData form) async {
+    try {
+      final forms = await loadAllForms();
+      final index = forms.indexWhere((f) => f.id == form.id);
+      
+      if (index >= 0) {
+        // Update existing form
+        forms[index] = form;
+      } else {
+        // Add new form
+        forms.add(form);
+      }
+      
+      return await saveAllForms(forms);
+    } catch (e) {
+      _logger.e('Error saving form: $e');
+      return false;
+    }
+  }
+
+  /// Get a form by ID
+  Future<T1FormData?> getFormById(String id) async {
+    try {
+      final forms = await loadAllForms();
+      return forms.firstWhere((form) => form.id == id);
+    } catch (e) {
+      _logger.e('Error getting form by ID: $e');
+      return null;
+    }
+  }
 
   /// Save T1 form data to SharedPreferences
   Future<bool> saveT1FormData(T1FormData formData) async {
@@ -209,17 +295,68 @@ class T1FormStorageService {
     }
   }
 
-  /// Get progress status for dashboard
+  /// Get progress status for dashboard based on multiple forms
   Future<Map<String, dynamic>> getProgressStatus() async {
-    final progress = await getFormProgress();
-    final lastSaved = await getLastSavedDate();
-    final isComplete = progress >= 1.0;
-    
-    return {
-      'progress': progress,
-      'progressText': getProgressStatusText(progress),
-      'lastSaved': lastSaved,
-      'isComplete': isComplete,
-    };
+    try {
+      final forms = await loadAllForms();
+      
+      // If no forms exist, show "Get Started"
+      if (forms.isEmpty) {
+        return {
+          'progress': 0.0,
+          'progressText': 'Get Started',
+          'lastSaved': null,
+          'isComplete': false,
+        };
+      }
+      
+      // Separate forms by status
+      final draftForms = forms.where((f) => f.status == 'draft').toList();
+      final submittedForms = forms.where((f) => f.status == 'submitted').toList();
+      
+      // If all forms are submitted, show "under review"
+      if (draftForms.isEmpty && submittedForms.isNotEmpty) {
+        final mostRecent = submittedForms.reduce((a, b) => 
+          (a.updatedAt ?? DateTime(0)).isAfter(b.updatedAt ?? DateTime(0)) ? a : b);
+        
+        return {
+          'progress': 1.0,
+          'progressText': 'Form submitted, under review',
+          'lastSaved': mostRecent.updatedAt,
+          'isComplete': true,
+        };
+      }
+      
+      // If there are draft forms, show progress of most recent draft
+      if (draftForms.isNotEmpty) {
+        final mostRecentDraft = draftForms.reduce((a, b) => 
+          (a.updatedAt ?? DateTime(0)).isAfter(b.updatedAt ?? DateTime(0)) ? a : b);
+        
+        final progress = calculateFormProgress(mostRecentDraft);
+        
+        return {
+          'progress': progress,
+          'progressText': getProgressStatusText(progress),
+          'lastSaved': mostRecentDraft.updatedAt,
+          'isComplete': progress >= 1.0,
+        };
+      }
+      
+      // Fallback (shouldn't reach here)
+      return {
+        'progress': 0.0,
+        'progressText': 'Get Started',
+        'lastSaved': null,
+        'isComplete': false,
+      };
+    } catch (e) {
+      _logger.e('Error getting progress status: $e');
+      return {
+        'progress': 0.0,
+        'progressText': 'Get Started',
+        'lastSaved': null,
+        'isComplete': false,
+      };
+    }
   }
 }

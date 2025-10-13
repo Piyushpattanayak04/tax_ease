@@ -13,6 +13,7 @@ import '../../features/tax_forms/presentation/pages/tax_forms_page.dart';
 import '../../features/tax_forms/presentation/pages/personal_tax_form_page.dart';
 import '../../features/tax_forms/presentation/pages/business_tax_form_page.dart';
 import '../../features/tax_forms/presentation/pages/form_review_page.dart';
+import '../../features/tax_forms/presentation/pages/filled_forms_page.dart';
 import '../../features/documents/presentation/pages/documents_page.dart';
 import '../../features/documents/presentation/pages/upload_documents_page.dart';
 import '../../features/filing/presentation/pages/filing_status_page.dart';
@@ -144,9 +145,20 @@ class AppRouter {
       
       // Tax Form Sub-routes (full screen)
       GoRoute(
+        path: '/tax-forms/filled-forms',
+        name: 'filled-forms',
+        pageBuilder: (context, state) {
+          final shouldRefresh = state.uri.queryParameters['refresh'] == 'true';
+          return _page(FilledFormsPage(shouldRefresh: shouldRefresh));
+        },
+      ),
+      GoRoute(
         path: '/tax-forms/personal',
         name: 'personal-tax-form',
-        pageBuilder: (context, state) => _page(const PersonalTaxFormPage()),
+        pageBuilder: (context, state) {
+          final formId = state.uri.queryParameters['formId'];
+          return _page(PersonalTaxFormPage(formId: formId));
+        },
       ),
       GoRoute(
         path: '/tax-forms/business',
@@ -253,6 +265,7 @@ class Routes {
   static const String otpVerification = '/otp-verification';
   static const String home = '/home';
   static const String taxForms = '/tax-forms';
+  static const String filledForms = '/tax-forms/filled-forms';
   static const String personalTaxForm = '/tax-forms/personal';
   static const String businessTaxForm = '/tax-forms/business';
   static const String formReview = '/tax-forms/review';

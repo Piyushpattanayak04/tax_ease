@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import '../../../../core/constants/app_colors.dart';
 import '../../../../core/constants/app_dimensions.dart';
+import '../../../../core/utils/smooth_scroll_physics.dart';
+import '../../../../core/utils/responsive.dart';
 import '../../../../shared/animations/smooth_animations.dart';
 
 class SignupPage extends StatefulWidget {
@@ -46,9 +48,16 @@ class _SignupPageState extends State<SignupPage> {
         title: const Text('Create Account'),
       ),
       body: SafeArea(
-        child: SingleChildScrollView(
-          padding: const EdgeInsets.all(AppDimensions.screenPadding),
-          child: Column(
+        child: ResponsiveContainer(
+          padding: EdgeInsets.all(Responsive.responsive(
+            context: context,
+            mobile: AppDimensions.screenPadding,
+            tablet: AppDimensions.screenPaddingLarge,
+            desktop: AppDimensions.spacingXl,
+          )),
+          child: SingleChildScrollView(
+            physics: const SmoothBouncingScrollPhysics(),
+            child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               const SizedBox(height: 20),
@@ -365,6 +374,7 @@ class _SignupPageState extends State<SignupPage> {
               const SizedBox(height: 20),
             ],
           ),
+        ),
         ),
       ),
     );

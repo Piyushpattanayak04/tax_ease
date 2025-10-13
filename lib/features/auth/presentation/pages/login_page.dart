@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import '../../../../core/constants/app_colors.dart';
 import '../../../../core/constants/app_dimensions.dart';
+import '../../../../core/utils/smooth_scroll_physics.dart';
+import '../../../../core/utils/responsive.dart';
 import '../../../../core/theme/theme_controller.dart';
 import '../../../../shared/animations/smooth_animations.dart';
 
@@ -37,9 +39,16 @@ class _LoginPageState extends State<LoginPage> {
         title: const Text('Sign In'),
       ),
       body: SafeArea(
-        child: SingleChildScrollView(
-          padding: const EdgeInsets.all(AppDimensions.screenPadding),
-          child: Column(
+        child: ResponsiveContainer(
+          padding: EdgeInsets.all(Responsive.responsive(
+            context: context,
+            mobile: AppDimensions.screenPadding,
+            tablet: AppDimensions.screenPaddingLarge,
+            desktop: AppDimensions.spacingXl,
+          )),
+          child: SingleChildScrollView(
+            physics: const SmoothBouncingScrollPhysics(),
+            child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               const SizedBox(height: 20),
@@ -255,6 +264,7 @@ class _LoginPageState extends State<LoginPage> {
               const SizedBox(height: 20),
             ],
           ),
+        ),
         ),
       ),
     );

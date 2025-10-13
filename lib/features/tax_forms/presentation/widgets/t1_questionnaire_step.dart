@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import '../../../../core/constants/app_colors.dart';
 import '../../../../core/constants/app_dimensions.dart';
+import '../../../../core/utils/smooth_scroll_physics.dart';
+import '../../../../core/utils/responsive.dart';
 import '../../data/models/t1_form_models_simple.dart';
 
 class T1QuestionnaireStep extends StatefulWidget {
@@ -40,9 +42,16 @@ class _T1QuestionnaireStepState extends State<T1QuestionnaireStep> {
 
   @override
   Widget build(BuildContext context) {
-    return SingleChildScrollView(
-      padding: const EdgeInsets.all(AppDimensions.spacingMd),
-      child: Column(
+    return ResponsiveContainer(
+      padding: EdgeInsets.all(Responsive.responsive(
+        context: context,
+        mobile: AppDimensions.spacingMd,
+        tablet: AppDimensions.spacingLg,
+        desktop: AppDimensions.spacingXl,
+      )),
+      child: SingleChildScrollView(
+        physics: const SmoothBouncingScrollPhysics(),
+        child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           // Header
@@ -122,26 +131,24 @@ class _T1QuestionnaireStepState extends State<T1QuestionnaireStep> {
           const SizedBox(height: 32),
 
           // Navigation Buttons
-          Row(
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              Expanded(
-                child: OutlinedButton(
-                  onPressed: widget.onPrevious,
-                  child: const Text('Previous: Personal Info'),
-                ),
+              ElevatedButton(
+                onPressed: widget.onSubmit,
+                child: const Text('Submit Form'),
               ),
-              const SizedBox(width: 16),
-              Expanded(
-                child: ElevatedButton(
-                  onPressed: widget.onSubmit,
-                  child: const Text('Submit Form'),
-                ),
+              const SizedBox(height: 12),
+              OutlinedButton(
+                onPressed: widget.onPrevious,
+                child: const Text('Previous: Personal Info'),
               ),
             ],
           ),
 
           const SizedBox(height: 32),
         ],
+      ),
       ),
     );
   }
@@ -329,43 +336,34 @@ class _T1QuestionnaireStepState extends State<T1QuestionnaireStep> {
         Container(
           padding: const EdgeInsets.all(12),
           decoration: BoxDecoration(
-            color: AppColors.grey50,
+            color: Theme.of(context).brightness == Brightness.dark 
+                ? Theme.of(context).colorScheme.surface.withOpacity(0.7)
+                : AppColors.grey50,
             borderRadius: BorderRadius.circular(8),
-            border: Border.all(color: AppColors.grey200),
+            border: Border.all(color: Theme.of(context).dividerColor),
           ),
           child: Column(
             children: [
-              Row(
-                children: [
-                  Expanded(
-                    flex: 2,
-                    child: _buildTextField(
-                      label: 'Investment Details',
-                      onChanged: (value) {
-                        // Update foreign property
-                      },
-                    ),
-                  ),
-                  const SizedBox(width: 8),
-                  Expanded(
-                    child: _buildTextField(
-                      label: 'Gross Income',
-                      keyboardType: TextInputType.number,
-                      onChanged: (value) {
-                        // Update foreign property
-                      },
-                    ),
-                  ),
-                  const SizedBox(width: 8),
-                  Expanded(
-                    child: _buildTextField(
-                      label: 'Country',
-                      onChanged: (value) {
-                        // Update foreign property
-                      },
-                    ),
-                  ),
-                ],
+              _buildTextField(
+                label: 'Investment Details',
+                onChanged: (value) {
+                  // Update foreign property
+                },
+              ),
+              const SizedBox(height: 12),
+              _buildTextField(
+                label: 'Gross Income',
+                keyboardType: TextInputType.number,
+                onChanged: (value) {
+                  // Update foreign property
+                },
+              ),
+              const SizedBox(height: 12),
+              _buildTextField(
+                label: 'Country',
+                onChanged: (value) {
+                  // Update foreign property
+                },
               ),
               const SizedBox(height: 12),
               OutlinedButton.icon(
@@ -402,43 +400,35 @@ class _T1QuestionnaireStepState extends State<T1QuestionnaireStep> {
     return Container(
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
-        color: AppColors.grey50,
+        color: Theme.of(context).brightness == Brightness.dark 
+            ? Theme.of(context).colorScheme.surface.withOpacity(0.7)
+            : AppColors.grey50,
         borderRadius: BorderRadius.circular(8),
-        border: Border.all(color: AppColors.grey200),
+        border: Border.all(color: Theme.of(context).dividerColor),
       ),
       child: Column(
         children: [
-          Row(
-            children: [
-              Expanded(
-                child: _buildDateField(
-                  label: 'Payment Date',
-                  date: null,
-                  onChanged: (date) {
-                    // Update medical expense
-                  },
-                ),
-              ),
-              const SizedBox(width: 8),
-              Expanded(
-                child: _buildTextField(
-                  label: 'Patient Name',
-                  onChanged: (value) {
-                    // Update medical expense
-                  },
-                ),
-              ),
-              const SizedBox(width: 8),
-              Expanded(
-                child: _buildTextField(
-                  label: 'Amount Paid',
-                  keyboardType: TextInputType.number,
-                  onChanged: (value) {
-                    // Update medical expense
-                  },
-                ),
-              ),
-            ],
+          _buildDateField(
+            label: 'Payment Date',
+            date: null,
+            onChanged: (date) {
+              // Update medical expense
+            },
+          ),
+          const SizedBox(height: 12),
+          _buildTextField(
+            label: 'Patient Name',
+            onChanged: (value) {
+              // Update medical expense
+            },
+          ),
+          const SizedBox(height: 12),
+          _buildTextField(
+            label: 'Amount Paid',
+            keyboardType: TextInputType.number,
+            onChanged: (value) {
+              // Update medical expense
+            },
           ),
           const SizedBox(height: 12),
           OutlinedButton.icon(
@@ -473,34 +463,27 @@ class _T1QuestionnaireStepState extends State<T1QuestionnaireStep> {
     return Container(
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
-        color: AppColors.grey50,
+        color: Theme.of(context).brightness == Brightness.dark 
+            ? Theme.of(context).colorScheme.surface.withOpacity(0.7)
+            : AppColors.grey50,
         borderRadius: BorderRadius.circular(8),
-        border: Border.all(color: AppColors.grey200),
+        border: Border.all(color: Theme.of(context).dividerColor),
       ),
       child: Column(
         children: [
-          Row(
-            children: [
-              Expanded(
-                flex: 2,
-                child: _buildTextField(
-                  label: 'Organization Name',
-                  onChanged: (value) {
-                    // Update charitable donation
-                  },
-                ),
-              ),
-              const SizedBox(width: 8),
-              Expanded(
-                child: _buildTextField(
-                  label: 'Amount Paid',
-                  keyboardType: TextInputType.number,
-                  onChanged: (value) {
-                    // Update charitable donation
-                  },
-                ),
-              ),
-            ],
+          _buildTextField(
+            label: 'Organization Name',
+            onChanged: (value) {
+              // Update charitable donation
+            },
+          ),
+          const SizedBox(height: 12),
+          _buildTextField(
+            label: 'Amount Paid',
+            keyboardType: TextInputType.number,
+            onChanged: (value) {
+              // Update charitable donation
+            },
           ),
           const SizedBox(height: 12),
           OutlinedButton.icon(
@@ -548,9 +531,9 @@ class _T1QuestionnaireStepState extends State<T1QuestionnaireStep> {
     return Container(
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
-        color: AppColors.grey50,
+        color: Theme.of(context).brightness == Brightness.dark ? Theme.of(context).colorScheme.surface.withOpacity(0.7) : AppColors.grey50,
         borderRadius: BorderRadius.circular(8),
-        border: Border.all(color: AppColors.grey200),
+        border: Border.all(color: Theme.of(context).dividerColor),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -570,50 +553,34 @@ class _T1QuestionnaireStepState extends State<T1QuestionnaireStep> {
             ),
           ),
           const SizedBox(height: 12),
-          Row(
-            children: [
-              Expanded(
-                child: _buildTextField(
-                  label: 'Old Address',
-                  onChanged: (value) {
-                    // Update moving expenses
-                  },
-                ),
-              ),
-              const SizedBox(width: 8),
-              Expanded(
-                child: _buildTextField(
-                  label: 'New Address',
-                  onChanged: (value) {
-                    // Update moving expenses
-                  },
-                ),
-              ),
-            ],
+          _buildTextField(
+            label: 'Old Address',
+            onChanged: (value) {
+              // Update moving expenses
+            },
           ),
           const SizedBox(height: 12),
-          Row(
-            children: [
-              Expanded(
-                child: _buildTextField(
-                  label: 'Air Ticket Cost',
-                  keyboardType: TextInputType.number,
-                  onChanged: (value) {
-                    // Update moving expenses
-                  },
-                ),
-              ),
-              const SizedBox(width: 8),
-              Expanded(
-                child: _buildTextField(
-                  label: 'Moving Cost',
-                  keyboardType: TextInputType.number,
-                  onChanged: (value) {
-                    // Update moving expenses
-                  },
-                ),
-              ),
-            ],
+          _buildTextField(
+            label: 'New Address',
+            onChanged: (value) {
+              // Update moving expenses
+            },
+          ),
+          const SizedBox(height: 12),
+          _buildTextField(
+            label: 'Air Ticket Cost',
+            keyboardType: TextInputType.number,
+            onChanged: (value) {
+              // Update moving expenses
+            },
+          ),
+          const SizedBox(height: 12),
+          _buildTextField(
+            label: 'Moving Cost',
+            keyboardType: TextInputType.number,
+            onChanged: (value) {
+              // Update moving expenses
+            },
           ),
         ],
       ),
@@ -640,9 +607,9 @@ class _T1QuestionnaireStepState extends State<T1QuestionnaireStep> {
     return Container(
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
-        color: AppColors.grey50,
+        color: Theme.of(context).brightness == Brightness.dark ? Theme.of(context).colorScheme.surface.withOpacity(0.7) : AppColors.grey50,
         borderRadius: BorderRadius.circular(8),
-        border: Border.all(color: AppColors.grey200),
+        border: Border.all(color: Theme.of(context).dividerColor),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -654,29 +621,36 @@ class _T1QuestionnaireStepState extends State<T1QuestionnaireStep> {
             ),
           ),
           const SizedBox(height: 8),
-          Row(
+          Column(
             children: [
-              Radio<String>(
-                value: 'uber',
-                groupValue: _formData.selfEmployment?.businessType ?? '',
-                onChanged: (value) {
-                  _updateFormData(_formData.copyWith(
-                    selfEmployment: T1SelfEmployment(businessType: value ?? ''),
-                  ));
-                },
+              Row(
+                children: [
+                  Radio<String>(
+                    value: 'uber',
+                    groupValue: _formData.selfEmployment?.businessType ?? '',
+                    onChanged: (value) {
+                      _updateFormData(_formData.copyWith(
+                        selfEmployment: T1SelfEmployment(businessType: value ?? ''),
+                      ));
+                    },
+                  ),
+                  const Expanded(child: Text('Uber/Skip/Doordash')),
+                ],
               ),
-              const Text('Uber/Skip/Doordash'),
-              const SizedBox(width: 24),
-              Radio<String>(
-                value: 'general',
-                groupValue: _formData.selfEmployment?.businessType ?? '',
-                onChanged: (value) {
-                  _updateFormData(_formData.copyWith(
-                    selfEmployment: T1SelfEmployment(businessType: value ?? ''),
-                  ));
-                },
+              Row(
+                children: [
+                  Radio<String>(
+                    value: 'general',
+                    groupValue: _formData.selfEmployment?.businessType ?? '',
+                    onChanged: (value) {
+                      _updateFormData(_formData.copyWith(
+                        selfEmployment: T1SelfEmployment(businessType: value ?? ''),
+                      ));
+                    },
+                  ),
+                  const Expanded(child: Text('General Business')),
+                ],
               ),
-              const Text('General Business'),
             ],
           ),
           Row(
@@ -720,27 +694,19 @@ class _T1QuestionnaireStepState extends State<T1QuestionnaireStep> {
           ),
         ),
         const SizedBox(height: 12),
-        Row(
-          children: [
-            Expanded(
-              child: _buildTextField(
-                label: 'Statement Details',
-                onChanged: (value) {
-                  // Update uber business
-                },
-              ),
-            ),
-            const SizedBox(width: 8),
-            Expanded(
-              child: _buildTextField(
-                label: 'Basic Income',
-                keyboardType: TextInputType.number,
-                onChanged: (value) {
-                  // Update uber business
-                },
-              ),
-            ),
-          ],
+        _buildTextField(
+          label: 'Statement Details',
+          onChanged: (value) {
+            // Update uber business
+          },
+        ),
+        const SizedBox(height: 12),
+        _buildTextField(
+          label: 'Basic Income',
+          keyboardType: TextInputType.number,
+          onChanged: (value) {
+            // Update uber business
+          },
         ),
       ],
     );
@@ -757,26 +723,18 @@ class _T1QuestionnaireStepState extends State<T1QuestionnaireStep> {
           ),
         ),
         const SizedBox(height: 12),
-        Row(
-          children: [
-            Expanded(
-              child: _buildTextField(
-                label: 'Client Name',
-                onChanged: (value) {
-                  // Update general business
-                },
-              ),
-            ),
-            const SizedBox(width: 8),
-            Expanded(
-              child: _buildTextField(
-                label: 'Business Name',
-                onChanged: (value) {
-                  // Update general business
-                },
-              ),
-            ),
-          ],
+        _buildTextField(
+          label: 'Client Name',
+          onChanged: (value) {
+            // Update general business
+          },
+        ),
+        const SizedBox(height: 12),
+        _buildTextField(
+          label: 'Business Name',
+          onChanged: (value) {
+            // Update general business
+          },
         ),
       ],
     );
@@ -793,27 +751,19 @@ class _T1QuestionnaireStepState extends State<T1QuestionnaireStep> {
           ),
         ),
         const SizedBox(height: 12),
-        Row(
-          children: [
-            Expanded(
-              child: _buildTextField(
-                label: 'Property Address',
-                onChanged: (value) {
-                  // Update rental income
-                },
-              ),
-            ),
-            const SizedBox(width: 8),
-            Expanded(
-              child: _buildTextField(
-                label: 'Gross Rental Income',
-                keyboardType: TextInputType.number,
-                onChanged: (value) {
-                  // Update rental income
-                },
-              ),
-            ),
-          ],
+        _buildTextField(
+          label: 'Property Address',
+          onChanged: (value) {
+            // Update rental income
+          },
+        ),
+        const SizedBox(height: 12),
+        _buildTextField(
+          label: 'Gross Rental Income',
+          keyboardType: TextInputType.number,
+          onChanged: (value) {
+            // Update rental income
+          },
         ),
       ],
     );
@@ -868,9 +818,9 @@ class _T1QuestionnaireStepState extends State<T1QuestionnaireStep> {
     return Container(
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
-        color: AppColors.grey50,
+        color: Theme.of(context).brightness == Brightness.dark ? Theme.of(context).colorScheme.surface.withOpacity(0.7) : AppColors.grey50,
         borderRadius: BorderRadius.circular(8),
-        border: Border.all(color: AppColors.grey200),
+        border: Border.all(color: Theme.of(context).dividerColor),
       ),
       child: Column(
         children: [
@@ -881,55 +831,39 @@ class _T1QuestionnaireStepState extends State<T1QuestionnaireStep> {
             },
           ),
           const SizedBox(height: 12),
-          Row(
-            children: [
-              Expanded(
-                child: _buildDateField(
-                  label: 'Purchase Date',
-                  date: null,
-                  onChanged: (date) {
-                    // Update property sale
-                  },
-                ),
-              ),
-              const SizedBox(width: 8),
-              Expanded(
-                child: _buildDateField(
-                  label: 'Sell Date',
-                  date: null,
-                  onChanged: (date) {
-                    // Update property sale
-                  },
-                ),
-              ),
-            ],
+          _buildDateField(
+            label: 'Purchase Date',
+            date: null,
+            onChanged: (date) {
+              // Update property sale
+            },
           ),
           const SizedBox(height: 12),
-          Row(
-            children: [
-              Expanded(
-                child: _buildTextField(
-                  label: 'Purchase & Sell Expenses',
-                  keyboardType: TextInputType.number,
-                  onChanged: (value) {
-                    // Update property sale
-                  },
-                ),
-              ),
-              if (isLongTerm) ...[
-                const SizedBox(width: 8),
-                Expanded(
-                  child: _buildTextField(
-                    label: 'Capital Gain Earned',
-                    keyboardType: TextInputType.number,
-                    onChanged: (value) {
-                      // Update property sale
-                    },
-                  ),
-                ),
-              ],
-            ],
+          _buildDateField(
+            label: 'Sell Date',
+            date: null,
+            onChanged: (date) {
+              // Update property sale
+            },
           ),
+          const SizedBox(height: 12),
+          _buildTextField(
+            label: 'Purchase & Sell Expenses',
+            keyboardType: TextInputType.number,
+            onChanged: (value) {
+              // Update property sale
+            },
+          ),
+          if (isLongTerm) ...[
+            const SizedBox(height: 12),
+            _buildTextField(
+              label: 'Capital Gain Earned',
+              keyboardType: TextInputType.number,
+              onChanged: (value) {
+                // Update property sale
+              },
+            ),
+          ],
         ],
       ),
     );
@@ -955,58 +889,42 @@ class _T1QuestionnaireStepState extends State<T1QuestionnaireStep> {
     return Container(
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
-        color: AppColors.grey50,
+        color: Theme.of(context).brightness == Brightness.dark ? Theme.of(context).colorScheme.surface.withOpacity(0.7) : AppColors.grey50,
         borderRadius: BorderRadius.circular(8),
-        border: Border.all(color: AppColors.grey200),
+        border: Border.all(color: Theme.of(context).dividerColor),
       ),
       child: Column(
         children: [
-          Row(
-            children: [
-              Expanded(
-                child: _buildTextField(
-                  label: 'Total House Area (Sq.Ft.)',
-                  keyboardType: TextInputType.number,
-                  onChanged: (value) {
-                    // Update work from home
-                  },
-                ),
-              ),
-              const SizedBox(width: 8),
-              Expanded(
-                child: _buildTextField(
-                  label: 'Work Area (Sq.Ft.)',
-                  keyboardType: TextInputType.number,
-                  onChanged: (value) {
-                    // Update work from home
-                  },
-                ),
-              ),
-            ],
+          _buildTextField(
+            label: 'Total House Area (Sq.Ft.)',
+            keyboardType: TextInputType.number,
+            onChanged: (value) {
+              // Update work from home
+            },
           ),
           const SizedBox(height: 12),
-          Row(
-            children: [
-              Expanded(
-                child: _buildTextField(
-                  label: 'Rent/Mortgage Expense',
-                  keyboardType: TextInputType.number,
-                  onChanged: (value) {
-                    // Update work from home
-                  },
-                ),
-              ),
-              const SizedBox(width: 8),
-              Expanded(
-                child: _buildTextField(
-                  label: 'Utilities Expense',
-                  keyboardType: TextInputType.number,
-                  onChanged: (value) {
-                    // Update work from home
-                  },
-                ),
-              ),
-            ],
+          _buildTextField(
+            label: 'Work Area (Sq.Ft.)',
+            keyboardType: TextInputType.number,
+            onChanged: (value) {
+              // Update work from home
+            },
+          ),
+          const SizedBox(height: 12),
+          _buildTextField(
+            label: 'Rent/Mortgage Expense',
+            keyboardType: TextInputType.number,
+            onChanged: (value) {
+              // Update work from home
+            },
+          ),
+          const SizedBox(height: 12),
+          _buildTextField(
+            label: 'Utilities Expense',
+            keyboardType: TextInputType.number,
+            onChanged: (value) {
+              // Update work from home
+            },
           ),
         ],
       ),
@@ -1046,33 +964,25 @@ class _T1QuestionnaireStepState extends State<T1QuestionnaireStep> {
     return Container(
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
-        color: AppColors.grey50,
+        color: Theme.of(context).brightness == Brightness.dark ? Theme.of(context).colorScheme.surface.withOpacity(0.7) : AppColors.grey50,
         borderRadius: BorderRadius.circular(8),
-        border: Border.all(color: AppColors.grey200),
+        border: Border.all(color: Theme.of(context).dividerColor),
       ),
       child: Column(
         children: [
-          Row(
-            children: [
-              Expanded(
-                child: _buildTextField(
-                  label: 'Institution Name',
-                  onChanged: (value) {
-                    // Update union dues
-                  },
-                ),
-              ),
-              const SizedBox(width: 8),
-              Expanded(
-                child: _buildTextField(
-                  label: 'Amount',
-                  keyboardType: TextInputType.number,
-                  onChanged: (value) {
-                    // Update union dues
-                  },
-                ),
-              ),
-            ],
+          _buildTextField(
+            label: 'Institution Name',
+            onChanged: (value) {
+              // Update union dues
+            },
+          ),
+          const SizedBox(height: 12),
+          _buildTextField(
+            label: 'Amount',
+            keyboardType: TextInputType.number,
+            onChanged: (value) {
+              // Update union dues
+            },
           ),
           const SizedBox(height: 12),
           OutlinedButton.icon(
@@ -1107,33 +1017,25 @@ class _T1QuestionnaireStepState extends State<T1QuestionnaireStep> {
     return Container(
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
-        color: AppColors.grey50,
+        color: Theme.of(context).brightness == Brightness.dark ? Theme.of(context).colorScheme.surface.withOpacity(0.7) : AppColors.grey50,
         borderRadius: BorderRadius.circular(8),
-        border: Border.all(color: AppColors.grey200),
+        border: Border.all(color: Theme.of(context).dividerColor),
       ),
       child: Column(
         children: [
-          Row(
-            children: [
-              Expanded(
-                child: _buildTextField(
-                  label: 'Childcare Provider',
-                  onChanged: (value) {
-                    // Update daycare expenses
-                  },
-                ),
-              ),
-              const SizedBox(width: 8),
-              Expanded(
-                child: _buildTextField(
-                  label: 'Amount',
-                  keyboardType: TextInputType.number,
-                  onChanged: (value) {
-                    // Update daycare expenses
-                  },
-                ),
-              ),
-            ],
+          _buildTextField(
+            label: 'Childcare Provider',
+            onChanged: (value) {
+              // Update daycare expenses
+            },
+          ),
+          const SizedBox(height: 12),
+          _buildTextField(
+            label: 'Amount',
+            keyboardType: TextInputType.number,
+            onChanged: (value) {
+              // Update daycare expenses
+            },
           ),
           const SizedBox(height: 12),
           OutlinedButton.icon(
@@ -1168,34 +1070,26 @@ class _T1QuestionnaireStepState extends State<T1QuestionnaireStep> {
     return Container(
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
-        color: AppColors.grey50,
+        color: Theme.of(context).brightness == Brightness.dark ? Theme.of(context).colorScheme.surface.withOpacity(0.7) : AppColors.grey50,
         borderRadius: BorderRadius.circular(8),
-        border: Border.all(color: AppColors.grey200),
+        border: Border.all(color: Theme.of(context).dividerColor),
       ),
       child: Column(
         children: [
-          Row(
-            children: [
-              Expanded(
-                child: _buildDateField(
-                  label: 'Date of Landing (Individual)',
-                  date: null,
-                  onChanged: (date) {
-                    // Update first time filer
-                  },
-                ),
-              ),
-              const SizedBox(width: 8),
-              Expanded(
-                child: _buildTextField(
-                  label: 'Income Outside Canada (CAD)',
-                  keyboardType: TextInputType.number,
-                  onChanged: (value) {
-                    // Update first time filer
-                  },
-                ),
-              ),
-            ],
+          _buildDateField(
+            label: 'Date of Landing (Individual)',
+            date: null,
+            onChanged: (date) {
+              // Update first time filer
+            },
+          ),
+          const SizedBox(height: 12),
+          _buildTextField(
+            label: 'Income Outside Canada (CAD)',
+            keyboardType: TextInputType.number,
+            onChanged: (value) {
+              // Update first time filer
+            },
           ),
         ],
       ),
@@ -1245,43 +1139,33 @@ class _T1QuestionnaireStepState extends State<T1QuestionnaireStep> {
     return Container(
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
-        color: AppColors.grey50,
+        color: Theme.of(context).brightness == Brightness.dark ? Theme.of(context).colorScheme.surface.withOpacity(0.7) : AppColors.grey50,
         borderRadius: BorderRadius.circular(8),
-        border: Border.all(color: AppColors.grey200),
+        border: Border.all(color: Theme.of(context).dividerColor),
       ),
       child: Column(
         children: [
-          Row(
-            children: [
-              Expanded(
-                child: _buildTextField(
-                  label: 'Name',
-                  onChanged: (value) {
-                    // Update professional dues
-                  },
-                ),
-              ),
-              const SizedBox(width: 8),
-              Expanded(
-                child: _buildTextField(
-                  label: 'Organization',
-                  onChanged: (value) {
-                    // Update professional dues
-                  },
-                ),
-              ),
-              const SizedBox(width: 8),
-              Expanded(
-                child: _buildTextField(
-                  label: 'Amount',
-                  keyboardType: TextInputType.number,
-                  onChanged: (value) {
-                    // Update professional dues
-                  },
-                ),
-              ),
-            ],
-          ),
+            _buildTextField(
+              label: 'Name',
+              onChanged: (value) {
+                // Update professional dues
+              },
+            ),
+            const SizedBox(height: 12),
+            _buildTextField(
+              label: 'Organization',
+              onChanged: (value) {
+                // Update professional dues
+              },
+            ),
+            const SizedBox(height: 12),
+            _buildTextField(
+              label: 'Amount',
+              keyboardType: TextInputType.number,
+              onChanged: (value) {
+                // Update professional dues
+              },
+            ),
           const SizedBox(height: 12),
           OutlinedButton.icon(
             onPressed: () {
@@ -1328,42 +1212,32 @@ class _T1QuestionnaireStepState extends State<T1QuestionnaireStep> {
     return Container(
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
-        color: AppColors.grey50,
+        color: Theme.of(context).brightness == Brightness.dark ? Theme.of(context).colorScheme.surface.withOpacity(0.7) : AppColors.grey50,
         borderRadius: BorderRadius.circular(8),
-        border: Border.all(color: AppColors.grey200),
+        border: Border.all(color: Theme.of(context).dividerColor),
       ),
       child: Column(
         children: [
-          Row(
-            children: [
-              Expanded(
-                child: _buildTextField(
-                  label: 'Institute Name',
-                  onChanged: (value) {
-                    // Update child art sport
-                  },
-                ),
-              ),
-              const SizedBox(width: 8),
-              Expanded(
-                child: _buildTextField(
-                  label: 'Description',
-                  onChanged: (value) {
-                    // Update child art sport
-                  },
-                ),
-              ),
-              const SizedBox(width: 8),
-              Expanded(
-                child: _buildTextField(
-                  label: 'Amount',
-                  keyboardType: TextInputType.number,
-                  onChanged: (value) {
-                    // Update child art sport
-                  },
-                ),
-              ),
-            ],
+          _buildTextField(
+            label: 'Institute Name',
+            onChanged: (value) {
+              // Update child art sport
+            },
+          ),
+          const SizedBox(height: 12),
+          _buildTextField(
+            label: 'Description',
+            onChanged: (value) {
+              // Update child art sport
+            },
+          ),
+          const SizedBox(height: 12),
+          _buildTextField(
+            label: 'Amount',
+            keyboardType: TextInputType.number,
+            onChanged: (value) {
+              // Update child art sport
+            },
           ),
           const SizedBox(height: 12),
           OutlinedButton.icon(
@@ -1398,9 +1272,9 @@ class _T1QuestionnaireStepState extends State<T1QuestionnaireStep> {
     return Container(
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
-        color: AppColors.grey50,
+        color: Theme.of(context).brightness == Brightness.dark ? Theme.of(context).colorScheme.surface.withOpacity(0.7) : AppColors.grey50,
         borderRadius: BorderRadius.circular(8),
-        border: Border.all(color: AppColors.grey200),
+        border: Border.all(color: Theme.of(context).dividerColor),
       ),
       child: Column(
         children: [
@@ -1412,36 +1286,26 @@ class _T1QuestionnaireStepState extends State<T1QuestionnaireStep> {
             ),
           ),
           const SizedBox(height: 8),
-          Row(
-            children: [
-              Expanded(
-                child: _buildTextField(
-                  label: 'Rent or Property Tax',
-                  onChanged: (value) {
-                    // Update province filer
-                  },
-                ),
-              ),
-              const SizedBox(width: 8),
-              Expanded(
-                child: _buildTextField(
-                  label: 'Property Address',
-                  onChanged: (value) {
-                    // Update province filer
-                  },
-                ),
-              ),
-              const SizedBox(width: 8),
-              Expanded(
-                child: _buildTextField(
-                  label: 'Amount Paid',
-                  keyboardType: TextInputType.number,
-                  onChanged: (value) {
-                    // Update province filer
-                  },
-                ),
-              ),
-            ],
+          _buildTextField(
+            label: 'Rent or Property Tax',
+            onChanged: (value) {
+              // Update province filer
+            },
+          ),
+          const SizedBox(height: 12),
+          _buildTextField(
+            label: 'Property Address',
+            onChanged: (value) {
+              // Update province filer
+            },
+          ),
+          const SizedBox(height: 12),
+          _buildTextField(
+            label: 'Amount Paid',
+            keyboardType: TextInputType.number,
+            onChanged: (value) {
+              // Update province filer
+            },
           ),
           const SizedBox(height: 12),
           OutlinedButton.icon(
