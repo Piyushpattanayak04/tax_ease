@@ -189,6 +189,25 @@ class T1FormStorageService {
     }
   }
 
+  /// Clear all forms data (including the new forms list)
+  Future<bool> clearAllFormsData() async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      
+      // Clear all T1 form related keys
+      await prefs.remove(_t1FormDataKey);
+      await prefs.remove(_t1FormProgressKey);
+      await prefs.remove(_t1FormLastSavedKey);
+      await prefs.remove(_t1FormsListKey);
+      
+      _logger.i('All forms data cleared successfully');
+      return true;
+    } catch (e) {
+      _logger.e('Error clearing all forms data: $e');
+      return false;
+    }
+  }
+
   /// Calculate form completion progress based on filled fields
   double calculateFormProgress(T1FormData formData) {
     int totalFields = 0;

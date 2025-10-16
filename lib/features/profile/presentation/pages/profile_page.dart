@@ -6,6 +6,7 @@ import '../../../../core/utils/smooth_scroll_physics.dart';
 import '../../../../core/utils/responsive.dart';
 import '../../../../core/theme/theme_controller.dart';
 import '../../../../shared/animations/smooth_animations.dart';
+import '../../../tax_forms/data/services/t1_form_storage_service.dart';
 
 class ProfilePage extends StatelessWidget {
   const ProfilePage({super.key});
@@ -122,8 +123,11 @@ class ProfilePage extends StatelessWidget {
         'title': 'Sign Out',
         'subtitle': 'Sign out of your account',
         'onTap': () async {
-          await ThemeController.setLoggedIn(false);
-          context.go('/welcome');
+          // Show confirmation dialog
+          final shouldSignOut = await _showSignOutDialog(context);
+          if (shouldSignOut == true) {
+            await _performSignOut(context);
+          }
         },
         'isDestructive': true,
       },
@@ -162,5 +166,61 @@ class ProfilePage extends StatelessWidget {
         },
       ),
     );
+  }
+
+  Future<bool?> _showSignOutDialog(BuildContext context) {
+    return showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        icon: const Icon(
+          Icons.logout,
+          color: AppColors.error,
+          size: 48,
+        ),
+        title: const Text('Sign Out'),
+        content: const Text(
+          'Are you sure you want to sign out? This will clear all your saved forms data.',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(false),
+            child: const Text('Cancel'),
+          ),
+          ElevatedButton(
+            onPressed: () => Navigator.of(context).pop(true),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: AppColors.error,
+              foregroundColor: AppColors.white,
+            ),
+            child: const Text('Sign Out'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Future<void> _performSignOut(BuildContext context) async {
+    try {
+      // Clear forms data and auth state first
+      await T1FormStorageService.instance.clearAllFormsData();
+      await ThemeController.setLoggedIn(false);
+      await ThemeController.setUserName('User');
+      
+      // Navigate to welcome page immediately
+      if (context.mounted) {
+        context.go('/welcome');
+      }
+    } catch (e) {
+      // Show error message if something goes wrong
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Error signing out. Please try again.'),
+            backgroundColor: AppColors.error,
+            behavior: SnackBarBehavior.floating,
+          ),
+        );
+      }
+    }
   }
 }

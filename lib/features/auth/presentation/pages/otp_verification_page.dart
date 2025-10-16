@@ -98,7 +98,7 @@ class _OtpVerificationPageState extends State<OtpVerificationPage> {
                   children: [
                     Text(
                       'Verification Code',
-                      style: Theme.of(context).textTheme.displaySmall?.copyWith(
+                      style: Theme.of(context).textTheme.headlineMedium?.copyWith(
                         color: AppColors.grey800,
                         fontWeight: FontWeight.bold,
                       ),
@@ -106,7 +106,7 @@ class _OtpVerificationPageState extends State<OtpVerificationPage> {
                     const SizedBox(height: 12),
                     Text(
                       'We\'ve sent a 6-digit verification code to',
-                      style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                      style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                         color: AppColors.grey600,
                       ),
                       textAlign: TextAlign.center,
@@ -114,7 +114,7 @@ class _OtpVerificationPageState extends State<OtpVerificationPage> {
                     const SizedBox(height: 4),
                     Text(
                       widget.email,
-                      style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                      style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                         color: AppColors.primary,
                         fontWeight: FontWeight.w600,
                       ),

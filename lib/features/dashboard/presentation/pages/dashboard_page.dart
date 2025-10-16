@@ -223,7 +223,7 @@ class _DashboardPageState extends State<DashboardPage> with AutomaticKeepAliveCl
                               name.isEmpty ? 'Welcome Back!' : name,
                               maxLines: 1,
                               overflow: TextOverflow.ellipsis,
-                              style: Theme.of(context).textTheme.headlineLarge?.copyWith(
+                              style: Theme.of(context).textTheme.headlineMedium?.copyWith(
                                 color: AppColors.white,
                                 fontWeight: FontWeight.w700,
                                 letterSpacing: -0.5,
@@ -270,9 +270,8 @@ class _DashboardPageState extends State<DashboardPage> with AutomaticKeepAliveCl
                         child: Center(
                           child: Text(
                             initials,
-                            style: TextStyle(
+                            style: Theme.of(context).textTheme.titleLarge?.copyWith(
                               color: AppColors.white,
-                              fontSize: 22,
                               fontWeight: FontWeight.w700,
                               letterSpacing: 1,
                             ),
@@ -348,17 +347,15 @@ class _DashboardPageState extends State<DashboardPage> with AutomaticKeepAliveCl
         const SizedBox(height: 4),
         Text(
           value,
-          style: TextStyle(
+          style: Theme.of(context).textTheme.bodySmall?.copyWith(
             color: AppColors.white,
-            fontSize: 14,
             fontWeight: FontWeight.w700,
           ),
         ),
         Text(
           label,
-          style: TextStyle(
+          style: Theme.of(context).textTheme.labelSmall?.copyWith(
             color: AppColors.white.withOpacity(0.75),
-            fontSize: 11,
             fontWeight: FontWeight.w500,
           ),
         ),
@@ -469,9 +466,8 @@ class _DashboardPageState extends State<DashboardPage> with AutomaticKeepAliveCl
                                     )
                                   : Text(
                                       '${(progress * 100).toInt()}%',
-                                      style: TextStyle(
+                                      style: Theme.of(context).textTheme.labelSmall?.copyWith(
                                         color: Theme.of(context).textTheme.bodySmall?.color,
-                                        fontSize: 10,
                                         fontWeight: FontWeight.w600,
                                       ),
                                     ),

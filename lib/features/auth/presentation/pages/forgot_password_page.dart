@@ -65,7 +65,7 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
                   children: [
                     Text(
                       'Reset Password',
-                      style: Theme.of(context).textTheme.displaySmall?.copyWith(
+                      style: Theme.of(context).textTheme.headlineMedium?.copyWith(
                         color: AppColors.grey800,
                         fontWeight: FontWeight.bold,
                       ),
@@ -73,7 +73,7 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
                     const SizedBox(height: 12),
                     Text(
                       'Enter your email address and we\'ll send you instructions to reset your password.',
-                      style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                      style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                         color: AppColors.grey600,
                         height: 1.5,
                       ),

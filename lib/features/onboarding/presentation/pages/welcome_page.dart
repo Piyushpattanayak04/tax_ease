@@ -150,7 +150,7 @@ class _WelcomePageState extends State<WelcomePage>
                         opacity: _fadeController,
                         child: Text(
                           'TaxEase',
-                          style: Theme.of(context).textTheme.displayLarge?.copyWith(
+                          style: Theme.of(context).textTheme.headlineLarge?.copyWith(
                             color: AppColors.white,
                             fontWeight: FontWeight.bold,
                           ),

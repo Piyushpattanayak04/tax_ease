@@ -13,215 +13,215 @@ class AppTypography {
   /// Headings (H1 - Large)
   static TextStyle get h1Large => GoogleFonts.getFont(
         'Libre Baskerville', // Closest available to Tiempos Headline
-        fontSize: 84,
+        fontSize: 72,
         fontWeight: FontWeight.w400,
-        height: 97.44 / 84, // line-height / font-size
+        height: 83.52 / 72, // line-height / font-size
       );
 
   static TextStyle get h1Medium => GoogleFonts.getFont(
-        'Libre Baskerville',
-        fontSize: 72,
-        fontWeight: FontWeight.w400,
-        height: 83.52 / 72,
-      );
-
-  /// H2 Styles
-  static TextStyle get h2Large => GoogleFonts.getFont(
-        'Libre Baskerville',
-        fontSize: 72,
-        fontWeight: FontWeight.w400,
-        height: 83.52 / 72,
-      );
-
-  static TextStyle get h2Medium => GoogleFonts.getFont(
         'Libre Baskerville',
         fontSize: 64,
         fontWeight: FontWeight.w400,
         height: 74.24 / 64,
       );
 
+  /// H2 Styles
+  static TextStyle get h2Large => GoogleFonts.getFont(
+        'Libre Baskerville',
+        fontSize: 64,
+        fontWeight: FontWeight.w400,
+        height: 74.24 / 64,
+      );
+
+  static TextStyle get h2Medium => GoogleFonts.getFont(
+        'Libre Baskerville',
+        fontSize: 56,
+        fontWeight: FontWeight.w400,
+        height: 64.96 / 56,
+      );
+
   static TextStyle get h2Futura => GoogleFonts.getFont(
         'Montserrat', // Closest available to Futura PT
-        fontSize: 57.92,
+        fontSize: 48,
         fontWeight: FontWeight.w400,
-        height: 57.92 / 57.92,
+        height: 48 / 48,
       );
 
   static TextStyle get h2FuturaSmall => GoogleFonts.getFont(
         'Montserrat',
-        fontSize: 30,
+        fontSize: 24,
         fontWeight: FontWeight.w500,
-        height: 37.20 / 30,
+        height: 29.76 / 24,
       );
 
   /// H3 Styles
   static TextStyle get h3Tiempos => GoogleFonts.getFont(
         'Libre Baskerville',
-        fontSize: 64,
+        fontSize: 56,
         fontWeight: FontWeight.w400,
-        height: 69.12 / 64,
+        height: 64.96 / 56,
       );
 
   static TextStyle get h3Futura => GoogleFonts.getFont(
         'Montserrat',
-        fontSize: 56,
+        fontSize: 48,
         fontWeight: FontWeight.w500,
-        height: 64.96 / 56,
+        height: 55.68 / 48,
       );
 
   static TextStyle get h3FuturaSmall => GoogleFonts.getFont(
         'Montserrat',
-        fontSize: 24,
+        fontSize: 20,
         fontWeight: FontWeight.w500,
-        height: 29.76 / 24,
+        height: 24.80 / 20,
       );
 
   static TextStyle get h3FuturaMini => GoogleFonts.getFont(
         'Montserrat',
-        fontSize: 18,
+        fontSize: 16,
         fontWeight: FontWeight.w500,
-        height: 20.88 / 18,
+        height: 19.84 / 16,
       );
 
   /// Large Title
   static TextStyle get largeTitle => GoogleFonts.getFont(
         'Libre Baskerville',
-        fontSize: 36,
+        fontSize: 30,
         fontWeight: FontWeight.w400,
-        height: 41.76 / 36,
+        height: 34.80 / 30,
       );
 
   /// Heading Styles
   static TextStyle get heading => GoogleFonts.getFont(
         'Montserrat',
-        fontSize: 24,
+        fontSize: 20,
         fontWeight: FontWeight.w400,
-        height: 29.76 / 24,
+        height: 24.80 / 20,
       );
 
   /// Body Text Styles
   static TextStyle get bodyLarge => GoogleFonts.getFont(
         'Montserrat',
-        fontSize: 24,
-        fontWeight: FontWeight.w400,
-        height: 29.76 / 24,
-      );
-
-  static TextStyle get bodyMedium => GoogleFonts.getFont(
-        'Montserrat',
         fontSize: 20,
         fontWeight: FontWeight.w400,
         height: 24.80 / 20,
       );
 
-  static TextStyle get body => GoogleFonts.getFont(
+  static TextStyle get bodyMedium => GoogleFonts.getFont(
         'Montserrat',
         fontSize: 18,
         fontWeight: FontWeight.w400,
         height: 22.32 / 18,
       );
 
-  static TextStyle get bodySmall => GoogleFonts.getFont(
+  static TextStyle get body => GoogleFonts.getFont(
         'Montserrat',
         fontSize: 16,
         fontWeight: FontWeight.w400,
         height: 19.84 / 16,
       );
 
-  static TextStyle get bodyXSmall => GoogleFonts.getFont(
+  static TextStyle get bodySmall => GoogleFonts.getFont(
         'Montserrat',
         fontSize: 14,
         fontWeight: FontWeight.w400,
         height: 17.36 / 14,
+      );
+
+  static TextStyle get bodyXSmall => GoogleFonts.getFont(
+        'Montserrat',
+        fontSize: 12,
+        fontWeight: FontWeight.w400,
+        height: 14.88 / 12,
       );
 
   /// Large Body Text Styles
   static TextStyle get largeBodyExpanded => GoogleFonts.getFont(
         'Montserrat',
-        fontSize: 18,
+        fontSize: 16,
         fontWeight: FontWeight.w400,
-        height: 25.20 / 18,
+        height: 22.40 / 16,
       );
 
   static TextStyle get largeBody => GoogleFonts.getFont(
         'Montserrat',
-        fontSize: 18,
+        fontSize: 16,
         fontWeight: FontWeight.w400,
-        height: 22.32 / 18,
+        height: 19.84 / 16,
       );
 
   /// Small Body Text
   static TextStyle get smallBody => GoogleFonts.getFont(
         'Montserrat',
-        fontSize: 14,
+        fontSize: 12,
         fontWeight: FontWeight.w400,
-        height: 17.36 / 14,
+        height: 14.88 / 12,
       );
 
   /// Link Styles
   static TextStyle get linkLarge => GoogleFonts.getFont(
-        'Montserrat',
-        fontSize: 24,
-        fontWeight: FontWeight.w400,
-        height: 29.76 / 24,
-      );
-
-  static TextStyle get linkMedium => GoogleFonts.getFont(
         'Montserrat',
         fontSize: 20,
         fontWeight: FontWeight.w400,
         height: 24.80 / 20,
       );
 
-  static TextStyle get link => GoogleFonts.getFont(
+  static TextStyle get linkMedium => GoogleFonts.getFont(
         'Montserrat',
         fontSize: 18,
-        fontWeight: FontWeight.w500,
+        fontWeight: FontWeight.w400,
         height: 22.32 / 18,
+      );
+
+  static TextStyle get link => GoogleFonts.getFont(
+        'Montserrat',
+        fontSize: 16,
+        fontWeight: FontWeight.w500,
+        height: 19.84 / 16,
       );
 
   static TextStyle get linkSmall => GoogleFonts.getFont(
         'Montserrat',
-        fontSize: 16,
+        fontSize: 14,
         fontWeight: FontWeight.w400,
-        height: 19.84 / 16,
+        height: 17.36 / 14,
       );
 
   static TextStyle get linkXSmall => GoogleFonts.getFont(
         'Montserrat',
-        fontSize: 14,
+        fontSize: 12,
         fontWeight: FontWeight.w400,
-        height: 17.36 / 14,
+        height: 14.88 / 12,
       );
 
   /// Button Styles
   static TextStyle get button => GoogleFonts.getFont(
         'Montserrat',
-        fontSize: 18,
-        fontWeight: FontWeight.w500,
-        height: 22.32 / 18,
-      );
-
-  static TextStyle get buttonSmall => GoogleFonts.getFont(
-        'Montserrat',
         fontSize: 16,
         fontWeight: FontWeight.w500,
         height: 19.84 / 16,
       );
 
-  /// Label Styles
-  static TextStyle get label => GoogleFonts.getFont(
-        'Montserrat',
-        fontSize: 18,
-        fontWeight: FontWeight.w500,
-        height: 20.88 / 18,
-      );
-
-  static TextStyle get labelMedium => GoogleFonts.getFont(
+  static TextStyle get buttonSmall => GoogleFonts.getFont(
         'Montserrat',
         fontSize: 14,
         fontWeight: FontWeight.w500,
         height: 17.36 / 14,
+      );
+
+  /// Label Styles
+  static TextStyle get label => GoogleFonts.getFont(
+        'Montserrat',
+        fontSize: 16,
+        fontWeight: FontWeight.w500,
+        height: 18.56 / 16,
+      );
+
+  static TextStyle get labelMedium => GoogleFonts.getFont(
+        'Montserrat',
+        fontSize: 12,
+        fontWeight: FontWeight.w500,
+        height: 14.88 / 12,
       );
 
   /// Flutter Material Text Theme mapping

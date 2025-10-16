@@ -69,7 +69,7 @@ class _SignupPageState extends State<SignupPage> {
                   children: [
                     Text(
                       'Create your account',
-                      style: Theme.of(context).textTheme.displaySmall?.copyWith(
+                      style: Theme.of(context).textTheme.headlineMedium?.copyWith(
                         color: AppColors.grey800,
                         fontWeight: FontWeight.bold,
                       ),
@@ -77,7 +77,7 @@ class _SignupPageState extends State<SignupPage> {
                     const SizedBox(height: 8),
                     Text(
                       'Join TaxEase and simplify your tax filing process',
-                      style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                      style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                         color: AppColors.grey600,
                       ),
                     ),

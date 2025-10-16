@@ -60,7 +60,7 @@ class _LoginPageState extends State<LoginPage> {
                   children: [
                     Text(
                       'Welcome back!',
-                      style: Theme.of(context).textTheme.displaySmall?.copyWith(
+                      style: Theme.of(context).textTheme.headlineMedium?.copyWith(
                         color: AppColors.grey800,
                         fontWeight: FontWeight.bold,
                       ),
@@ -68,7 +68,7 @@ class _LoginPageState extends State<LoginPage> {
                     const SizedBox(height: 8),
                     Text(
                       'Sign in to continue with your tax filing',
-                      style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                      style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                         color: AppColors.grey600,
                       ),
                     ),
@@ -148,7 +148,7 @@ class _LoginPageState extends State<LoginPage> {
                           onPressed: () => context.go('/forgot-password'),
                           child: Text(
                             'Forgot Password?',
-                            style: TextStyle(
+                            style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                               color: AppColors.primary,
                               fontWeight: FontWeight.w500,
                             ),
