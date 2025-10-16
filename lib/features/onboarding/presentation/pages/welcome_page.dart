@@ -154,6 +154,9 @@ class _WelcomePageState extends State<WelcomePage>
                             color: AppColors.white,
                             fontWeight: FontWeight.bold,
                           ),
+                          textAlign: TextAlign.center,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
                         ),
                       ),
                       
@@ -162,13 +165,18 @@ class _WelcomePageState extends State<WelcomePage>
                       // App Tagline
                       SmoothAnimations.slideUp(
                         delay: const Duration(milliseconds: 800),
-                        child: Text(
-                          'Simplify your tax filing process\nwith secure and efficient solutions',
-                          style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                            color: AppColors.white.withOpacity(0.9),
-                            fontWeight: FontWeight.w400,
+                        child: Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 16),
+                          child: Text(
+                            'Simplify your tax filing process\nwith secure and efficient solutions',
+                            style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                              color: AppColors.white.withOpacity(0.9),
+                              fontWeight: FontWeight.w400,
+                            ),
+                            textAlign: TextAlign.center,
+                            maxLines: 3,
+                            overflow: TextOverflow.ellipsis,
                           ),
-                          textAlign: TextAlign.center,
                         ),
                       ),
                       
@@ -224,6 +232,8 @@ class _WelcomePageState extends State<WelcomePage>
                               color: AppColors.primary,
                               fontWeight: FontWeight.w600,
                             ),
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
                           ),
                         ),
                       ),
@@ -252,6 +262,8 @@ class _WelcomePageState extends State<WelcomePage>
                               color: AppColors.white,
                               fontWeight: FontWeight.w500,
                             ),
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
                           ),
                         ),
                       ),

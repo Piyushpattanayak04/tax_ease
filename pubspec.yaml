@@ -78,6 +78,7 @@ dependencies:
   
   # Typography
   google_fonts: ^6.2.1
+  flutter_svg: ^2.0.10+1
 
 dev_dependencies:
   flutter_test:
@@ -115,6 +116,7 @@ flutter:
     - assets/images/illustrations/
     - assets/images/logos/
     - assets/images/backgrounds/
+    - assets/on-boarding/
     - assets/animations/
     - assets/data/
 

@@ -6,9 +6,9 @@ import 'package:shared_preferences/shared_preferences.dart';
 class ThemeController {
   ThemeController._();
 
-  /// Holds the current theme mode. Defaults to system.
+  /// Holds the current theme mode. Defaults to light (white theme).
   static final ValueNotifier<ThemeMode> themeMode =
-      ValueNotifier<ThemeMode>(ThemeMode.system);
+      ValueNotifier<ThemeMode>(ThemeMode.light);
   
   /// Simple auth state for demo purposes
   static final ValueNotifier<bool> isLoggedIn = ValueNotifier<bool>(false);

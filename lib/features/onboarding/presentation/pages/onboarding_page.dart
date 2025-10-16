@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:smooth_page_indicator/smooth_page_indicator.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import '../../../../core/constants/app_colors.dart';
 import '../../../../core/constants/app_dimensions.dart';
 import '../../../../shared/animations/smooth_animations.dart';
@@ -18,28 +19,28 @@ class _OnboardingPageState extends State<OnboardingPage> {
 
   final List<OnboardingItem> _items = [
     OnboardingItem(
-      icon: Icons.receipt_long_rounded,
-      title: 'Easy Tax Filing',
+      svgAsset: 'assets/on-boarding/page1.svg',
+      title: 'Simplify Your Tax Filing',
       description:
-          'Complete your personal and business tax filings with our intuitive step-by-step forms. Save drafts and continue later at your convenience.',
+          'No more confusing forms — file your taxes in minutes with expert guidance.',
     ),
     OnboardingItem(
-      icon: Icons.cloud_upload_rounded,
-      title: 'Secure Document Upload',
+      svgAsset: 'assets/on-boarding/page2.svg',
+      title: 'Your Privacy, Our Priority',
       description:
-          'Upload your PAN, Aadhar, income proofs, and other documents securely. All files are encrypted and stored safely.',
+          'We handle your financial information with top-grade encryption and data security standards.',
     ),
     OnboardingItem(
-      icon: Icons.track_changes_rounded,
-      title: 'Real-time Tracking',
+      svgAsset: 'assets/on-boarding/page3.svg',
+      title: 'One-to-One Dedicated Support',
       description:
-          'Track your filing status in real-time. Get notified when your tax return is in review, filed, or completed.',
+          'Get personalized assistance from our expert team — your dedicated advisor is just a message away.',
     ),
     OnboardingItem(
-      icon: Icons.download_for_offline_rounded,
-      title: 'Download Summaries',
+      svgAsset: 'assets/on-boarding/page4.svg',
+      title: 'Maximize Your Savings',
       description:
-          'Download comprehensive summaries of your tax filings. Access your documents anytime, anywhere.',
+          'Our intelligent system identifies every eligible deduction and credit to help you keep more of what you earn.',
     ),
   ];
 
@@ -182,50 +183,48 @@ class _OnboardingPageState extends State<OnboardingPage> {
     return Column(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
-        // Icon with background
-        Container(
-          width: 120,
-          height: 120,
-          decoration: BoxDecoration(
-            gradient: AppColors.primaryGradient,
-            borderRadius: BorderRadius.circular(60),
-            boxShadow: [
-              BoxShadow(
-                color: AppColors.primary.withOpacity(0.3),
-                blurRadius: 20,
-                offset: const Offset(0, 10),
-              ),
-            ],
-          ),
-          child: Icon(
-            item.icon,
-            size: 60,
-            color: AppColors.white,
+        // SVG Illustration
+        SizedBox(
+          width: 280,
+          height: 280,
+          child: SvgPicture.asset(
+            item.svgAsset,
+            fit: BoxFit.contain,
           ),
         ),
 
-        const SizedBox(height: 48),
+        const SizedBox(height: 40),
 
         // Title
-        Text(
-          item.title,
-          style: Theme.of(context).textTheme.displaySmall?.copyWith(
-            color: AppColors.grey800,
-            fontWeight: FontWeight.bold,
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16),
+          child: Text(
+            item.title,
+            style: Theme.of(context).textTheme.headlineMedium?.copyWith(
+              color: AppColors.grey800,
+              fontWeight: FontWeight.bold,
+            ),
+            textAlign: TextAlign.center,
+            maxLines: 2,
+            overflow: TextOverflow.ellipsis,
           ),
-          textAlign: TextAlign.center,
         ),
 
-        const SizedBox(height: 24),
+        const SizedBox(height: 16),
 
         // Description
-        Text(
-          item.description,
-          style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-            color: AppColors.grey600,
-            height: 1.6,
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16),
+          child: Text(
+            item.description,
+            style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+              color: AppColors.grey600,
+              height: 1.5,
+            ),
+            textAlign: TextAlign.center,
+            maxLines: 4,
+            overflow: TextOverflow.ellipsis,
           ),
-          textAlign: TextAlign.center,
         ),
       ],
     );
@@ -237,12 +236,12 @@ class _OnboardingPageState extends State<OnboardingPage> {
 }
 
 class OnboardingItem {
-  final IconData icon;
+  final String svgAsset;
   final String title;
   final String description;
 
   OnboardingItem({
-    required this.icon,
+    required this.svgAsset,
     required this.title,
     required this.description,
   });
