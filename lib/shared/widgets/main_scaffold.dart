@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:go_router/go_router.dart';
 import '../../core/constants/app_colors.dart';
 
@@ -14,19 +15,34 @@ class MainScaffold extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: Stack(
-        children: [
-          // Main content that goes behind the floating nav
-          child,
-          // Floating bottom navigation
-          Positioned(
-            left: 0,
-            right: 0,
-            bottom: 0,
-            child: _BottomNavigationBar(currentPath: currentPath),
-          ),
-        ],
+    return PopScope(
+      canPop: currentPath == '/home',
+      onPopInvokedWithResult: (didPop, result) {
+        if (didPop) return;
+        
+        // Handle back button navigation
+        if (currentPath == '/home') {
+          // Exit app when on home page
+          SystemNavigator.pop();
+        } else {
+          // Navigate to home for other bottom nav screens
+          context.go('/home');
+        }
+      },
+      child: Scaffold(
+        body: Stack(
+          children: [
+            // Main content that goes behind the floating nav
+            child,
+            // Floating bottom navigation
+            Positioned(
+              left: 0,
+              right: 0,
+              bottom: 0,
+              child: _BottomNavigationBar(currentPath: currentPath),
+            ),
+          ],
+        ),
       ),
     );
   }

@@ -53,7 +53,18 @@ class _DashboardPageState extends State<DashboardPage> with AutomaticKeepAliveCl
     super.build(context);
     return Scaffold(
       appBar: AppBar(
-        title: const Text('TaxEase'),
+        title: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Image.asset(
+              'assets/images/logos/logo.png',
+              height: 28,
+              width: 28,
+            ),
+            const SizedBox(width: 8),
+            const Text('TaxEase'),
+          ],
+        ),
         automaticallyImplyLeading: false,
         centerTitle: false,
         actions: [
