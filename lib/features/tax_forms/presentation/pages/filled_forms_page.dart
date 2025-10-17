@@ -5,6 +5,7 @@ import '../../../../core/constants/app_dimensions.dart';
 import '../../../../core/utils/smooth_scroll_physics.dart';
 import '../../../../core/utils/responsive.dart';
 import '../../../../shared/animations/smooth_animations.dart';
+import '../../../../core/theme/theme_controller.dart';
 import '../../data/models/t1_form_models_simple.dart';
 import '../../data/models/t2_form_models.dart';
 import '../../data/services/t1_form_storage_service.dart';
@@ -141,6 +142,63 @@ _loadAllForms();
     return '${dateTime.day}/${dateTime.month}/${dateTime.year} at ${dateTime.hour}:${dateTime.minute.toString().padLeft(2, '0')}';
   }
 
+  Future<void> _handleNewFiling() async {
+    final filingType = ThemeController.filingType.value;
+    
+    if (filingType == 'T1') {
+      // T1 Personal - always create a new form
+      final newForm = T1FormStorageService.instance.createNewForm();
+      if (mounted) context.push('/tax-forms/personal?formId=${newForm.id}');
+    } else if (filingType == 'T2') {
+      // T2 Business - always create a new form
+      final newForm = T2FormStorageService.instance.createNewForm();
+      if (mounted) context.push('/tax-forms/business?formId=${newForm.id}');
+    } else {
+      // No filing type preference - show selection dialog
+      _showFilingTypeDialog();
+    }
+  }
+
+  void _showFilingTypeDialog() {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('Select Filing Type'),
+          content: const Text('Choose your filing type to continue:'),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+                _navigateToT1Form();
+              },
+              child: const Text('T1 Personal'),
+            ),
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+                _navigateToT2Form();
+              },
+              child: const Text('T2 Business'),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  Future<void> _navigateToT1Form() async {
+    // Always create a new T1 form
+    final newForm = T1FormStorageService.instance.createNewForm();
+    if (mounted) context.push('/tax-forms/personal?formId=${newForm.id}');
+  }
+
+  Future<void> _navigateToT2Form() async {
+    // Always create a new T2 form
+    final newForm = T2FormStorageService.instance.createNewForm();
+    if (mounted) context.push('/tax-forms/business?formId=${newForm.id}');
+  }
+
   @override
   Widget build(BuildContext context) {
     return PopScope(
@@ -204,10 +262,7 @@ _loadAllForms();
         floatingActionButton: Padding(
           padding: const EdgeInsets.only(bottom: 80), // Add bottom padding to avoid collision
           child: FloatingActionButton.extended(
-            onPressed: () {
-              // Navigate to TaxForms page for form selection
-              context.push('/tax-forms');
-            },
+            onPressed: () => _handleNewFiling(),
             icon: const Icon(Icons.add, color: Colors.white),
             label: const Text(
               'New Filing',

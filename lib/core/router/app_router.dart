@@ -9,7 +9,6 @@ import '../../features/auth/presentation/pages/otp_verification_page.dart';
 import '../../features/onboarding/presentation/pages/onboarding_page.dart';
 import '../../features/onboarding/presentation/pages/welcome_page.dart';
 import '../../features/dashboard/presentation/pages/dashboard_page.dart';
-import '../../features/tax_forms/presentation/pages/tax_forms_page.dart';
 import '../../features/tax_forms/presentation/pages/personal_tax_form_page.dart';
 import '../../features/tax_forms/presentation/pages/business_tax_form_page.dart';
 import '../../features/tax_forms/presentation/pages/form_review_page.dart';
@@ -148,11 +147,6 @@ class AppRouter {
       
       // Tax Form Sub-routes (full screen)
       GoRoute(
-        path: '/tax-forms',
-        name: 'tax-forms',
-        pageBuilder: (context, state) => _page(const TaxFormsPage()),
-      ),
-      GoRoute(
         path: '/tax-forms/personal',
         name: 'personal-tax-form',
         pageBuilder: (context, state) {
@@ -267,7 +261,6 @@ class Routes {
   static const String forgotPassword = '/forgot-password';
   static const String otpVerification = '/otp-verification';
   static const String home = '/home';
-  static const String taxForms = '/tax-forms';
   static const String filledForms = '/tax-forms/filled-forms';
   static const String personalTaxForm = '/tax-forms/personal';
   static const String businessTaxForm = '/tax-forms/business';

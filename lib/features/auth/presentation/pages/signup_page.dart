@@ -5,6 +5,7 @@ import '../../../../core/constants/app_dimensions.dart';
 import '../../../../core/utils/smooth_scroll_physics.dart';
 import '../../../../core/utils/responsive.dart';
 import '../../../../shared/animations/smooth_animations.dart';
+import '../../../../core/theme/theme_controller.dart';
 
 class SignupPage extends StatefulWidget {
   const SignupPage({super.key});
@@ -25,6 +26,7 @@ class _SignupPageState extends State<SignupPage> {
   bool _isConfirmPasswordVisible = false;
   bool _isLoading = false;
   bool _agreeToTerms = false;
+  String? _selectedFilingType;
 
   @override
   void dispose() {
@@ -180,6 +182,42 @@ class _SignupPageState extends State<SignupPage> {
 
                       const SizedBox(height: 20),
 
+                      // Filing Type Selection
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            'Filing Type',
+                            style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                              fontWeight: FontWeight.w600,
+                              color: AppColors.grey700,
+                            ),
+                          ),
+                          const SizedBox(height: 12),
+                          Row(
+                            children: [
+                              Expanded(
+                                child: _buildFilingTypeButton(
+                                  'T1',
+                                  'T1 Personal',
+                                  Icons.person_outline,
+                                ),
+                              ),
+                              const SizedBox(width: 12),
+                              Expanded(
+                                child: _buildFilingTypeButton(
+                                  'T2',
+                                  'T2 Business',
+                                  Icons.business_outlined,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ],
+                      ),
+
+                      const SizedBox(height: 20),
+
                       // Password field
                       TextFormField(
                         controller: _passwordController,
@@ -319,7 +357,7 @@ class _SignupPageState extends State<SignupPage> {
                         width: double.infinity,
                         height: 56,
                         child: ElevatedButton(
-                          onPressed: (_isLoading || !_agreeToTerms) ? null : _handleSignup,
+                          onPressed: (_isLoading || !_agreeToTerms || _selectedFilingType == null) ? null : _handleSignup,
                           child: _isLoading
                               ? const SizedBox(
                                   height: 20,
@@ -382,6 +420,12 @@ class _SignupPageState extends State<SignupPage> {
 
   Future<void> _handleSignup() async {
     if (!_formKey.currentState!.validate()) return;
+    if (_selectedFilingType == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Please select a filing type')),
+      );
+      return;
+    }
 
     setState(() {
       _isLoading = true;
@@ -395,8 +439,59 @@ class _SignupPageState extends State<SignupPage> {
         _isLoading = false;
       });
 
+      // Save filing type preference
+      await ThemeController.setFilingType(_selectedFilingType!);
+
       // Navigate to OTP verification
       context.go('/otp-verification?email=${_emailController.text}&signup=true');
     }
+  }
+
+  Widget _buildFilingTypeButton(String value, String label, IconData icon) {
+    final isSelected = _selectedFilingType == value;
+    return GestureDetector(
+      onTap: () {
+        setState(() {
+          _selectedFilingType = value;
+        });
+      },
+      child: Container(
+        padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 12),
+        decoration: BoxDecoration(
+          color: isSelected 
+              ? AppColors.primary.withValues(alpha: 0.1) 
+              : Theme.of(context).cardColor,
+          border: Border.all(
+            color: isSelected 
+                ? AppColors.primary 
+                : Theme.of(context).dividerColor,
+            width: isSelected ? 2 : 1,
+          ),
+          borderRadius: BorderRadius.circular(AppDimensions.radiusLg),
+        ),
+        child: Column(
+          children: [
+            Icon(
+              icon,
+              size: 32,
+              color: isSelected 
+                  ? AppColors.primary 
+                  : AppColors.grey500,
+            ),
+            const SizedBox(height: 8),
+            Text(
+              label,
+              style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                fontWeight: FontWeight.w600,
+                color: isSelected 
+                    ? AppColors.primary 
+                    : AppColors.grey600,
+              ),
+              textAlign: TextAlign.center,
+            ),
+          ],
+        ),
+      ),
+    );
   }
 }

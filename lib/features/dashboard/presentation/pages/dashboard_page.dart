@@ -613,6 +613,18 @@ class _DashboardPageState extends State<DashboardPage> with AutomaticKeepAliveCl
       if (mounted) context.go('/tax-forms/personal?formId=${newForm.id}');
     }
   }
+
+  Future<void> _handleT1NewFiling() async {
+    // Always create a new T1 form
+    final newForm = T1FormStorageService.instance.createNewForm();
+    if (mounted) context.go('/tax-forms/personal?formId=${newForm.id}');
+  }
+
+  Future<void> _handleT2NewFiling() async {
+    // Always create a new T2 form
+    final newForm = T2FormStorageService.instance.createNewForm();
+    if (mounted) context.go('/tax-forms/business?formId=${newForm.id}');
+  }
   
   Future<Map<String, dynamic>> _getProgressStatus() async {
     try {
@@ -767,52 +779,116 @@ class _DashboardPageState extends State<DashboardPage> with AutomaticKeepAliveCl
               return const SizedBox.shrink();
             }
             
-            return Wrap(
-              spacing: spacing,
-              runSpacing: spacing,
-              children: [
-                SizedBox(
-                  width: itemWidth,
-                  child: _buildActionCard(
-                    icon: Icons.person_outline,
-                    title: 'Personal Tax',
-                    subtitle: 'File T1 return',
-                    onTap: () => _handlePersonalTaxTap(),
-                  ),
-                ),
-                SizedBox(
-                  width: itemWidth,
-                  child: _buildActionCard(
-                    icon: Icons.business_outlined,
-                    title: 'Business Tax',
-                    subtitle: 'File business return',
-                    onTap: () => context.go('/tax-forms/business'),
-                  ),
-                ),
-                SizedBox(
-                  width: itemWidth,
-                  child: _buildActionCard(
-                    icon: Icons.upload_file_outlined,
-                    title: 'Upload Documents',
-                    subtitle: 'Add tax documents',
-                    onTap: () => context.go('/documents/upload'),
-                  ),
-                ),
-                SizedBox(
-                  width: itemWidth,
-                  child: _buildActionCard(
-                    icon: Icons.track_changes_outlined,
-                    title: 'Track Status',
-                    subtitle: 'Check filing status',
-                    onTap: () => context.go('/filing-status'),
-                  ),
-                ),
-              ],
+            return ValueListenableBuilder<String?>(
+              valueListenable: ThemeController.filingType,
+              builder: (context, filingType, _) {
+                return Wrap(
+                  spacing: spacing,
+                  runSpacing: spacing,
+                  children: _buildQuickActionCards(itemWidth, filingType),
+                );
+              },
             );
           },
         ),
       ],
     );
+  }
+
+  List<Widget> _buildQuickActionCards(double itemWidth, String? filingType) {
+    List<Widget> cards = [];
+    
+    if (filingType == 'T1') {
+      // T1 Personal user - show Your Forms instead of Business Tax, new filing goes to T1 directly
+      cards.addAll([
+        SizedBox(
+          width: itemWidth,
+          child: _buildActionCard(
+            icon: Icons.add_circle_outline,
+            title: 'New Filing',
+            subtitle: 'Start T1 Personal',
+            onTap: () => _handleT1NewFiling(),
+          ),
+        ),
+        SizedBox(
+          width: itemWidth,
+          child: _buildActionCard(
+            icon: Icons.folder_outlined,
+            title: 'Your Forms',
+            subtitle: 'View saved forms',
+            onTap: () => context.go('/tax-forms/filled-forms'),
+          ),
+        ),
+      ]);
+    } else if (filingType == 'T2') {
+      // T2 Business user - show Your Forms instead of Personal Tax, new filing goes to T2 directly  
+      cards.addAll([
+        SizedBox(
+          width: itemWidth,
+          child: _buildActionCard(
+            icon: Icons.add_circle_outline,
+            title: 'New Filing',
+            subtitle: 'Start T2 Business',
+            onTap: () => _handleT2NewFiling(),
+          ),
+        ),
+        SizedBox(
+          width: itemWidth,
+          child: _buildActionCard(
+            icon: Icons.folder_outlined,
+            title: 'Your Forms',
+            subtitle: 'View saved forms',
+            onTap: () => context.go('/tax-forms/filled-forms'),
+          ),
+        ),
+      ]);
+    } else {
+      // Default behavior (no filing type selected) - show both Personal and Business
+      cards.addAll([
+        SizedBox(
+          width: itemWidth,
+          child: _buildActionCard(
+            icon: Icons.person_outline,
+            title: 'Personal Tax',
+            subtitle: 'File T1 return',
+            onTap: () => _handlePersonalTaxTap(),
+          ),
+        ),
+        SizedBox(
+          width: itemWidth,
+          child: _buildActionCard(
+            icon: Icons.business_outlined,
+            title: 'Business Tax',
+            subtitle: 'File business return',
+            onTap: () => _handleT2NewFiling(),
+          ),
+        ),
+      ]);
+    }
+    
+    // Always show Upload Documents and Track Status
+    cards.addAll([
+      SizedBox(
+        width: itemWidth,
+        child: _buildActionCard(
+          icon: Icons.upload_file_outlined,
+          title: 'Upload Documents',
+          subtitle: 'Add tax documents',
+          onTap: () => context.go('/documents/upload'),
+        ),
+      ),
+      SizedBox(
+        width: itemWidth,
+        child: _buildActionCard(
+          icon: Icons.track_changes_outlined,
+          title: 'Track Status',
+          subtitle: 'Check filing status',
+          onTap: () => context.go('/filing-status'),
+        ),
+      ),
+    ]);
+    
+    return cards;
   }
 
   Widget _buildActionCard({

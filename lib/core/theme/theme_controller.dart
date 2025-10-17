@@ -16,11 +16,15 @@ class ThemeController {
   /// Simple user display name for welcome banner
   static final ValueNotifier<String> userName = ValueNotifier<String>('User');
   
+  /// User's filing type preference (T1 Personal or T2 Business)
+  static final ValueNotifier<String?> filingType = ValueNotifier<String?>(null);
+  
   /// Initialize auth state from SharedPreferences
   static Future<void> initialize() async {
     final prefs = await SharedPreferences.getInstance();
     isLoggedIn.value = prefs.getBool('is_logged_in') ?? false;
     userName.value = prefs.getString('user_name') ?? 'User';
+    filingType.value = prefs.getString('filing_type');
   }
   
   /// Set login state
@@ -35,6 +39,13 @@ class ThemeController {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setString('user_name', name);
     userName.value = name;
+  }
+
+  /// Set user filing type preference
+  static Future<void> setFilingType(String type) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString('filing_type', type);
+    filingType.value = type;
   }
 
   /// Toggle between light and dark theme. If system, it will switch to dark first.

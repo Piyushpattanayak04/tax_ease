@@ -5,6 +5,7 @@ import 'package:go_router/go_router.dart';
 import '../../../../core/constants/app_colors.dart';
 import '../../../../core/constants/app_dimensions.dart';
 import '../../../../shared/animations/smooth_animations.dart';
+import '../../../../core/theme/theme_controller.dart';
 
 class OtpVerificationPage extends StatefulWidget {
   final String email;
@@ -268,6 +269,9 @@ class _OtpVerificationPageState extends State<OtpVerificationPage> {
         _isLoading = false;
       });
 
+      // Set user as logged in
+      await ThemeController.setLoggedIn(true);
+      
       // Show success message
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
