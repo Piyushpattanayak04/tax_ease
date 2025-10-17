@@ -1,8 +1,6 @@
 import 'dart:io';
-import 'dart:typed_data';
 import 'dart:ui' as ui;
 import 'package:flutter/material.dart';
-import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
 
 /// Simple script to create a padded version of the logo for adaptive icons
@@ -50,6 +48,6 @@ void main() async {
   if (pngBytes != null) {
     final File outputFile = File('assets/images/logos/logo_padded.png');
     await outputFile.writeAsBytes(pngBytes.buffer.asUint8List());
-    print('Padded logo created: ${outputFile.path}');
+    // Logo created successfully
   }
 }

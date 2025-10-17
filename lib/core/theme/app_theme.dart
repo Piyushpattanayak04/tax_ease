@@ -134,9 +134,9 @@ class AppTheme {
 
         // Scroll behavior for smooth scrolling
         scrollbarTheme: ScrollbarThemeData(
-          thumbColor: MaterialStateProperty.all(AppColors.grey400),
-          trackColor: MaterialStateProperty.all(AppColors.grey200),
-          thickness: MaterialStateProperty.all(4.0),
+          thumbColor: WidgetStateProperty.all(AppColors.grey400),
+          trackColor: WidgetStateProperty.all(AppColors.grey200),
+          thickness: WidgetStateProperty.all(4.0),
           radius: const Radius.circular(AppDimensions.radiusSm),
         ),
 
@@ -273,9 +273,9 @@ class AppTheme {
 
         // Scroll behavior for smooth scrolling
         scrollbarTheme: ScrollbarThemeData(
-          thumbColor: MaterialStateProperty.all(AppColors.grey400),
-          trackColor: MaterialStateProperty.all(AppColors.grey700),
-          thickness: MaterialStateProperty.all(4.0),
+          thumbColor: WidgetStateProperty.all(AppColors.grey400),
+          trackColor: WidgetStateProperty.all(AppColors.grey700),
+          thickness: WidgetStateProperty.all(4.0),
           radius: const Radius.circular(AppDimensions.radiusSm),
         ),
 

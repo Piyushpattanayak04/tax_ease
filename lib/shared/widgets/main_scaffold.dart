@@ -77,7 +77,7 @@ class _BottomNavigationBarState extends State<_BottomNavigationBar> {
                 borderRadius: BorderRadius.circular(35),
                 boxShadow: [
                   BoxShadow(
-                    color: AppColors.primary.withOpacity(0.35),
+                    color: AppColors.primary.withValues(alpha: 0.35),
                     blurRadius: 24,
                     offset: const Offset(0, 8),
                   ),
@@ -105,7 +105,7 @@ class _BottomNavigationBarState extends State<_BottomNavigationBar> {
                     context: context,
                     icon: Icons.description_outlined,
                     activeIcon: Icons.description,
-                    route: '/tax-forms',
+                    route: '/tax-forms/filled-forms',
                     isActive: location.startsWith('/tax-forms'),
                   ),
                   _buildNavItem(
@@ -153,7 +153,7 @@ class _BottomNavigationBarState extends State<_BottomNavigationBar> {
             curve: Curves.easeOutCubic,
             padding: const EdgeInsets.all(10),
             decoration: BoxDecoration(
-              color: isActive ? AppColors.white.withOpacity(0.15) : Colors.transparent,
+              color: isActive ? AppColors.white.withValues(alpha: 0.15) : Colors.transparent,
               shape: BoxShape.circle,
             ),
             child: AnimatedSwitcher(

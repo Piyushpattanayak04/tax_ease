@@ -7,6 +7,7 @@ import '../../../../core/utils/responsive.dart';
 import '../../../../core/theme/theme_controller.dart';
 import '../../../../shared/animations/smooth_animations.dart';
 import '../../../tax_forms/data/services/t1_form_storage_service.dart';
+import '../../../tax_forms/data/services/t2_form_storage_service.dart';
 
 class ProfilePage extends StatelessWidget {
   const ProfilePage({super.key});
@@ -61,7 +62,7 @@ class ProfilePage extends StatelessWidget {
         children: [
           CircleAvatar(
             radius: 40,
-            backgroundColor: AppColors.primary.withOpacity(0.1),
+            backgroundColor: AppColors.primary.withValues(alpha: 0.1),
             child: Text(
               'JD',
               style: TextStyle(
@@ -125,7 +126,7 @@ class ProfilePage extends StatelessWidget {
         'onTap': () async {
           // Show confirmation dialog
           final shouldSignOut = await _showSignOutDialog(context);
-          if (shouldSignOut == true) {
+          if (shouldSignOut == true && context.mounted) {
             await _performSignOut(context);
           }
         },
@@ -201,8 +202,9 @@ class ProfilePage extends StatelessWidget {
 
   Future<void> _performSignOut(BuildContext context) async {
     try {
-      // Clear forms data and auth state first
+      // Clear all forms data and auth state first
       await T1FormStorageService.instance.clearAllFormsData();
+      await T2FormStorageService.instance.clearAllFormsData();
       await ThemeController.setLoggedIn(false);
       await ThemeController.setUserName('User');
       

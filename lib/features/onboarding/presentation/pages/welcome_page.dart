@@ -18,10 +18,6 @@ class _WelcomePageState extends State<WelcomePage>
   late AnimationController _slideController;
   late AnimationController _backgroundController;
   
-  late Animation<double> _fadeAnimation;
-  late Animation<double> _scaleAnimation;
-  late Animation<Offset> _slideAnimation;
-  late Animation<double> _backgroundAnimation;
   
   @override
   void initState() {
@@ -45,26 +41,6 @@ class _WelcomePageState extends State<WelcomePage>
       vsync: this,
     );
     
-    // Initialize animations
-    _fadeAnimation = CurvedAnimation(
-      parent: _fadeController,
-      curve: Curves.easeInOut,
-    );
-    _scaleAnimation = CurvedAnimation(
-      parent: _scaleController,
-      curve: Curves.elasticOut,
-    );
-    _slideAnimation = Tween<Offset>(
-      begin: const Offset(0.0, 0.3),
-      end: Offset.zero,
-    ).animate(CurvedAnimation(
-      parent: _slideController,
-      curve: Curves.easeOutCubic,
-    ));
-    _backgroundAnimation = CurvedAnimation(
-      parent: _backgroundController,
-      curve: Curves.easeInOut,
-    );
     
     // Start staggered animations
     _startAnimations();
@@ -170,7 +146,7 @@ class _WelcomePageState extends State<WelcomePage>
                           child: Text(
                             'Simplify your tax filing process\nwith secure and efficient solutions',
                             style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                              color: AppColors.white.withOpacity(0.9),
+                              color: AppColors.white.withValues(alpha: 0.9),
                               fontWeight: FontWeight.w400,
                             ),
                             textAlign: TextAlign.center,
@@ -290,7 +266,7 @@ class _WelcomePageState extends State<WelcomePage>
           width: 40,
           height: 40,
           decoration: BoxDecoration(
-            color: AppColors.white.withOpacity(0.2),
+            color: AppColors.white.withValues(alpha: 0.2),
             borderRadius: BorderRadius.circular(20),
           ),
           child: Icon(
@@ -304,7 +280,7 @@ class _WelcomePageState extends State<WelcomePage>
           child: Text(
             text,
             style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-              color: AppColors.white.withOpacity(0.9),
+              color: AppColors.white.withValues(alpha: 0.85),
               fontWeight: FontWeight.w400,
             ),
           ),

@@ -5,6 +5,8 @@ import '../../../../core/constants/app_dimensions.dart';
 import '../../../../core/utils/smooth_scroll_physics.dart';
 import '../../../../core/utils/responsive.dart';
 import '../../../../shared/animations/smooth_animations.dart';
+import '../../data/services/t1_form_storage_service.dart';
+import '../../data/services/t2_form_storage_service.dart';
 
 class TaxFormsPage extends StatelessWidget {
   const TaxFormsPage({super.key});
@@ -14,7 +16,10 @@ class TaxFormsPage extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Tax Forms'),
-        automaticallyImplyLeading: false,
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back),
+          onPressed: () => context.go('/tax-forms/filled-forms'),
+        ),
       ),
       body: ResponsiveContainer(
         centerContent: false,
@@ -45,7 +50,11 @@ class TaxFormsPage extends StatelessWidget {
                 icon: Icons.person_outline,
                 title: 'Personal Tax Filing (T1)',
                 subtitle: 'File your individual tax return',
-                onTap: () => context.go('/tax-forms/filled-forms'),
+                onTap: () {
+                  // Create new T1 form
+                  final newForm = T1FormStorageService.instance.createNewForm();
+                  context.push('/tax-forms/personal?formId=${newForm.id}');
+                },
               ),
             ),
             const SizedBox(height: 16),
@@ -54,9 +63,13 @@ class TaxFormsPage extends StatelessWidget {
               child: _buildFormOption(
                 context,
                 icon: Icons.business_outlined,
-                title: 'Business Tax Filing',
+                title: 'Business Tax Filing (T2)',
                 subtitle: 'File your business tax return',
-                onTap: () => context.go('/tax-forms/business'),
+                onTap: () {
+                  // Create new T2 form
+                  final newForm = T2FormStorageService.instance.createNewForm();
+                  context.push('/tax-forms/business?formId=${newForm.id}');
+                },
               ),
             ),
           ],
@@ -96,7 +109,7 @@ class TaxFormsPage extends StatelessWidget {
               width: 60,
               height: 60,
               decoration: BoxDecoration(
-                color: AppColors.primary.withOpacity(0.1),
+                color: AppColors.primary.withValues(alpha: 0.1),
                 borderRadius: BorderRadius.circular(30),
               ),
               child: Icon(

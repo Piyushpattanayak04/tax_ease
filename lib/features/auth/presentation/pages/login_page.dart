@@ -290,17 +290,19 @@ class _LoginPageState extends State<LoginPage> {
       // Set demo user name
       await ThemeController.setUserName('John');
       
-      // Show success message
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: const Text('Login successful!'),
-          backgroundColor: AppColors.success,
-          behavior: SnackBarBehavior.floating,
-        ),
-      );
+      if (mounted) {
+        // Show success message
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: const Text('Login successful!'),
+            backgroundColor: AppColors.success,
+            behavior: SnackBarBehavior.floating,
+          ),
+        );
 
-      // Navigate to home
-      context.go('/home');
+        // Navigate to home
+        context.go('/home');
+      }
     }
   }
 

@@ -5,6 +5,8 @@ import '../../../../core/constants/app_dimensions.dart';
 import '../../../../shared/animations/smooth_animations.dart';
 import '../../../../core/theme/theme_controller.dart';
 import '../../../tax_forms/data/services/t1_form_storage_service.dart';
+import '../../../tax_forms/data/services/t2_form_storage_service.dart';
+import '../../../tax_forms/data/services/unified_form_service.dart';
 
 class DashboardPage extends StatefulWidget {
   const DashboardPage({super.key});
@@ -172,13 +174,13 @@ class _DashboardPageState extends State<DashboardPage> with AutomaticKeepAliveCl
         borderRadius: BorderRadius.circular(AppDimensions.radius2xl),
         boxShadow: [
           BoxShadow(
-            color: AppColors.primary.withOpacity(0.3),
+            color: AppColors.primary.withValues(alpha: 0.3),
             blurRadius: 20,
             offset: const Offset(0, 8),
             spreadRadius: 0,
           ),
           BoxShadow(
-            color: AppColors.accentLight.withOpacity(0.1),
+            color: AppColors.accentLight.withValues(alpha: 0.1),
             blurRadius: 40,
             offset: const Offset(0, 20),
             spreadRadius: -5,
@@ -193,7 +195,7 @@ class _DashboardPageState extends State<DashboardPage> with AutomaticKeepAliveCl
             right: -25,
             child: _decorShape(
               size: 100,
-              color: AppColors.accentLight.withOpacity(0.12),
+              color: AppColors.accentLight.withValues(alpha: 0.12),
               shape: BoxShape.circle,
             ),
           ),
@@ -202,7 +204,7 @@ class _DashboardPageState extends State<DashboardPage> with AutomaticKeepAliveCl
             left: -15,
             child: _decorShape(
               size: 80,
-              color: AppColors.primaryLight.withOpacity(0.08),
+              color: AppColors.primaryLight.withValues(alpha: 0.08),
               shape: BoxShape.circle,
             ),
           ),
@@ -224,7 +226,7 @@ class _DashboardPageState extends State<DashboardPage> with AutomaticKeepAliveCl
                             Text(
                               _greeting(now),
                               style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                                color: AppColors.white.withOpacity(0.85),
+                color: AppColors.white.withValues(alpha: 0.85),
                                 fontWeight: FontWeight.w500,
                                 letterSpacing: 0.2,
                               ),
@@ -245,7 +247,7 @@ class _DashboardPageState extends State<DashboardPage> with AutomaticKeepAliveCl
                             Text(
                               'Let\'s make tax filing effortless',
                               style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                                color: AppColors.white.withOpacity(0.75),
+                color: AppColors.white.withValues(alpha: 0.75),
                                 fontWeight: FontWeight.w400,
                               ),
                             ),
@@ -268,13 +270,13 @@ class _DashboardPageState extends State<DashboardPage> with AutomaticKeepAliveCl
                             begin: Alignment.topLeft,
                             end: Alignment.bottomRight,
                             colors: [
-                              AppColors.white.withOpacity(0.25),
-                              AppColors.white.withOpacity(0.15),
+                              AppColors.white.withValues(alpha: 0.25),
+                              AppColors.white.withValues(alpha: 0.15),
                             ],
                           ),
                           borderRadius: BorderRadius.circular(18),
                           border: Border.all(
-                            color: AppColors.white.withOpacity(0.2),
+                            color: AppColors.white.withValues(alpha: 0.2),
                             width: 1.5,
                           ),
                         ),
@@ -310,7 +312,7 @@ class _DashboardPageState extends State<DashboardPage> with AutomaticKeepAliveCl
                   Container(
                     width: 1,
                     height: 30,
-                    color: AppColors.white.withOpacity(0.2),
+                    color: AppColors.white.withValues(alpha: 0.2),
                   ),
                   const SizedBox(width: 12),
                   Expanded(
@@ -324,7 +326,7 @@ class _DashboardPageState extends State<DashboardPage> with AutomaticKeepAliveCl
                   Container(
                     width: 1,
                     height: 30,
-                    color: AppColors.white.withOpacity(0.2),
+                    color: AppColors.white.withValues(alpha: 0.2),
                   ),
                   const SizedBox(width: 12),
                   Expanded(
@@ -352,7 +354,7 @@ class _DashboardPageState extends State<DashboardPage> with AutomaticKeepAliveCl
       children: [
         Icon(
           icon,
-          color: AppColors.white.withOpacity(0.9),
+          color: AppColors.white.withValues(alpha: 0.9),
           size: 18,
         ),
         const SizedBox(height: 4),
@@ -366,7 +368,7 @@ class _DashboardPageState extends State<DashboardPage> with AutomaticKeepAliveCl
         Text(
           label,
           style: Theme.of(context).textTheme.labelSmall?.copyWith(
-            color: AppColors.white.withOpacity(0.75),
+            color: AppColors.white.withValues(alpha: 0.75),
             fontWeight: FontWeight.w500,
           ),
         ),
@@ -385,7 +387,7 @@ class _DashboardPageState extends State<DashboardPage> with AutomaticKeepAliveCl
       decoration: BoxDecoration(
         shape: shape,
         gradient: RadialGradient(
-          colors: [color, color.withOpacity(0.0)],
+          colors: [color, color.withValues(alpha: 0.0)],
           stops: const [0.3, 1.0],
         ),
       ),
@@ -449,7 +451,7 @@ class _DashboardPageState extends State<DashboardPage> with AutomaticKeepAliveCl
                   child: progress == 0.0
                       ? Container(
                           decoration: BoxDecoration(
-                            color: AppColors.primary.withOpacity(0.1),
+                            color: AppColors.primary.withValues(alpha: 0.1),
                             borderRadius: BorderRadius.circular(20),
                           ),
                           child: Icon(
@@ -493,7 +495,9 @@ class _DashboardPageState extends State<DashboardPage> with AutomaticKeepAliveCl
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        'T1 Tax Form Progress',
+                        progressData['formType'] != null 
+                            ? '${progressData['formType']} Tax Form Progress'
+                            : 'Tax Form Progress',
                         style: Theme.of(context).textTheme.titleSmall?.copyWith(
                           fontWeight: FontWeight.w600,
                         ),
@@ -525,31 +529,64 @@ class _DashboardPageState extends State<DashboardPage> with AutomaticKeepAliveCl
   
   Future<void> _handleProgressCardTap(Map<String, dynamic> progressData) async {
     try {
-      final forms = await T1FormStorageService.instance.loadAllForms();
-      
-      // If no forms exist, create a new one
-      if (forms.isEmpty) {
-        final newForm = T1FormStorageService.instance.createNewForm();
-        context.go('/tax-forms/personal?formId=${newForm.id}');
+      // If there's a specific form ID and type in progress data, navigate to it
+      if (progressData['formId'] != null && progressData['formType'] != null) {
+        final formId = progressData['formId'] as String;
+        final formType = progressData['formType'] as String;
+        
+        if (formType == 'T1') {
+          context.go('/tax-forms/personal?formId=$formId');
+        } else if (formType == 'T2') {
+          context.go('/tax-forms/business?formId=$formId');
+        } else {
+          context.go('/tax-forms/filled-forms');
+        }
         return;
       }
       
-      // Find the most recent draft form
-      final draftForms = forms.where((f) => f.status == 'draft').toList();
+      // If no progress data, try to find most recent form from both services
+      final t1Forms = await T1FormStorageService.instance.loadAllForms();
+      final t2Forms = await T2FormStorageService.instance.loadAllForms();
       
-      if (draftForms.isNotEmpty) {
+      // If no forms exist, show the Your Forms page to let user choose
+      if (t1Forms.isEmpty && t2Forms.isEmpty) {
+        if (mounted) context.go('/tax-forms/filled-forms');
+        return;
+      }
+      
+      // Find the most recent draft from both types
+      final allDrafts = [
+        ...t1Forms.where((f) => f.status == 'draft').map((f) => {
+          'id': f.id,
+          'type': 'T1',
+          'updatedAt': f.updatedAt ?? DateTime(0),
+        }),
+        ...t2Forms.where((f) => f.status == 'draft').map((f) => {
+          'id': f.id,
+          'type': 'T2', 
+          'updatedAt': f.updatedAt ?? DateTime(0),
+        }),
+      ];
+      
+      if (allDrafts.isNotEmpty) {
         // Navigate to the most recent draft
-        final mostRecentDraft = draftForms.reduce((a, b) => 
-          (a.updatedAt ?? DateTime(0)).isAfter(b.updatedAt ?? DateTime(0)) ? a : b);
-        context.go('/tax-forms/personal?formId=${mostRecentDraft.id}');
+        final mostRecent = allDrafts.reduce((a, b) => 
+          (a['updatedAt'] as DateTime).isAfter(b['updatedAt'] as DateTime) ? a : b);
+        
+        if (mounted) {
+          if (mostRecent['type'] == 'T1') {
+            context.go('/tax-forms/personal?formId=${mostRecent['id']}');
+          } else {
+            context.go('/tax-forms/business?formId=${mostRecent['id']}');
+          }
+        }
       } else {
-        // All forms are submitted, show the filled forms page
-        context.go('/tax-forms/filled-forms');
+        // All forms are submitted, show the Your Forms page
+        if (mounted) context.go('/tax-forms/filled-forms');
       }
     } catch (e) {
-      // Fallback to creating a new form
-      final newForm = T1FormStorageService.instance.createNewForm();
-      context.go('/tax-forms/personal?formId=${newForm.id}');
+      // Fallback to Your Forms page
+      if (mounted) context.go('/tax-forms/filled-forms');
     }
   }
   
@@ -564,53 +601,42 @@ class _DashboardPageState extends State<DashboardPage> with AutomaticKeepAliveCl
         // Navigate to the most recent draft
         final mostRecentDraft = draftForms.reduce((a, b) => 
           (a.updatedAt ?? DateTime(0)).isAfter(b.updatedAt ?? DateTime(0)) ? a : b);
-        context.go('/tax-forms/personal?formId=${mostRecentDraft.id}');
+        if (mounted) context.go('/tax-forms/personal?formId=${mostRecentDraft.id}');
       } else {
         // Create a new form
         final newForm = T1FormStorageService.instance.createNewForm();
-        context.go('/tax-forms/personal?formId=${newForm.id}');
+        if (mounted) context.go('/tax-forms/personal?formId=${newForm.id}');
       }
     } catch (e) {
       // Fallback to creating a new form
       final newForm = T1FormStorageService.instance.createNewForm();
-      context.go('/tax-forms/personal?formId=${newForm.id}');
+      if (mounted) context.go('/tax-forms/personal?formId=${newForm.id}');
     }
   }
   
   Future<Map<String, dynamic>> _getProgressStatus() async {
     try {
-      return await T1FormStorageService.instance.getProgressStatus();
+      return await UnifiedFormService.instance.getUnifiedProgressStatus();
     } catch (e) {
       return {
         'progress': 0.0,
         'progressText': 'Get Started',
+        'formType': null,
         'isComplete': false,
       };
     }
   }
   
-  Future<Map<String, int>> _getFormCounts() async {
+  Future<Map<String, dynamic>> _getFormCounts() async {
     try {
-      final forms = await T1FormStorageService.instance.loadAllForms();
-      int submittedCount = 0;
-      int draftsCount = 0;
-      
-      for (final form in forms) {
-        if (form.status == 'submitted') {
-          submittedCount++;
-        } else if (form.status == 'draft') {
-          draftsCount++;
-        }
-      }
-      
-      return {
-        'submitted': submittedCount,
-        'drafts': draftsCount,
-      };
+      return await UnifiedFormService.instance.getFormCounts();
     } catch (e) {
       return {
         'submitted': 0,
         'drafts': 0,
+        't1Count': 0,
+        't2Count': 0,
+        'total': 0,
       };
     }
   }
@@ -627,10 +653,10 @@ class _DashboardPageState extends State<DashboardPage> with AutomaticKeepAliveCl
           ),
         ),
         const SizedBox(height: 16),
-        FutureBuilder<Map<String, int>>(
+        FutureBuilder<Map<String, dynamic>>(
           future: _getFormCounts(),
           builder: (context, snapshot) {
-            final formCounts = snapshot.data ?? {'submitted': 0, 'drafts': 0};
+            final formCounts = snapshot.data ?? {'submitted': 0, 'drafts': 0, 'total': 0};
             final submittedCount = formCounts['submitted'] ?? 0;
             final draftsCount = formCounts['drafts'] ?? 0;
             
@@ -823,7 +849,7 @@ class _DashboardPageState extends State<DashboardPage> with AutomaticKeepAliveCl
               width: 40,
               height: 40,
               decoration: BoxDecoration(
-                color: AppColors.primary.withOpacity(0.1),
+                color: AppColors.primary.withValues(alpha: 0.1),
                 borderRadius: BorderRadius.circular(20),
               ),
               child: Icon(
@@ -945,9 +971,9 @@ class _DashboardPageState extends State<DashboardPage> with AutomaticKeepAliveCl
           width: double.infinity,
           padding: const EdgeInsets.all(AppDimensions.spacingMd),
           decoration: BoxDecoration(
-            color: AppColors.warning.withOpacity(0.1),
+            color: AppColors.warning.withValues(alpha: 0.1),
             borderRadius: BorderRadius.circular(AppDimensions.radiusLg),
-            border: Border.all(color: AppColors.warning.withOpacity(0.3)),
+            border: Border.all(color: AppColors.warning.withValues(alpha: 0.3)),
           ),
           child: Row(
             children: [

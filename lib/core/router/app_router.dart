@@ -13,7 +13,7 @@ import '../../features/tax_forms/presentation/pages/tax_forms_page.dart';
 import '../../features/tax_forms/presentation/pages/personal_tax_form_page.dart';
 import '../../features/tax_forms/presentation/pages/business_tax_form_page.dart';
 import '../../features/tax_forms/presentation/pages/form_review_page.dart';
-import '../../features/tax_forms/presentation/pages/filled_forms_page.dart';
+import '../../features/tax_forms/presentation/pages/filled_forms_page.dart'; // YourFormsPage
 import '../../features/documents/presentation/pages/documents_page.dart';
 import '../../features/documents/presentation/pages/upload_documents_page.dart';
 import '../../features/filing/presentation/pages/filing_status_page.dart';
@@ -106,8 +106,8 @@ class AppRouter {
         navigatorKey: _shellNavigatorKey,
         builder: (context, state, child) {
           return MainScaffold(
-            child: child,
             currentPath: state.uri.path,
+            child: child,
           );
         },
         routes: [
@@ -118,11 +118,14 @@ class AppRouter {
             pageBuilder: (context, state) => _page(const DashboardPage()),
           ),
 
-          // Tax Forms (main list page only)
+          // YourForms (was filled-forms, now main nav page)
           GoRoute(
-            path: '/tax-forms',
-            name: 'tax-forms',
-            pageBuilder: (context, state) => _page(const TaxFormsPage()),
+            path: '/tax-forms/filled-forms',
+            name: 'your-forms',
+            pageBuilder: (context, state) {
+              final shouldRefresh = state.uri.queryParameters['refresh'] == 'true';
+              return _page(YourFormsPage(shouldRefresh: shouldRefresh));
+            },
           ),
 
           // Documents (main page only)
@@ -145,12 +148,9 @@ class AppRouter {
       
       // Tax Form Sub-routes (full screen)
       GoRoute(
-        path: '/tax-forms/filled-forms',
-        name: 'filled-forms',
-        pageBuilder: (context, state) {
-          final shouldRefresh = state.uri.queryParameters['refresh'] == 'true';
-          return _page(FilledFormsPage(shouldRefresh: shouldRefresh));
-        },
+        path: '/tax-forms',
+        name: 'tax-forms',
+        pageBuilder: (context, state) => _page(const TaxFormsPage()),
       ),
       GoRoute(
         path: '/tax-forms/personal',
@@ -163,7 +163,10 @@ class AppRouter {
       GoRoute(
         path: '/tax-forms/business',
         name: 'business-tax-form',
-        pageBuilder: (context, state) => _page(const BusinessTaxFormPage()),
+        pageBuilder: (context, state) {
+          final formId = state.uri.queryParameters['formId'];
+          return _page(BusinessTaxFormPage(formId: formId));
+        },
       ),
       GoRoute(
         path: '/tax-forms/review',

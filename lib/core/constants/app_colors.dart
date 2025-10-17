@@ -137,7 +137,7 @@ class AppColors {
     onErrorContainer: Color(0xFF410002), // Dark red text
     outline: Color(0xFF73777F), // Blue-grey outline
     outlineVariant: Color(0xFFC3C7CF), // Light outline
-    surfaceVariant: Color(0xFFE1E2EC), // Light blue-grey surface
+    surfaceContainerHighest: Color(0xFFE1E2EC), // Light blue-grey surface
     onSurfaceVariant: Color(0xFF44474E), // Dark text
     inverseSurface: Color(0xFF2E3132), // Dark surface for contrast
     onInverseSurface: Color(0xFFF0F0F3), // Light text on dark
@@ -171,7 +171,7 @@ class AppColors {
     onErrorContainer: Color(0xFFFFDAD6), // Light red text
     outline: Color(0xFF8D9199), // Light outline for dark
     outlineVariant: Color(0xFF44474E), // Dark outline
-    surfaceVariant: Color(0xFF44474E), // Dark blue-grey surface
+    surfaceContainerHighest: Color(0xFF44474E), // Dark blue-grey surface
     onSurfaceVariant: Color(0xFFC3C7CF), // Light text
     inverseSurface: Color(0xFFE1E2E8), // Light surface for contrast
     onInverseSurface: Color(0xFF2E3132), // Dark text on light
