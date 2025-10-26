@@ -11,7 +11,7 @@ class CombinedFormProgress {
   final DateTime? updatedAt;
   final double progress;
   final T1FormData? t1Form;
-  final T2FormData? t2Form;
+final T2OnboardingData? t2Form;
 
   CombinedFormProgress({
     required this.formId,

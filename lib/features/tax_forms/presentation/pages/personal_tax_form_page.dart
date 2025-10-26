@@ -6,7 +6,8 @@ import '../../../../core/constants/app_dimensions.dart';
 import '../../data/models/t1_form_models_simple.dart';
 import '../../data/services/t1_form_storage_service.dart';
 import '../widgets/t1_personal_info_step.dart';
-import '../widgets/t1_questionnaire_step.dart';
+import '../widgets/t1_questionnaire_1_step.dart';
+import '../widgets/t1_questionnaire_2_step.dart';
 import '../widgets/t1_form_progress_bar.dart';
 
 class PersonalTaxFormPage extends StatefulWidget {
@@ -25,7 +26,7 @@ class _PersonalTaxFormPageState extends State<PersonalTaxFormPage>
   late AnimationController _slideController;
   
   int _currentStep = 0;
-  final int _totalSteps = 2; // Personal Info, Questionnaire
+  final int _totalSteps = 3; // Personal Info, Questionnaire 1, Questionnaire 2
   
   T1FormData _formData = const T1FormData.empty();
   bool _isLoading = true;
@@ -125,6 +126,18 @@ class _PersonalTaxFormPageState extends State<PersonalTaxFormPage>
   }
 
   void _nextStep() {
+    // Special logic: Skip Questionnaire 2 if both Q4 and Q5 are false
+    if (_currentStep == 1) {
+      final hasMovingExpenses = _formData.hasMovingExpenses ?? false;
+      final isSelfEmployed = _formData.isSelfEmployed ?? false;
+      
+      if (!hasMovingExpenses && !isSelfEmployed) {
+        // Skip to submission (Questionnaire 2 not needed)
+        _submitForm();
+        return;
+      }
+    }
+    
     if (_currentStep < _totalSteps - 1) {
       setState(() {
         _currentStep++;
@@ -269,20 +282,37 @@ class _PersonalTaxFormPageState extends State<PersonalTaxFormPage>
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Text(
-                      'Personal Info',
-                      style: TextStyle(
-                        fontSize: 12,
-                        fontWeight: _currentStep == 0 ? FontWeight.w600 : FontWeight.w400,
-                        color: _currentStep == 0 ? AppColors.primary : AppColors.grey500,
+                    Flexible(
+                      child: Text(
+                        'Personal Info',
+                        style: TextStyle(
+                          fontSize: 11,
+                          fontWeight: _currentStep == 0 ? FontWeight.w600 : FontWeight.w400,
+                          color: _currentStep == 0 ? AppColors.primary : AppColors.grey500,
+                        ),
+                        textAlign: TextAlign.center,
                       ),
                     ),
-                    Text(
-                      'Questionnaire',
-                      style: TextStyle(
-                        fontSize: 12,
-                        fontWeight: _currentStep == 1 ? FontWeight.w600 : FontWeight.w400,
-                        color: _currentStep == 1 ? AppColors.primary : AppColors.grey500,
+                    Flexible(
+                      child: Text(
+                        'Questionnaire 1',
+                        style: TextStyle(
+                          fontSize: 11,
+                          fontWeight: _currentStep == 1 ? FontWeight.w600 : FontWeight.w400,
+                          color: _currentStep == 1 ? AppColors.primary : AppColors.grey500,
+                        ),
+                        textAlign: TextAlign.center,
+                      ),
+                    ),
+                    Flexible(
+                      child: Text(
+                        'Questionnaire 2',
+                        style: TextStyle(
+                          fontSize: 11,
+                          fontWeight: _currentStep == 2 ? FontWeight.w600 : FontWeight.w400,
+                          color: _currentStep == 2 ? AppColors.primary : AppColors.grey500,
+                        ),
+                        textAlign: TextAlign.center,
                       ),
                     ),
                   ],
@@ -309,8 +339,15 @@ class _PersonalTaxFormPageState extends State<PersonalTaxFormPage>
                   },
                   onNext: _nextStep,
                 ),
-                // Step 2: Questionnaire
-                T1QuestionnaireStep(
+                // Step 2: Questionnaire 1 (Basic Yes/No Questions)
+                T1Questionnaire1Step(
+                  formData: _formData,
+                  onFormDataChanged: _updateFormData,
+                  onPrevious: _previousStep,
+                  onNext: _nextStep,
+                ),
+                // Step 3: Questionnaire 2 (Detailed Forms)
+                T1Questionnaire2Step(
                   formData: _formData,
                   onFormDataChanged: _updateFormData,
                   onPrevious: _previousStep,

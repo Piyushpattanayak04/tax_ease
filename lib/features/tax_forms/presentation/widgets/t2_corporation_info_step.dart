@@ -1,35 +1,4 @@
-import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
-import '../../../../core/constants/app_colors.dart';
-import '../../../../core/constants/app_dimensions.dart';
-import '../../../../core/utils/smooth_scroll_physics.dart';
-import '../../../../core/utils/responsive.dart';
-import '../../data/models/t2_form_models.dart';
-
-class T2CorporationInfoStep extends StatefulWidget {
-  final T2CorporationInfo corporationInfo;
-  final T2TaxYearInfo taxYearInfo;
-  final Function(T2CorporationInfo) onCorporationInfoChanged;
-  final Function(T2TaxYearInfo) onTaxYearInfoChanged;
-  final VoidCallback onNext;
-
-  const T2CorporationInfoStep({
-    super.key,
-    required this.corporationInfo,
-    required this.taxYearInfo,
-    required this.onCorporationInfoChanged,
-    required this.onTaxYearInfoChanged,
-    required this.onNext,
-  });
-
-  @override
-  State<T2CorporationInfoStep> createState() => _T2CorporationInfoStepState();
-}
-
-class _T2CorporationInfoStepState extends State<T2CorporationInfoStep> {
-  late T2CorporationInfo _corporationInfo;
-  late T2TaxYearInfo _taxYearInfo;
-
+/*
   // Controllers for Corporation Information
   late TextEditingController _businessNumberController;
   late TextEditingController _corporationNameController;
@@ -822,4 +791,4 @@ class _T2CorporationInfoStepState extends State<T2CorporationInfoStep> {
       ),
     );
   }
-}
+*/

@@ -26,7 +26,7 @@ class _SignupPageState extends State<SignupPage> {
   bool _isConfirmPasswordVisible = false;
   bool _isLoading = false;
   bool _agreeToTerms = false;
-  String? _selectedFilingType;
+  String? _selectedFilingType = 'T1'; // Default to T1 Personal
 
   @override
   void dispose() {
@@ -182,41 +182,9 @@ class _SignupPageState extends State<SignupPage> {
 
                       const SizedBox(height: 20),
 
-                      // Filing Type Selection
-                      Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            'Filing Type',
-                            style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                              fontWeight: FontWeight.w600,
-                              color: AppColors.grey700,
-                            ),
-                          ),
-                          const SizedBox(height: 12),
-                          Row(
-                            children: [
-                              Expanded(
-                                child: _buildFilingTypeButton(
-                                  'T1',
-                                  'T1 Personal',
-                                  Icons.person_outline,
-                                ),
-                              ),
-                              const SizedBox(width: 12),
-                              Expanded(
-                                child: _buildFilingTypeButton(
-                                  'T2',
-                                  'T2 Business',
-                                  Icons.business_outlined,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ],
-                      ),
-
-                      const SizedBox(height: 20),
+                      // Filing Type Selection - Hidden, defaults to Personal
+                      // Account type will be determined by admin database based on email
+                      const SizedBox(height: 0),
 
                       // Password field
                       TextFormField(

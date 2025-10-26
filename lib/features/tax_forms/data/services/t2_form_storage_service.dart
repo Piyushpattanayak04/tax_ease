@@ -4,10 +4,11 @@ import 'package:logger/logger.dart';
 import '../models/t2_form_models.dart';
 
 class T2FormStorageService {
-  static const String _t2FormDataKey = 'T2_FORM_DATA';
-  static const String _t2FormProgressKey = 'T2_FORM_PROGRESS';
-  static const String _t2FormLastSavedKey = 'T2_FORM_LAST_SAVED';
-  static const String _t2FormsListKey = 'T2_FORMS_LIST';
+  // New keys for On-Boarding
+  static const String _t2FormDataKey = 'T2_ONB_FORM_DATA';
+  static const String _t2FormProgressKey = 'T2_ONB_FORM_PROGRESS';
+  static const String _t2FormLastSavedKey = 'T2_ONB_FORM_LAST_SAVED';
+  static const String _t2FormsListKey = 'T2_ONB_FORMS_LIST';
 
   static T2FormStorageService? _instance;
   static T2FormStorageService get instance {
@@ -19,19 +20,13 @@ class T2FormStorageService {
 
   T2FormStorageService._();
 
-  /// Create a new T2 form with unique ID
-  T2FormData createNewForm() {
-    final id = 'T2_${DateTime.now().millisecondsSinceEpoch}';
-    return T2FormData(
-      id: id,
-      status: 'draft',
-      createdAt: DateTime.now(),
-      updatedAt: DateTime.now(),
-    );
+/// Create a new T2 On-Boarding form with unique ID
+  T2OnboardingData createNewForm() {
+    return T2OnboardingData.newForm();
   }
 
   /// Save multiple forms to SharedPreferences
-  Future<bool> saveAllForms(List<T2FormData> forms) async {
+Future<bool> saveAllForms(List<T2OnboardingData> forms) async {
     try {
       final prefs = await SharedPreferences.getInstance();
       final jsonList = forms.map((form) => form.toJson()).toList();
@@ -45,8 +40,8 @@ class T2FormStorageService {
     }
   }
 
-  /// Load all T2 forms from SharedPreferences
-  Future<List<T2FormData>> loadAllForms() async {
+/// Load all T2 On-Boarding forms from SharedPreferences
+  Future<List<T2OnboardingData>> loadAllForms() async {
     try {
       final prefs = await SharedPreferences.getInstance();
       final jsonString = prefs.getString(_t2FormsListKey);
@@ -56,7 +51,7 @@ class T2FormStorageService {
         final oldForm = await loadT2FormData();
         if (oldForm != null) {
           final migratedForm = oldForm.copyWith(
-            id: oldForm.id.isEmpty ? 'T2_${DateTime.now().millisecondsSinceEpoch}' : oldForm.id,
+            id: oldForm.id.isEmpty ? 'T2ONB_${DateTime.now().millisecondsSinceEpoch}' : oldForm.id,
           );
           await saveAllForms([migratedForm]);
           return [migratedForm];
@@ -65,7 +60,7 @@ class T2FormStorageService {
       }
       
       final jsonList = json.decode(jsonString) as List;
-      return jsonList.map((json) => T2FormData.fromJson(json)).toList();
+      return jsonList.map((e) => T2OnboardingData.fromJson(e as Map<String, dynamic>)).toList();
     } catch (e) {
       _logger.e('Error loading T2 forms: $e');
       return [];
@@ -73,7 +68,7 @@ class T2FormStorageService {
   }
 
   /// Save a specific form (update existing or add new)
-  Future<bool> saveForm(T2FormData form) async {
+Future<bool> saveForm(T2OnboardingData form) async {
     try {
       final forms = await loadAllForms();
       final index = forms.indexWhere((f) => f.id == form.id);
@@ -94,7 +89,7 @@ class T2FormStorageService {
   }
 
   /// Get a form by ID
-  Future<T2FormData?> getFormById(String id) async {
+Future<T2OnboardingData?> getFormById(String id) async {
     try {
       final forms = await loadAllForms();
       return forms.firstWhere((form) => form.id == id);
@@ -105,7 +100,7 @@ class T2FormStorageService {
   }
 
   /// Save T2 form data to SharedPreferences (Legacy method)
-  Future<bool> saveT2FormData(T2FormData formData) async {
+Future<bool> saveT2FormData(T2OnboardingData formData) async {
     try {
       final prefs = await SharedPreferences.getInstance();
       final jsonString = json.encode(formData.toJson());
@@ -125,15 +120,15 @@ class T2FormStorageService {
   }
 
   /// Load T2 form data from SharedPreferences (Legacy method)
-  Future<T2FormData?> loadT2FormData() async {
+Future<T2OnboardingData?> loadT2FormData() async {
     try {
       final prefs = await SharedPreferences.getInstance();
       final jsonString = prefs.getString(_t2FormDataKey);
       
       if (jsonString == null) return null;
       
-      final jsonData = json.decode(jsonString) as Map<String, dynamic>;
-      return T2FormData.fromJson(jsonData);
+final jsonData = json.decode(jsonString) as Map<String, dynamic>;
+      return T2OnboardingData.fromJson(jsonData);
     } catch (e) {
       _logger.e('Error loading T2 form data: $e');
       return null;
@@ -209,140 +204,47 @@ class T2FormStorageService {
   }
 
   /// Calculate form completion progress based on filled fields
-  double calculateFormProgress(T2FormData formData) {
+double calculateFormProgress(T2OnboardingData formData) {
     int totalFields = 0;
     int filledFields = 0;
 
-    // Corporation Info (Weight: 35%)
-    final corporationInfoProgress = _getCorporationInfoProgress(formData.corporationInfo);
-    totalFields += corporationInfoProgress['total']!;
-    filledFields += corporationInfoProgress['filled']!;
+// Checklist items (Weight: 25%)
+    totalFields += 5;
+    if (formData.craAuthorizationProvided) filledFields++;
+    if (formData.incorporationDocsProvided) filledFields++;
+    if (formData.payrollEnrollmentReturned) filledFields++;
+    if (formData.previousYearRecordsProvided) filledFields++;
+    if (formData.franchiseDocsProvided) filledFields++;
 
-    // Tax Year Info (Weight: 25%)
-    final taxYearInfoProgress = _getTaxYearInfoProgress(formData.taxYearInfo);
-    totalFields += taxYearInfoProgress['total']!;
-    filledFields += taxYearInfoProgress['filled']!;
+    // Company details (Weight: 60%)
+    totalFields += 12; // companyName, businessNumber, address, incorporationDate, isInactive, principalActivity, principalActivityPercentage, director, signingOfficer, signingOfficerPhone, totalSharesIssued, totalAmountOfShares
+    if (formData.companyName.isNotEmpty) filledFields++;
+    if (formData.businessNumber.isNotEmpty) filledFields++;
+    if (formData.registeredAddress.isNotEmpty) filledFields++;
+    if (formData.incorporationDate != null) filledFields++;
+    if (formData.isInactive) filledFields++; // counts as answered
+    if (formData.principalActivity.isNotEmpty) filledFields++;
+    if (formData.principalActivityPercentage > 0) filledFields++;
+    if (formData.directorFullName.isNotEmpty) filledFields++;
+    if (formData.signingOfficerFullNameAndPosition.isNotEmpty) filledFields++;
+    if (formData.signingOfficerPhone.isNotEmpty) filledFields++;
+    if (formData.totalSharesIssued > 0) filledFields++;
+    if (formData.totalAmountOfShares > 0) filledFields++;
 
-    // Taxable Income Info (Weight: 30%)
-    final taxableIncomeProgress = _getTaxableIncomeProgress(formData.taxableIncomeInfo);
-    totalFields += taxableIncomeProgress['total']!;
-    filledFields += taxableIncomeProgress['filled']!;
-
-    // Additional Information (Weight: 10%)
-    totalFields += 12; // Additional questions
-    if (formData.isInactive != null) filledFields++;
-    if (formData.usesIFRS != null) filledFields++;
-    if (formData.meetsSubstantiveCCPC != null) filledFields++;
-    if (formData.principalProduct1.isNotEmpty) filledFields++;
-    if (formData.principalProduct1Percentage > 0) filledFields++;
-    if (formData.immigratedToCanada != null) filledFields++;
-    if (formData.emigratedFromCanada != null) filledFields++;
-    if (formData.wantsQuarterlyInstallments != null) filledFields++;
-    if (formData.hasSubcontractors != null) filledFields++;
-    
-    // Bonus points for multiple products
-    if (formData.principalProduct2.isNotEmpty) filledFields++;
-    if (formData.principalProduct3.isNotEmpty) filledFields++;
-    if (formData.ceasedQuarterlyEligibility != null) filledFields++;
+    // Shareholders (Weight: 15%)
+    totalFields += 4; // At least one shareholder with name and percentages
+    if (formData.shareholders.isNotEmpty) {
+      final sh = formData.shareholders.first;
+      if (sh.name.isNotEmpty) filledFields++;
+      if (sh.commonSharesPercent > 0) filledFields++;
+      if (sh.preferenceSharesPercent > 0) filledFields++;
+      if (sh.sinOrBn.isNotEmpty) filledFields++;
+    }
 
     if (totalFields == 0) return 0.0;
     return filledFields / totalFields;
   }
 
-  Map<String, int> _getCorporationInfoProgress(T2CorporationInfo corporationInfo) {
-    int total = 0;
-    int filled = 0;
-
-    // Required fields
-    total += 8; // businessNumber, corporationName, headOfficeAddress, city, province, country, postalCode, typeOfCorporation
-    if (corporationInfo.businessNumber.isNotEmpty) filled++;
-    if (corporationInfo.corporationName.isNotEmpty) filled++;
-    if (corporationInfo.headOfficeAddress.isNotEmpty) filled++;
-    if (corporationInfo.headOfficeCity.isNotEmpty) filled++;
-    if (corporationInfo.headOfficeProvince.isNotEmpty) filled++;
-    if (corporationInfo.headOfficeCountry.isNotEmpty) filled++;
-    if (corporationInfo.headOfficePostalCode.isNotEmpty) filled++;
-    if (corporationInfo.typeOfCorporation.isNotEmpty) filled++;
-
-    // Optional mailing address (if provided)
-    if (corporationInfo.mailingAddress?.isNotEmpty == true) {
-      total += 5; // Mailing address fields
-      if (corporationInfo.mailingCity?.isNotEmpty == true) filled++;
-      if (corporationInfo.mailingProvince?.isNotEmpty == true) filled++;
-      if (corporationInfo.mailingCountry?.isNotEmpty == true) filled++;
-      if (corporationInfo.mailingPostalCode?.isNotEmpty == true) filled++;
-      filled++; // For the address itself
-    }
-
-    // Books and records address (if different)
-    if (corporationInfo.booksAndRecordsAddress?.isNotEmpty == true) {
-      total += 5; // Books and records address fields
-      if (corporationInfo.booksAndRecordsCity?.isNotEmpty == true) filled++;
-      if (corporationInfo.booksAndRecordsProvince?.isNotEmpty == true) filled++;
-      if (corporationInfo.booksAndRecordsCountry?.isNotEmpty == true) filled++;
-      if (corporationInfo.booksAndRecordsPostalCode?.isNotEmpty == true) filled++;
-      filled++; // For the address itself
-    }
-
-    return {'total': total, 'filled': filled};
-  }
-
-  Map<String, int> _getTaxYearInfoProgress(T2TaxYearInfo? taxYearInfo) {
-    int total = 4; // taxYearStart, taxYearEnd, isCanadianResident, and one more basic field
-    int filled = 0;
-
-    if (taxYearInfo != null) {
-      // Tax year dates are always filled in constructor
-      filled += 2; // taxYearStart, taxYearEnd
-      
-      // Canadian residency
-      filled++; // isCanadianResident has default
-      
-      // Additional questions
-      total += 8; // Additional boolean fields
-      if (taxYearInfo.hasAcquisitionOfControl) {
-        filled++;
-        if (taxYearInfo.acquisitionOfControlDate != null) filled++;
-      }
-      if (taxYearInfo.isDeemedTaxYearEnd) filled++;
-      if (taxYearInfo.isProfessionalCorporationPartnership) filled++;
-      if (taxYearInfo.isFirstYearAfterIncorporation) filled++;
-      if (taxYearInfo.isFirstYearAfterAmalgamation) filled++;
-      if (taxYearInfo.hasWindUpOfSubsidiary) filled++;
-      if (taxYearInfo.isFinalYearBeforeAmalgamation) filled++;
-      if (taxYearInfo.isFinalReturnUpToDissolution) filled++;
-      
-      if (taxYearInfo.functionalCurrency.isNotEmpty) filled++;
-      if (!taxYearInfo.isCanadianResident && taxYearInfo.countryOfResidence?.isNotEmpty == true) filled++;
-    }
-
-    return {'total': total, 'filled': filled};
-  }
-
-  Map<String, int> _getTaxableIncomeProgress(T2TaxableIncomeInfo taxableIncomeInfo) {
-    int total = 16; // All the numeric fields
-    int filled = 0;
-
-    // Count non-zero values as filled
-    if (taxableIncomeInfo.netIncomeOrLoss != 0.0) filled++;
-    if (taxableIncomeInfo.charitableDonations != 0.0) filled++;
-    if (taxableIncomeInfo.culturalGifts != 0.0) filled++;
-    if (taxableIncomeInfo.ecologicalGifts != 0.0) filled++;
-    if (taxableIncomeInfo.taxableDividendsDeductible != 0.0) filled++;
-    if (taxableIncomeInfo.partVITaxDeduction != 0.0) filled++;
-    if (taxableIncomeInfo.nonCapitalLosses != 0.0) filled++;
-    if (taxableIncomeInfo.netCapitalLosses != 0.0) filled++;
-    if (taxableIncomeInfo.restrictedFarmLosses != 0.0) filled++;
-    if (taxableIncomeInfo.farmLosses != 0.0) filled++;
-    if (taxableIncomeInfo.limitedPartnershipLosses != 0.0) filled++;
-    if (taxableIncomeInfo.restrictedInterestExpenses != 0.0) filled++;
-    if (taxableIncomeInfo.taxableCapitalGains != 0.0) filled++;
-    if (taxableIncomeInfo.prospectorShares != 0.0) filled++;
-    if (taxableIncomeInfo.employerDeductionNonQualified != 0.0) filled++;
-    if (taxableIncomeInfo.section110Additions != 0.0) filled++;
-
-    return {'total': total, 'filled': filled};
-  }
 
   /// Check if form is complete (100% filled)
   Future<bool> isFormComplete() async {

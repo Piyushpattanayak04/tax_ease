@@ -290,6 +290,17 @@ class _LoginPageState extends State<LoginPage> {
       // Set demo user name
       await ThemeController.setUserName('John');
       
+      // Check email and set filing type based on admin database
+      // In production, this would be fetched from backend
+      final email = _emailController.text.toLowerCase().trim();
+      if (email == 'business@taxease.com') {
+        // Business account - opens business filing dashboard
+        await ThemeController.setFilingType('T2');
+      } else {
+        // Personal account - opens personal filing dashboard
+        await ThemeController.setFilingType('T1');
+      }
+      
       if (mounted) {
         // Show success message
         ScaffoldMessenger.of(context).showSnackBar(

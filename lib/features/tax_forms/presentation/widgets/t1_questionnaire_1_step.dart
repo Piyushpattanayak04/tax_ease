@@ -6,31 +6,39 @@ import '../../../../core/utils/smooth_scroll_physics.dart';
 import '../../../../core/utils/responsive.dart';
 import '../../data/models/t1_form_models_simple.dart';
 
-class T1QuestionnaireStep extends StatefulWidget {
+class T1Questionnaire1Step extends StatefulWidget {
   final T1FormData formData;
   final Function(T1FormData) onFormDataChanged;
   final VoidCallback onPrevious;
-  final VoidCallback onSubmit;
+  final VoidCallback onNext;
 
-  const T1QuestionnaireStep({
+  const T1Questionnaire1Step({
     super.key,
     required this.formData,
     required this.onFormDataChanged,
     required this.onPrevious,
-    required this.onSubmit,
+    required this.onNext,
   });
 
   @override
-  State<T1QuestionnaireStep> createState() => _T1QuestionnaireStepState();
+  State<T1Questionnaire1Step> createState() => _T1Questionnaire1StepState();
 }
 
-class _T1QuestionnaireStepState extends State<T1QuestionnaireStep> {
+class _T1Questionnaire1StepState extends State<T1Questionnaire1Step> {
   late T1FormData _formData;
 
   @override
   void initState() {
     super.initState();
     _formData = widget.formData;
+  }
+
+  @override
+  void didUpdateWidget(T1Questionnaire1Step oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.formData != widget.formData) {
+      _formData = widget.formData;
+    }
   }
 
   void _updateFormData(T1FormData newData) {
@@ -52,103 +60,76 @@ class _T1QuestionnaireStepState extends State<T1QuestionnaireStep> {
       child: SingleChildScrollView(
         physics: const SmoothBouncingScrollPhysics(),
         child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          // Header
-          _buildHeader(),
-          const SizedBox(height: 24),
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // Header
+            _buildHeader(),
+            const SizedBox(height: 24),
 
-          // Question 1: Foreign Property
-          _buildForeignPropertySection(),
-          const SizedBox(height: 24),
+            // Questions 1-3 (Unchanged)
+            _buildForeignPropertySection(),
+            const SizedBox(height: 16),
 
-          // Question 2: Medical Expenses
-          _buildMedicalExpensesSection(),
-          const SizedBox(height: 24),
+            _buildMedicalExpensesSection(),
+            const SizedBox(height: 16),
 
-          // Question 3: Charitable Donations
-          _buildCharitableDonationsSection(),
-          const SizedBox(height: 24),
+            _buildCharitableDonationsSection(),
+            const SizedBox(height: 16),
 
-          // Question 4: Moving Expenses
-          _buildMovingExpensesSection(),
-          const SizedBox(height: 24),
+            // Question 4: Moving Expenses (Simplified - Only Yes/No)
+            _buildMovingExpensesSection(),
+            const SizedBox(height: 16),
 
-          // Question 5: Self Employment
-          _buildSelfEmploymentSection(),
-          const SizedBox(height: 24),
+            // Question 5: Self Employment (Simplified - Yes/No + Checkboxes)
+            _buildSelfEmploymentSection(),
+            const SizedBox(height: 24),
 
-          // Question 6: First Home Buyer
-          _buildFirstHomeBuyerSection(),
-          const SizedBox(height: 24),
+            // Questions 6-18 continue...
+            _buildFirstHomeBuyerSection(),
+            const SizedBox(height: 16),
 
-          // Question 7: Property Sale (Long-term)
-          _buildPropertySaleLongTermSection(),
-          const SizedBox(height: 24),
+            _buildPropertySaleLongTermSection(),
+            const SizedBox(height: 16),
 
-          // Question 8: Property Sale (Short-term)
-          _buildPropertySaleShortTermSection(),
-          const SizedBox(height: 24),
+            _buildPropertySaleShortTermSection(),
+            const SizedBox(height: 16),
 
-          // Question 9: Work From Home
-          _buildWorkFromHomeSection(),
-          const SizedBox(height: 24),
+            _buildWorkFromHomeSection(),
+            const SizedBox(height: 16),
 
-          // Question 10: Student
-          _buildStudentSection(),
-          const SizedBox(height: 24),
+            _buildStudentSection(),
+            const SizedBox(height: 16),
 
-          // Question 11: Union Member
-          _buildUnionMemberSection(),
-          const SizedBox(height: 24),
+            _buildUnionMemberSection(),
+            const SizedBox(height: 16),
 
-          // Question 12: Daycare Expenses
-          _buildDaycareExpensesSection(),
-          const SizedBox(height: 24),
+            _buildDaycareExpensesSection(),
+            const SizedBox(height: 16),
 
-          // Question 13: First Time Filer
-          _buildFirstTimeFilerSection(),
-          const SizedBox(height: 24),
+            _buildFirstTimeFilerSection(),
+            const SizedBox(height: 16),
 
-          // Question 14: Other Income
-          _buildOtherIncomeSection(),
-          const SizedBox(height: 24),
+            _buildOtherIncomeSection(),
+            const SizedBox(height: 16),
 
-          // Question 15: Professional Dues
-          _buildProfessionalDuesSection(),
-          const SizedBox(height: 24),
+            _buildProfessionalDuesSection(),
+            const SizedBox(height: 16),
 
-          // Question 16: RRSP/FHSA
-          _buildRrspFhsaSection(),
-          const SizedBox(height: 24),
+            _buildRrspFhsaSection(),
+            const SizedBox(height: 16),
 
-          // Question 17: Child Art/Sport
-          _buildChildArtSportSection(),
-          const SizedBox(height: 24),
+            _buildChildArtSportSection(),
+            const SizedBox(height: 16),
 
-          // Question 18: Province Filer
-          _buildProvinceFilerSection(),
-          const SizedBox(height: 32),
+            _buildProvinceFilerSection(),
+            const SizedBox(height: 32),
 
-          // Navigation Buttons
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              ElevatedButton(
-                onPressed: widget.onSubmit,
-                child: const Text('Submit Form'),
-              ),
-              const SizedBox(height: 12),
-              OutlinedButton(
-                onPressed: widget.onPrevious,
-                child: const Text('Previous: Personal Info'),
-              ),
-            ],
-          ),
+            // Navigation Buttons
+            _buildNavigationButtons(),
 
-          const SizedBox(height: 32),
-        ],
-      ),
+            const SizedBox(height: 32),
+          ],
+        ),
       ),
     );
   }
@@ -166,14 +147,14 @@ class _T1QuestionnaireStepState extends State<T1QuestionnaireStep> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            'Questionnaire',
+            'Questionnaire 1',
             style: Theme.of(context).textTheme.headlineSmall?.copyWith(
               fontWeight: FontWeight.w600,
             ),
           ),
           const SizedBox(height: 4),
           Text(
-            'Please answer all applicable questions to ensure you don\'t miss any deductions or credits.',
+            'Please answer the following questions. Detailed information will be collected in the next step if applicable.',
             style: Theme.of(context).textTheme.bodyMedium?.copyWith(
               color: AppColors.grey600,
             ),
@@ -186,13 +167,12 @@ class _T1QuestionnaireStepState extends State<T1QuestionnaireStep> {
   Widget _buildSection({
     required String title,
     required Widget child,
-    Color? backgroundColor,
   }) {
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.all(AppDimensions.spacingMd),
       decoration: BoxDecoration(
-        color: backgroundColor ?? Theme.of(context).cardColor,
+        color: Theme.of(context).cardColor,
         borderRadius: BorderRadius.circular(AppDimensions.radiusLg),
         border: Border.all(color: Theme.of(context).dividerColor),
       ),
@@ -221,13 +201,15 @@ class _T1QuestionnaireStepState extends State<T1QuestionnaireStep> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(
-          question,
-          style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-            fontWeight: FontWeight.w600,
+        if (question.isNotEmpty) ...[
+          Text(
+            question,
+            style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+              fontWeight: FontWeight.w600,
+            ),
           ),
-        ),
-        const SizedBox(height: 8),
+          const SizedBox(height: 8),
+        ],
         Row(
           children: [
             Radio<bool>(
@@ -336,7 +318,7 @@ class _T1QuestionnaireStepState extends State<T1QuestionnaireStep> {
         Container(
           padding: const EdgeInsets.all(12),
           decoration: BoxDecoration(
-            color: Theme.of(context).brightness == Brightness.dark 
+            color: Theme.of(context).brightness == Brightness.dark
                 ? Theme.of(context).colorScheme.surface.withOpacity(0.7)
                 : AppColors.grey50,
             borderRadius: BorderRadius.circular(8),
@@ -346,30 +328,22 @@ class _T1QuestionnaireStepState extends State<T1QuestionnaireStep> {
             children: [
               _buildTextField(
                 label: 'Investment Details',
-                onChanged: (value) {
-                  // Update foreign property
-                },
+                onChanged: (value) {},
               ),
               const SizedBox(height: 12),
               _buildTextField(
                 label: 'Gross Income',
                 keyboardType: TextInputType.number,
-                onChanged: (value) {
-                  // Update foreign property
-                },
+                onChanged: (value) {},
               ),
               const SizedBox(height: 12),
               _buildTextField(
                 label: 'Country',
-                onChanged: (value) {
-                  // Update foreign property
-                },
+                onChanged: (value) {},
               ),
               const SizedBox(height: 12),
               OutlinedButton.icon(
-                onPressed: () {
-                  // Add foreign property row
-                },
+                onPressed: () {},
                 icon: const Icon(Icons.add),
                 label: const Text('Add Row'),
               ),
@@ -400,7 +374,7 @@ class _T1QuestionnaireStepState extends State<T1QuestionnaireStep> {
     return Container(
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
-        color: Theme.of(context).brightness == Brightness.dark 
+        color: Theme.of(context).brightness == Brightness.dark
             ? Theme.of(context).colorScheme.surface.withOpacity(0.7)
             : AppColors.grey50,
         borderRadius: BorderRadius.circular(8),
@@ -411,30 +385,22 @@ class _T1QuestionnaireStepState extends State<T1QuestionnaireStep> {
           _buildDateField(
             label: 'Payment Date',
             date: null,
-            onChanged: (date) {
-              // Update medical expense
-            },
+            onChanged: (date) {},
           ),
           const SizedBox(height: 12),
           _buildTextField(
             label: 'Patient Name',
-            onChanged: (value) {
-              // Update medical expense
-            },
+            onChanged: (value) {},
           ),
           const SizedBox(height: 12),
           _buildTextField(
             label: 'Amount Paid',
             keyboardType: TextInputType.number,
-            onChanged: (value) {
-              // Update medical expense
-            },
+            onChanged: (value) {},
           ),
           const SizedBox(height: 12),
           OutlinedButton.icon(
-            onPressed: () {
-              // Add medical expense row
-            },
+            onPressed: () {},
             icon: const Icon(Icons.add),
             label: const Text('Add Row'),
           ),
@@ -463,7 +429,7 @@ class _T1QuestionnaireStepState extends State<T1QuestionnaireStep> {
     return Container(
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
-        color: Theme.of(context).brightness == Brightness.dark 
+        color: Theme.of(context).brightness == Brightness.dark
             ? Theme.of(context).colorScheme.surface.withOpacity(0.7)
             : AppColors.grey50,
         borderRadius: BorderRadius.circular(8),
@@ -473,23 +439,17 @@ class _T1QuestionnaireStepState extends State<T1QuestionnaireStep> {
         children: [
           _buildTextField(
             label: 'Organization Name',
-            onChanged: (value) {
-              // Update charitable donation
-            },
+            onChanged: (value) {},
           ),
           const SizedBox(height: 12),
           _buildTextField(
             label: 'Amount Paid',
             keyboardType: TextInputType.number,
-            onChanged: (value) {
-              // Update charitable donation
-            },
+            onChanged: (value) {},
           ),
           const SizedBox(height: 12),
           OutlinedButton.icon(
-            onPressed: () {
-              // Add charitable donation row
-            },
+            onPressed: () {},
             icon: const Icon(Icons.add),
             label: const Text('Add Row'),
           ),
@@ -500,88 +460,42 @@ class _T1QuestionnaireStepState extends State<T1QuestionnaireStep> {
 
   Widget _buildMovingExpensesSection() {
     return _buildSection(
-      title: '4. If your province or territory of residence changed in 2023, enter the date of your move. Do you have any moving expenses?',
+      title: '4. If your province or territory of residence changed in 2023, do you have any moving expenses?',
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          _buildDateField(
-            label: 'Date of move (if applicable)',
-            date: null,
-            onChanged: (date) {
-              // Update moving expenses
-            },
-          ),
-          const SizedBox(height: 16),
           _buildRadioQuestion(
-            question: 'Do you have moving expenses?',
+            question: '',
             value: _formData.hasMovingExpenses,
             onChanged: (value) {
               _updateFormData(_formData.copyWith(hasMovingExpenses: value));
             },
-            conditionalWidget: _formData.hasMovingExpenses == true
-                ? _buildMovingExpensesDetails()
-                : null,
           ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildMovingExpensesDetails() {
-    return Container(
-      padding: const EdgeInsets.all(12),
-      decoration: BoxDecoration(
-        color: Theme.of(context).brightness == Brightness.dark ? Theme.of(context).colorScheme.surface.withOpacity(0.7) : AppColors.grey50,
-        borderRadius: BorderRadius.circular(8),
-        border: Border.all(color: Theme.of(context).dividerColor),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            'Moving Expense Details',
-            style: Theme.of(context).textTheme.titleSmall?.copyWith(
-              fontWeight: FontWeight.w600,
+          if (_formData.hasMovingExpenses == true) ...[
+            const SizedBox(height: 8),
+            Container(
+              padding: const EdgeInsets.all(12),
+              decoration: BoxDecoration(
+                color: AppColors.primary.withOpacity(0.05),
+                borderRadius: BorderRadius.circular(8),
+                border: Border.all(color: AppColors.primary.withOpacity(0.2)),
+              ),
+              child: Row(
+                children: [
+                  Icon(Icons.info_outline, color: AppColors.primary, size: 20),
+                  const SizedBox(width: 8),
+                  Expanded(
+                    child: Text(
+                      'Detailed moving expense information will be collected in Questionnaire 2',
+                      style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                        color: AppColors.primary,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
             ),
-          ),
-          const SizedBox(height: 8),
-          Text(
-            '(New address should be at least 40 KM closer to office than old address to claim this)',
-            style: Theme.of(context).textTheme.bodySmall?.copyWith(
-              color: AppColors.grey600,
-              fontStyle: FontStyle.italic,
-            ),
-          ),
-          const SizedBox(height: 12),
-          _buildTextField(
-            label: 'Old Address',
-            onChanged: (value) {
-              // Update moving expenses
-            },
-          ),
-          const SizedBox(height: 12),
-          _buildTextField(
-            label: 'New Address',
-            onChanged: (value) {
-              // Update moving expenses
-            },
-          ),
-          const SizedBox(height: 12),
-          _buildTextField(
-            label: 'Air Ticket Cost',
-            keyboardType: TextInputType.number,
-            onChanged: (value) {
-              // Update moving expenses
-            },
-          ),
-          const SizedBox(height: 12),
-          _buildTextField(
-            label: 'Moving Cost',
-            keyboardType: TextInputType.number,
-            onChanged: (value) {
-              // Update moving expenses
-            },
-          ),
+          ],
         ],
       ),
     );
@@ -590,197 +504,109 @@ class _T1QuestionnaireStepState extends State<T1QuestionnaireStep> {
   Widget _buildSelfEmploymentSection() {
     return _buildSection(
       title: '5. Are you Self Employed?',
-      child: _buildRadioQuestion(
-        question: '',
-        value: _formData.isSelfEmployed,
-        onChanged: (value) {
-          _updateFormData(_formData.copyWith(isSelfEmployed: value));
-        },
-        conditionalWidget: _formData.isSelfEmployed == true
-            ? _buildSelfEmploymentDetails()
-            : null,
-      ),
-    );
-  }
-
-  Widget _buildSelfEmploymentDetails() {
-    return Container(
-      padding: const EdgeInsets.all(12),
-      decoration: BoxDecoration(
-        color: Theme.of(context).brightness == Brightness.dark ? Theme.of(context).colorScheme.surface.withOpacity(0.7) : AppColors.grey50,
-        borderRadius: BorderRadius.circular(8),
-        border: Border.all(color: Theme.of(context).dividerColor),
-      ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(
-            'Type of Self-Employment:',
-            style: Theme.of(context).textTheme.titleSmall?.copyWith(
-              fontWeight: FontWeight.w600,
+          _buildRadioQuestion(
+            question: '',
+            value: _formData.isSelfEmployed,
+            onChanged: (value) {
+              _updateFormData(_formData.copyWith(
+                isSelfEmployed: value,
+                selfEmployment: value == true ? const T1SelfEmployment() : null,
+              ));
+            },
+          ),
+          if (_formData.isSelfEmployed == true) ...[
+            const SizedBox(height: 16),
+            Text(
+              'Select all that apply:',
+              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                fontWeight: FontWeight.w600,
+              ),
             ),
-          ),
-          const SizedBox(height: 8),
-          Column(
-            children: [
-              Row(
+            const SizedBox(height: 8),
+            CheckboxListTile(
+              title: const Text('Uber/Skip/DoorDash'),
+              value: _formData.selfEmployment?.businessTypes.contains('uber') ?? false,
+              onChanged: (value) {
+                final currentTypes = List<String>.from(_formData.selfEmployment?.businessTypes ?? []);
+                if (value == true) {
+                  if (!currentTypes.contains('uber')) currentTypes.add('uber');
+                } else {
+                  currentTypes.remove('uber');
+                }
+                _updateFormData(_formData.copyWith(
+                  selfEmployment: T1SelfEmployment(businessTypes: currentTypes),
+                ));
+              },
+              contentPadding: EdgeInsets.zero,
+              controlAffinity: ListTileControlAffinity.leading,
+            ),
+            CheckboxListTile(
+              title: const Text('General Business'),
+              value: _formData.selfEmployment?.businessTypes.contains('general') ?? false,
+              onChanged: (value) {
+                final currentTypes = List<String>.from(_formData.selfEmployment?.businessTypes ?? []);
+                if (value == true) {
+                  if (!currentTypes.contains('general')) currentTypes.add('general');
+                } else {
+                  currentTypes.remove('general');
+                }
+                _updateFormData(_formData.copyWith(
+                  selfEmployment: T1SelfEmployment(businessTypes: currentTypes),
+                ));
+              },
+              contentPadding: EdgeInsets.zero,
+              controlAffinity: ListTileControlAffinity.leading,
+            ),
+            CheckboxListTile(
+              title: const Text('Rental Income'),
+              value: _formData.selfEmployment?.businessTypes.contains('rental') ?? false,
+              onChanged: (value) {
+                final currentTypes = List<String>.from(_formData.selfEmployment?.businessTypes ?? []);
+                if (value == true) {
+                  if (!currentTypes.contains('rental')) currentTypes.add('rental');
+                } else {
+                  currentTypes.remove('rental');
+                }
+                _updateFormData(_formData.copyWith(
+                  selfEmployment: T1SelfEmployment(businessTypes: currentTypes),
+                ));
+              },
+              contentPadding: EdgeInsets.zero,
+              controlAffinity: ListTileControlAffinity.leading,
+            ),
+            const SizedBox(height: 8),
+            Container(
+              padding: const EdgeInsets.all(12),
+              decoration: BoxDecoration(
+                color: AppColors.primary.withOpacity(0.05),
+                borderRadius: BorderRadius.circular(8),
+                border: Border.all(color: AppColors.primary.withOpacity(0.2)),
+              ),
+              child: Row(
                 children: [
-                  Radio<String>(
-                    value: 'uber',
-                    groupValue: ((_formData.selfEmployment?.businessTypes.isNotEmpty ?? false)
-                        ? _formData.selfEmployment!.businessTypes.first
-                        : ''),
-                    onChanged: (value) {
-                      _updateFormData(_formData.copyWith(
-                        selfEmployment: T1SelfEmployment(businessTypes: value == null || value.isEmpty ? [] : [value]),
-                      ));
-                    },
+                  Icon(Icons.info_outline, color: AppColors.primary, size: 20),
+                  const SizedBox(width: 8),
+                  Expanded(
+                    child: Text(
+                      'Detailed income and expense information will be collected in Questionnaire 2',
+                      style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                        color: AppColors.primary,
+                      ),
+                    ),
                   ),
-                  const Expanded(child: Text('Uber/Skip/Doordash')),
                 ],
               ),
-              Row(
-                children: [
-                  Radio<String>(
-                    value: 'general',
-                    groupValue: ((_formData.selfEmployment?.businessTypes.isNotEmpty ?? false)
-                        ? _formData.selfEmployment!.businessTypes.first
-                        : ''),
-                    onChanged: (value) {
-                      _updateFormData(_formData.copyWith(
-                        selfEmployment: T1SelfEmployment(businessTypes: value == null || value.isEmpty ? [] : [value]),
-                      ));
-                    },
-                  ),
-                  const Expanded(child: Text('General Business')),
-                ],
-              ),
-            ],
-          ),
-          Row(
-            children: [
-              Radio<String>(
-                value: 'rental',
-                groupValue: ((_formData.selfEmployment?.businessTypes.isNotEmpty ?? false)
-                    ? _formData.selfEmployment!.businessTypes.first
-                    : ''),
-                onChanged: (value) {
-                  _updateFormData(_formData.copyWith(
-                    selfEmployment: T1SelfEmployment(businessTypes: value == null || value.isEmpty ? [] : [value]),
-                  ));
-                },
-              ),
-              const Text('Rental Income'),
-            ],
-          ),
-          // Add specific business type details based on selection
-          if (((_formData.selfEmployment?.businessTypes.isNotEmpty ?? false)
-              ? _formData.selfEmployment!.businessTypes.first
-              : '') == 'uber') ...[
-            const SizedBox(height: 16),
-            _buildUberBusinessDetails(),
-          ] else if (((_formData.selfEmployment?.businessTypes.isNotEmpty ?? false)
-              ? _formData.selfEmployment!.businessTypes.first
-              : '') == 'general') ...[
-            const SizedBox(height: 16),
-            _buildGeneralBusinessDetails(),
-          ] else if (((_formData.selfEmployment?.businessTypes.isNotEmpty ?? false)
-              ? _formData.selfEmployment!.businessTypes.first
-              : '') == 'rental') ...[
-            const SizedBox(height: 16),
-            _buildRentalIncomeDetails(),
+            ),
           ],
         ],
       ),
     );
   }
 
-  Widget _buildUberBusinessDetails() {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          'Uber/Skip/Doordash Income & Expenses',
-          style: Theme.of(context).textTheme.titleSmall?.copyWith(
-            fontWeight: FontWeight.w600,
-          ),
-        ),
-        const SizedBox(height: 12),
-        _buildTextField(
-          label: 'Statement Details',
-          onChanged: (value) {
-            // Update uber business
-          },
-        ),
-        const SizedBox(height: 12),
-        _buildTextField(
-          label: 'Basic Income',
-          keyboardType: TextInputType.number,
-          onChanged: (value) {
-            // Update uber business
-          },
-        ),
-      ],
-    );
-  }
-
-  Widget _buildGeneralBusinessDetails() {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          'General Business Income & Expenses',
-          style: Theme.of(context).textTheme.titleSmall?.copyWith(
-            fontWeight: FontWeight.w600,
-          ),
-        ),
-        const SizedBox(height: 12),
-        _buildTextField(
-          label: 'Client Name',
-          onChanged: (value) {
-            // Update general business
-          },
-        ),
-        const SizedBox(height: 12),
-        _buildTextField(
-          label: 'Business Name',
-          onChanged: (value) {
-            // Update general business
-          },
-        ),
-      ],
-    );
-  }
-
-  Widget _buildRentalIncomeDetails() {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          'Rental Income & Expenses',
-          style: Theme.of(context).textTheme.titleSmall?.copyWith(
-            fontWeight: FontWeight.w600,
-          ),
-        ),
-        const SizedBox(height: 12),
-        _buildTextField(
-          label: 'Property Address',
-          onChanged: (value) {
-            // Update rental income
-          },
-        ),
-        const SizedBox(height: 12),
-        _buildTextField(
-          label: 'Gross Rental Income',
-          keyboardType: TextInputType.number,
-          onChanged: (value) {
-            // Update rental income
-          },
-        ),
-      ],
-    );
-  }
-
+  // Remaining sections (6-18) - With original sub-forms
   Widget _buildFirstHomeBuyerSection() {
     return _buildSection(
       title: '6. Did you buy your FIRST HOME in the Tax Year?',
@@ -830,7 +656,9 @@ class _T1QuestionnaireStepState extends State<T1QuestionnaireStep> {
     return Container(
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
-        color: Theme.of(context).brightness == Brightness.dark ? Theme.of(context).colorScheme.surface.withOpacity(0.7) : AppColors.grey50,
+        color: Theme.of(context).brightness == Brightness.dark
+            ? Theme.of(context).colorScheme.surface.withOpacity(0.7)
+            : AppColors.grey50,
         borderRadius: BorderRadius.circular(8),
         border: Border.all(color: Theme.of(context).dividerColor),
       ),
@@ -838,42 +666,32 @@ class _T1QuestionnaireStepState extends State<T1QuestionnaireStep> {
         children: [
           _buildTextField(
             label: 'Property Address',
-            onChanged: (value) {
-              // Update property sale
-            },
+            onChanged: (value) {},
           ),
           const SizedBox(height: 12),
           _buildDateField(
             label: 'Purchase Date',
             date: null,
-            onChanged: (date) {
-              // Update property sale
-            },
+            onChanged: (date) {},
           ),
           const SizedBox(height: 12),
           _buildDateField(
             label: 'Sell Date',
             date: null,
-            onChanged: (date) {
-              // Update property sale
-            },
+            onChanged: (date) {},
           ),
           const SizedBox(height: 12),
           _buildTextField(
             label: 'Purchase & Sell Expenses',
             keyboardType: TextInputType.number,
-            onChanged: (value) {
-              // Update property sale
-            },
+            onChanged: (value) {},
           ),
           if (isLongTerm) ...[
             const SizedBox(height: 12),
             _buildTextField(
               label: 'Capital Gain Earned',
               keyboardType: TextInputType.number,
-              onChanged: (value) {
-                // Update property sale
-              },
+              onChanged: (value) {},
             ),
           ],
         ],
@@ -901,7 +719,9 @@ class _T1QuestionnaireStepState extends State<T1QuestionnaireStep> {
     return Container(
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
-        color: Theme.of(context).brightness == Brightness.dark ? Theme.of(context).colorScheme.surface.withOpacity(0.7) : AppColors.grey50,
+        color: Theme.of(context).brightness == Brightness.dark
+            ? Theme.of(context).colorScheme.surface.withOpacity(0.7)
+            : AppColors.grey50,
         borderRadius: BorderRadius.circular(8),
         border: Border.all(color: Theme.of(context).dividerColor),
       ),
@@ -910,33 +730,25 @@ class _T1QuestionnaireStepState extends State<T1QuestionnaireStep> {
           _buildTextField(
             label: 'Total House Area (Sq.Ft.)',
             keyboardType: TextInputType.number,
-            onChanged: (value) {
-              // Update work from home
-            },
+            onChanged: (value) {},
           ),
           const SizedBox(height: 12),
           _buildTextField(
             label: 'Work Area (Sq.Ft.)',
             keyboardType: TextInputType.number,
-            onChanged: (value) {
-              // Update work from home
-            },
+            onChanged: (value) {},
           ),
           const SizedBox(height: 12),
           _buildTextField(
             label: 'Rent/Mortgage Expense',
             keyboardType: TextInputType.number,
-            onChanged: (value) {
-              // Update work from home
-            },
+            onChanged: (value) {},
           ),
           const SizedBox(height: 12),
           _buildTextField(
             label: 'Utilities Expense',
             keyboardType: TextInputType.number,
-            onChanged: (value) {
-              // Update work from home
-            },
+            onChanged: (value) {},
           ),
         ],
       ),
@@ -976,7 +788,9 @@ class _T1QuestionnaireStepState extends State<T1QuestionnaireStep> {
     return Container(
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
-        color: Theme.of(context).brightness == Brightness.dark ? Theme.of(context).colorScheme.surface.withOpacity(0.7) : AppColors.grey50,
+        color: Theme.of(context).brightness == Brightness.dark
+            ? Theme.of(context).colorScheme.surface.withOpacity(0.7)
+            : AppColors.grey50,
         borderRadius: BorderRadius.circular(8),
         border: Border.all(color: Theme.of(context).dividerColor),
       ),
@@ -984,23 +798,17 @@ class _T1QuestionnaireStepState extends State<T1QuestionnaireStep> {
         children: [
           _buildTextField(
             label: 'Institution Name',
-            onChanged: (value) {
-              // Update union dues
-            },
+            onChanged: (value) {},
           ),
           const SizedBox(height: 12),
           _buildTextField(
             label: 'Amount',
             keyboardType: TextInputType.number,
-            onChanged: (value) {
-              // Update union dues
-            },
+            onChanged: (value) {},
           ),
           const SizedBox(height: 12),
           OutlinedButton.icon(
-            onPressed: () {
-              // Add union dues row
-            },
+            onPressed: () {},
             icon: const Icon(Icons.add),
             label: const Text('Add Row'),
           ),
@@ -1029,7 +837,9 @@ class _T1QuestionnaireStepState extends State<T1QuestionnaireStep> {
     return Container(
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
-        color: Theme.of(context).brightness == Brightness.dark ? Theme.of(context).colorScheme.surface.withOpacity(0.7) : AppColors.grey50,
+        color: Theme.of(context).brightness == Brightness.dark
+            ? Theme.of(context).colorScheme.surface.withOpacity(0.7)
+            : AppColors.grey50,
         borderRadius: BorderRadius.circular(8),
         border: Border.all(color: Theme.of(context).dividerColor),
       ),
@@ -1037,23 +847,17 @@ class _T1QuestionnaireStepState extends State<T1QuestionnaireStep> {
         children: [
           _buildTextField(
             label: 'Childcare Provider',
-            onChanged: (value) {
-              // Update daycare expenses
-            },
+            onChanged: (value) {},
           ),
           const SizedBox(height: 12),
           _buildTextField(
             label: 'Amount',
             keyboardType: TextInputType.number,
-            onChanged: (value) {
-              // Update daycare expenses
-            },
+            onChanged: (value) {},
           ),
           const SizedBox(height: 12),
           OutlinedButton.icon(
-            onPressed: () {
-              // Add daycare expense row
-            },
+            onPressed: () {},
             icon: const Icon(Icons.add),
             label: const Text('Add Row'),
           ),
@@ -1082,7 +886,9 @@ class _T1QuestionnaireStepState extends State<T1QuestionnaireStep> {
     return Container(
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
-        color: Theme.of(context).brightness == Brightness.dark ? Theme.of(context).colorScheme.surface.withOpacity(0.7) : AppColors.grey50,
+        color: Theme.of(context).brightness == Brightness.dark
+            ? Theme.of(context).colorScheme.surface.withOpacity(0.7)
+            : AppColors.grey50,
         borderRadius: BorderRadius.circular(8),
         border: Border.all(color: Theme.of(context).dividerColor),
       ),
@@ -1091,17 +897,13 @@ class _T1QuestionnaireStepState extends State<T1QuestionnaireStep> {
           _buildDateField(
             label: 'Date of Landing (Individual)',
             date: null,
-            onChanged: (date) {
-              // Update first time filer
-            },
+            onChanged: (date) {},
           ),
           const SizedBox(height: 12),
           _buildTextField(
             label: 'Income Outside Canada (CAD)',
             keyboardType: TextInputType.number,
-            onChanged: (value) {
-              // Update first time filer
-            },
+            onChanged: (value) {},
           ),
         ],
       ),
@@ -1151,38 +953,32 @@ class _T1QuestionnaireStepState extends State<T1QuestionnaireStep> {
     return Container(
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
-        color: Theme.of(context).brightness == Brightness.dark ? Theme.of(context).colorScheme.surface.withOpacity(0.7) : AppColors.grey50,
+        color: Theme.of(context).brightness == Brightness.dark
+            ? Theme.of(context).colorScheme.surface.withOpacity(0.7)
+            : AppColors.grey50,
         borderRadius: BorderRadius.circular(8),
         border: Border.all(color: Theme.of(context).dividerColor),
       ),
       child: Column(
         children: [
-            _buildTextField(
-              label: 'Name',
-              onChanged: (value) {
-                // Update professional dues
-              },
-            ),
-            const SizedBox(height: 12),
-            _buildTextField(
-              label: 'Organization',
-              onChanged: (value) {
-                // Update professional dues
-              },
-            ),
-            const SizedBox(height: 12),
-            _buildTextField(
-              label: 'Amount',
-              keyboardType: TextInputType.number,
-              onChanged: (value) {
-                // Update professional dues
-              },
-            ),
+          _buildTextField(
+            label: 'Name',
+            onChanged: (value) {},
+          ),
+          const SizedBox(height: 12),
+          _buildTextField(
+            label: 'Organization',
+            onChanged: (value) {},
+          ),
+          const SizedBox(height: 12),
+          _buildTextField(
+            label: 'Amount',
+            keyboardType: TextInputType.number,
+            onChanged: (value) {},
+          ),
           const SizedBox(height: 12),
           OutlinedButton.icon(
-            onPressed: () {
-              // Add professional dues row
-            },
+            onPressed: () {},
             icon: const Icon(Icons.add),
             label: const Text('Add Row'),
           ),
@@ -1224,7 +1020,9 @@ class _T1QuestionnaireStepState extends State<T1QuestionnaireStep> {
     return Container(
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
-        color: Theme.of(context).brightness == Brightness.dark ? Theme.of(context).colorScheme.surface.withOpacity(0.7) : AppColors.grey50,
+        color: Theme.of(context).brightness == Brightness.dark
+            ? Theme.of(context).colorScheme.surface.withOpacity(0.7)
+            : AppColors.grey50,
         borderRadius: BorderRadius.circular(8),
         border: Border.all(color: Theme.of(context).dividerColor),
       ),
@@ -1232,30 +1030,22 @@ class _T1QuestionnaireStepState extends State<T1QuestionnaireStep> {
         children: [
           _buildTextField(
             label: 'Institute Name',
-            onChanged: (value) {
-              // Update child art sport
-            },
+            onChanged: (value) {},
           ),
           const SizedBox(height: 12),
           _buildTextField(
             label: 'Description',
-            onChanged: (value) {
-              // Update child art sport
-            },
+            onChanged: (value) {},
           ),
           const SizedBox(height: 12),
           _buildTextField(
             label: 'Amount',
             keyboardType: TextInputType.number,
-            onChanged: (value) {
-              // Update child art sport
-            },
+            onChanged: (value) {},
           ),
           const SizedBox(height: 12),
           OutlinedButton.icon(
-            onPressed: () {
-              // Add child art sport row
-            },
+            onPressed: () {},
             icon: const Icon(Icons.add),
             label: const Text('Add Row'),
           ),
@@ -1284,7 +1074,9 @@ class _T1QuestionnaireStepState extends State<T1QuestionnaireStep> {
     return Container(
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
-        color: Theme.of(context).brightness == Brightness.dark ? Theme.of(context).colorScheme.surface.withOpacity(0.7) : AppColors.grey50,
+        color: Theme.of(context).brightness == Brightness.dark
+            ? Theme.of(context).colorScheme.surface.withOpacity(0.7)
+            : AppColors.grey50,
         borderRadius: BorderRadius.circular(8),
         border: Border.all(color: Theme.of(context).dividerColor),
       ),
@@ -1300,35 +1092,48 @@ class _T1QuestionnaireStepState extends State<T1QuestionnaireStep> {
           const SizedBox(height: 8),
           _buildTextField(
             label: 'Rent or Property Tax',
-            onChanged: (value) {
-              // Update province filer
-            },
+            onChanged: (value) {},
           ),
           const SizedBox(height: 12),
           _buildTextField(
             label: 'Property Address',
-            onChanged: (value) {
-              // Update province filer
-            },
+            onChanged: (value) {},
           ),
           const SizedBox(height: 12),
           _buildTextField(
             label: 'Amount Paid',
             keyboardType: TextInputType.number,
-            onChanged: (value) {
-              // Update province filer
-            },
+            onChanged: (value) {},
           ),
           const SizedBox(height: 12),
           OutlinedButton.icon(
-            onPressed: () {
-              // Add province filer row
-            },
+            onPressed: () {},
             icon: const Icon(Icons.add),
             label: const Text('Add Row'),
           ),
         ],
       ),
+    );
+  }
+
+  Widget _buildNavigationButtons() {
+    final hasMovingExpenses = _formData.hasMovingExpenses ?? false;
+    final isSelfEmployed = _formData.isSelfEmployed ?? false;
+    final needsQuestionnaire2 = hasMovingExpenses || isSelfEmployed;
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        ElevatedButton(
+          onPressed: widget.onNext,
+          child: Text(needsQuestionnaire2 ? 'Next: Questionnaire 2' : 'Submit Form'),
+        ),
+        const SizedBox(height: 12),
+        OutlinedButton(
+          onPressed: widget.onPrevious,
+          child: const Text('Previous: Personal Info'),
+        ),
+      ],
     );
   }
 }

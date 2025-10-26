@@ -1,33 +1,4 @@
-import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
-import '../../../../core/constants/app_colors.dart';
-import '../../../../core/constants/app_dimensions.dart';
-import '../../../../core/utils/smooth_scroll_physics.dart';
-import '../../../../core/utils/responsive.dart';
-import '../../data/models/t2_form_models.dart';
-
-class T2IncomeDeductionsStep extends StatefulWidget {
-  final T2TaxableIncomeInfo taxableIncomeInfo;
-  final T2FormData formData;
-  final Function(T2TaxableIncomeInfo) onTaxableIncomeChanged;
-  final Function(T2FormData) onFormDataChanged;
-  final VoidCallback onPrevious;
-  final VoidCallback onSubmit;
-
-  const T2IncomeDeductionsStep({
-    super.key,
-    required this.taxableIncomeInfo,
-    required this.formData,
-    required this.onTaxableIncomeChanged,
-    required this.onFormDataChanged,
-    required this.onPrevious,
-    required this.onSubmit,
-  });
-
-  @override
-  State<T2IncomeDeductionsStep> createState() => _T2IncomeDeductionsStepState();
-}
-
+/*
 class _T2IncomeDeductionsStepState extends State<T2IncomeDeductionsStep> {
   late T2TaxableIncomeInfo _taxableIncomeInfo;
   late T2FormData _formData;
@@ -1128,4 +1099,4 @@ class _T2IncomeDeductionsStepState extends State<T2IncomeDeductionsStep> {
       ],
     );
   }
-}
+*/

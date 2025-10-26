@@ -20,7 +20,7 @@ class CombinedFormData {
   final DateTime? updatedAt;
   final String displayName;
   final T1FormData? t1Form;
-  final T2FormData? t2Form;
+final T2OnboardingData? t2Form;
 
   CombinedFormData({
     required this.id,
@@ -47,16 +47,16 @@ class CombinedFormData {
     );
   }
   
-  static CombinedFormData fromT2(T2FormData form) {
+static CombinedFormData fromT2(T2OnboardingData form) {
     return CombinedFormData(
       id: form.id,
       formType: 'T2',
       status: form.status,
       createdAt: form.createdAt,
       updatedAt: form.updatedAt,
-      displayName: form.corporationInfo.corporationName.isNotEmpty
-          ? form.corporationInfo.corporationName
-          : 'Business Tax Draft',
+displayName: form.companyName.isNotEmpty
+          ? form.companyName
+          : 'Business On-Boarding Draft',
       t2Form: form,
     );
   }
