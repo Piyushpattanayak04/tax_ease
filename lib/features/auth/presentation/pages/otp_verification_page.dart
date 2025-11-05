@@ -5,7 +5,7 @@ import 'package:go_router/go_router.dart';
 import '../../../../core/constants/app_colors.dart';
 import '../../../../core/constants/app_dimensions.dart';
 import '../../../../shared/animations/smooth_animations.dart';
-import '../../../../core/theme/theme_controller.dart';
+import '../../data/auth_api.dart';
 
 class OtpVerificationPage extends StatefulWidget {
   final String email;
@@ -261,28 +261,39 @@ class _OtpVerificationPageState extends State<OtpVerificationPage> {
       _isLoading = true;
     });
 
-    // Simulate API call
-    await Future.delayed(const Duration(seconds: 2));
+    try {
+      await AuthApi.verifyOtp(
+        email: widget.email.trim(),
+        code: otpCode,
+        purpose: 'email_verification',
+      );
 
-    if (mounted) {
-      setState(() {
-        _isLoading = false;
-      });
-
-      // Set user as logged in
-      await ThemeController.setLoggedIn(true);
-      
-      // Show success message
+      if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text(widget.isSignup ? 'Account verified successfully!' : 'Email verified successfully!'),
+          content: Text(widget.isSignup ? 'Account verified successfully! Please sign in.' : 'Email verified successfully!'),
           backgroundColor: AppColors.success,
           behavior: SnackBarBehavior.floating,
         ),
       );
 
-      // Navigate to home
-      context.go('/home');
+      // After verification, navigate to login to authenticate
+      context.go('/login');
+    } catch (e) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(e.toString().replaceFirst('Exception: ', '')),
+          backgroundColor: AppColors.error,
+          behavior: SnackBarBehavior.floating,
+        ),
+      );
+    } finally {
+      if (mounted) {
+        setState(() {
+          _isLoading = false;
+        });
+      }
     }
   }
 
@@ -291,15 +302,16 @@ class _OtpVerificationPageState extends State<OtpVerificationPage> {
       _isResending = true;
     });
 
-    // Simulate API call
-    await Future.delayed(const Duration(seconds: 1));
+    try {
+      await AuthApi.requestOtp(
+        email: widget.email.trim(),
+        purpose: 'email_verification',
+      );
 
-    if (mounted) {
+      if (!mounted) return;
       setState(() {
-        _isResending = false;
         _resendTimer = 60;
       });
-
       _startResendTimer();
 
       ScaffoldMessenger.of(context).showSnackBar(
@@ -308,6 +320,21 @@ class _OtpVerificationPageState extends State<OtpVerificationPage> {
           behavior: SnackBarBehavior.floating,
         ),
       );
+    } catch (e) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(e.toString().replaceFirst('Exception: ', '')),
+          backgroundColor: AppColors.error,
+          behavior: SnackBarBehavior.floating,
+        ),
+      );
+    } finally {
+      if (mounted) {
+        setState(() {
+          _isResending = false;
+        });
+      }
     }
   }
 }

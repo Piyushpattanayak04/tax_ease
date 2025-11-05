@@ -6,6 +6,7 @@ import '../../../../core/utils/smooth_scroll_physics.dart';
 import '../../../../core/utils/responsive.dart';
 import '../../../../shared/animations/smooth_animations.dart';
 import '../../../../core/theme/theme_controller.dart';
+import '../../data/auth_api.dart';
 
 class SignupPage extends StatefulWidget {
   const SignupPage({super.key});
@@ -399,67 +400,44 @@ class _SignupPageState extends State<SignupPage> {
       _isLoading = true;
     });
 
-    // Simulate signup API call
-    await Future.delayed(const Duration(seconds: 2));
+    try {
+      await AuthApi.register(
+        email: _emailController.text.trim(),
+        firstName: _firstNameController.text.trim(),
+        lastName: _lastNameController.text.trim(),
+        password: _passwordController.text,
+        phone: _phoneController.text.trim().isEmpty ? null : _phoneController.text.trim(),
+        acceptTerms: _agreeToTerms,
+      );
 
-    if (mounted) {
-      setState(() {
-        _isLoading = false;
-      });
-
-      // Save filing type preference
+      // Optionally persist user's preferred filing type (app-specific)
       await ThemeController.setFilingType(_selectedFilingType!);
 
-      // Navigate to OTP verification
-      context.go('/otp-verification?email=${_emailController.text}&signup=true');
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Registration successful! Verify your email.'),
+          behavior: SnackBarBehavior.floating,
+        ),
+      );
+
+      context.go('/otp-verification?email=${_emailController.text.trim()}&signup=true');
+    } catch (e) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(e.toString().replaceFirst('Exception: ', '')),
+          backgroundColor: AppColors.error,
+          behavior: SnackBarBehavior.floating,
+        ),
+      );
+    } finally {
+      if (mounted) {
+        setState(() {
+          _isLoading = false;
+        });
+      }
     }
   }
 
-  Widget _buildFilingTypeButton(String value, String label, IconData icon) {
-    final isSelected = _selectedFilingType == value;
-    return GestureDetector(
-      onTap: () {
-        setState(() {
-          _selectedFilingType = value;
-        });
-      },
-      child: Container(
-        padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 12),
-        decoration: BoxDecoration(
-          color: isSelected 
-              ? AppColors.primary.withValues(alpha: 0.1) 
-              : Theme.of(context).cardColor,
-          border: Border.all(
-            color: isSelected 
-                ? AppColors.primary 
-                : Theme.of(context).dividerColor,
-            width: isSelected ? 2 : 1,
-          ),
-          borderRadius: BorderRadius.circular(AppDimensions.radiusLg),
-        ),
-        child: Column(
-          children: [
-            Icon(
-              icon,
-              size: 32,
-              color: isSelected 
-                  ? AppColors.primary 
-                  : AppColors.grey500,
-            ),
-            const SizedBox(height: 8),
-            Text(
-              label,
-              style: Theme.of(context).textTheme.titleSmall?.copyWith(
-                fontWeight: FontWeight.w600,
-                color: isSelected 
-                    ? AppColors.primary 
-                    : AppColors.grey600,
-              ),
-              textAlign: TextAlign.center,
-            ),
-          ],
-        ),
-      ),
-    );
-  }
 }

@@ -18,6 +18,10 @@ class ThemeController {
   
   /// User's filing type preference (T1 Personal or T2 Business)
   static final ValueNotifier<String?> filingType = ValueNotifier<String?>(null);
+
+  /// Persisted auth token (optional)
+  static String? _authToken;
+  static String? get authToken => _authToken;
   
   /// Initialize auth state from SharedPreferences
   static Future<void> initialize() async {
@@ -25,6 +29,7 @@ class ThemeController {
     isLoggedIn.value = prefs.getBool('is_logged_in') ?? false;
     userName.value = prefs.getString('user_name') ?? 'User';
     filingType.value = prefs.getString('filing_type');
+    _authToken = prefs.getString('auth_token');
   }
   
   /// Set login state
@@ -46,6 +51,30 @@ class ThemeController {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setString('filing_type', type);
     filingType.value = type;
+  }
+
+  /// Persist auth token safely
+  static Future<void> setAuthToken(String? token) async {
+    final prefs = await SharedPreferences.getInstance();
+    if (token == null) {
+      await prefs.remove('auth_token');
+    } else {
+      await prefs.setString('auth_token', token);
+    }
+    _authToken = token;
+  }
+
+  /// Clear all persisted auth info
+  static Future<void> clearAuth() async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.remove('is_logged_in');
+    await prefs.remove('user_name');
+    await prefs.remove('filing_type');
+    await prefs.remove('auth_token');
+    isLoggedIn.value = false;
+    userName.value = 'User';
+    filingType.value = null;
+    _authToken = null;
   }
 
   /// Toggle between light and dark theme. If system, it will switch to dark first.

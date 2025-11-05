@@ -6,7 +6,7 @@ import '../../../../core/utils/smooth_scroll_physics.dart';
 import '../../../../core/utils/responsive.dart';
 import '../../../../core/theme/theme_controller.dart';
 import '../../../../shared/animations/smooth_animations.dart';
-
+import '../../data/auth_api.dart';
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
 
@@ -277,42 +277,48 @@ class _LoginPageState extends State<LoginPage> {
       _isLoading = true;
     });
 
-    // Simulate login API call
-    await Future.delayed(const Duration(seconds: 2));
+    try {
+      final email = _emailController.text.trim();
+      final password = _passwordController.text;
 
-    if (mounted) {
-      setState(() {
-        _isLoading = false;
-      });
+      // Call backend API
+      final result = await AuthApi.login(email: email, password: password);
 
-      // Set login state
-      await ThemeController.setLoggedIn(true);
-      // Set demo user name
-      await ThemeController.setUserName('John');
-      
-      // Check email and set filing type based on admin database
-      // In production, this would be fetched from backend
-      final email = _emailController.text.toLowerCase().trim();
-      if (email == 'business@taxease.com') {
-        // Business account - opens business filing dashboard
-        await ThemeController.setFilingType('T2');
-      } else {
-        // Personal account - opens personal filing dashboard
-        await ThemeController.setFilingType('T1');
+      // Persist token if provided
+      if (result.token != null && result.token!.isNotEmpty) {
+        await ThemeController.setAuthToken(result.token);
       }
-      
-      if (mounted) {
-        // Show success message
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: const Text('Login successful!'),
-            backgroundColor: AppColors.success,
-            behavior: SnackBarBehavior.floating,
-          ),
-        );
 
-        // Navigate to home
-        context.go('/home');
+      // Update basic app state
+      await ThemeController.setLoggedIn(true);
+      await ThemeController.setUserName(result.displayName ?? email.split('@').first);
+      if (result.filingType != null && result.filingType!.isNotEmpty) {
+        await ThemeController.setFilingType(result.filingType!);
+      }
+
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: const Text('Login successful!'),
+          backgroundColor: AppColors.success,
+          behavior: SnackBarBehavior.floating,
+        ),
+      );
+      context.go('/home');
+    } catch (e) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(e.toString().replaceFirst('Exception: ', '')),
+          backgroundColor: AppColors.error,
+          behavior: SnackBarBehavior.floating,
+        ),
+      );
+    } finally {
+      if (mounted) {
+        setState(() {
+          _isLoading = false;
+        });
       }
     }
   }
