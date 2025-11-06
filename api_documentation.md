@@ -2,7 +2,7 @@
 
 ## **Base URL**
 ```
-https://855eda9948b8.ngrok-free.app/api/v1
+https://ee736495b330.ngrok-free.app//api/v1
 ```
 
 ---
@@ -218,5 +218,188 @@ Requires a valid **JWT access token** in the `Authorization` header.
   "is_active": true,
   "created_at": "2025-11-05T21:56:34.385Z",
   "updated_at": "2025-11-05T21:56:34.385Z"
+}
+```
+
+## **File Management**
+
+### 🔹 POST `/files/upload`
+#### **Upload File**
+Uploads a document file to AWS S3 and stores metadata in the database.  
+Supported file types: **PDF, JPG, PNG, DOC, DOCX, XLS, XLSX.**  
+Max file size: **10MB**
+
+#### **Request Body**
+**multipart/form-data**
+| Field | Type | Required | Description |
+|--------|--------|-----------|-------------|
+| `file` | binary | ✅ | File to upload |
+
+#### **Responses**
+**201 – Successful Response**
+```json
+{
+  "id": "3fa85f64-5717-4562-b3fc-2c963f66afa6",
+  "filename": "string",
+  "original_filename": "string",
+  "file_type": "string",
+  "file_size": 0,
+  "upload_status": "string",
+  "created_at": "2025-11-06T18:07:39.608Z"
+}
+```
+
+**422 – Validation Error**
+```json
+{
+  "detail": [
+    {
+      "loc": ["string", 0],
+      "msg": "string",
+      "type": "string"
+    }
+  ]
+}
+```
+
+---
+
+### 🔹 GET `/files`
+#### **List User Files**
+Get a paginated list of files uploaded by the current user.
+
+#### **Query Parameters**
+| Name | Type | Default | Description |
+|------|------|----------|--------------|
+| `skip` | integer | 0 | Number of records to skip |
+| `limit` | integer | 50 | Max number of records (max 100) |
+
+#### **Responses**
+**200 – Successful Response**
+```json
+{
+  "files": [
+    {
+      "id": "3fa85f64-5717-4562-b3fc-2c963f66afa6",
+      "filename": "string",
+      "original_filename": "string",
+      "file_type": "string",
+      "file_size": 0,
+      "upload_status": "string",
+      "created_at": "2025-11-06T18:07:39.614Z"
+    }
+  ],
+  "total": 0
+}
+```
+
+**422 – Validation Error**
+```json
+{
+  "detail": [
+    {
+      "loc": ["string", 0],
+      "msg": "string",
+      "type": "string"
+    }
+  ]
+}
+```
+
+---
+
+### 🔹 GET `/files/{file_id}`
+#### **Get File Metadata**
+Returns metadata information about a specific uploaded file.
+
+| Parameter | Type | Location | Required | Description |
+|------------|--------|-----------|-----------|-------------|
+| `file_id` | string | path | ✅ | UUID of the file |
+
+#### **Responses**
+**200 – Successful Response**
+```json
+{
+  "id": "3fa85f64-5717-4562-b3fc-2c963f66afa6",
+  "filename": "string",
+  "original_filename": "string",
+  "file_type": "string",
+  "file_size": 0,
+  "upload_status": "string",
+  "created_at": "2025-11-06T18:07:39.619Z"
+}
+```
+
+**422 – Validation Error**
+```json
+{
+  "detail": [
+    {
+      "loc": ["string", 0],
+      "msg": "string",
+      "type": "string"
+    }
+  ]
+}
+```
+
+---
+
+### 🔹 DELETE `/files/{file_id}`
+#### **Delete File**
+Permanently deletes a file from both cloud storage and the database.
+
+| Parameter | Type | Location | Required | Description |
+|------------|--------|-----------|-----------|-------------|
+| `file_id` | string | path | ✅ | UUID of the file to delete |
+
+#### **Responses**
+**200 – Successful Response**
+```json
+{
+  "message": "string",
+  "success": true
+}
+```
+
+**422 – Validation Error**
+```json
+{
+  "detail": [
+    {
+      "loc": ["string", 0],
+      "msg": "string",
+      "type": "string"
+    }
+  ]
+}
+```
+
+---
+
+### 🔹 GET `/files/{file_id}/download`
+#### **Download File**
+Generates a presigned URL for downloading the file from cloud storage.
+
+| Parameter | Type | Location | Required | Description |
+|------------|--------|-----------|-----------|-------------|
+| `file_id` | string | path | ✅ | UUID of the file to download |
+
+#### **Responses**
+**200 – Successful Response**
+```json
+"string"
+```
+
+**422 – Validation Error**
+```json
+{
+  "detail": [
+    {
+      "loc": ["string", 0],
+      "msg": "string",
+      "type": "string"
+    }
+  ]
 }
 ```

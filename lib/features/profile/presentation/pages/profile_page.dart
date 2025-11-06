@@ -8,6 +8,7 @@ import '../../../../core/theme/theme_controller.dart';
 import '../../../../shared/animations/smooth_animations.dart';
 import '../../../tax_forms/data/services/t1_form_storage_service.dart';
 import '../../../tax_forms/data/services/t2_form_storage_service.dart';
+import '../../../auth/data/auth_api.dart';
 
 class ProfilePage extends StatelessWidget {
   const ProfilePage({super.key});
@@ -49,48 +50,85 @@ class ProfilePage extends StatelessWidget {
   }
 
   Widget _buildProfileHeader() {
-    return Builder(
-      builder: (context) => Container(
-        width: double.infinity,
-        padding: const EdgeInsets.all(AppDimensions.spacingLg),
-        decoration: BoxDecoration(
-          color: Theme.of(context).cardColor,
-          borderRadius: BorderRadius.circular(AppDimensions.radiusLg),
-          border: Border.all(color: Theme.of(context).dividerColor),
-        ),
-      child: Column(
-        children: [
-          CircleAvatar(
-            radius: 40,
-            backgroundColor: AppColors.primary.withValues(alpha: 0.1),
-            child: Text(
-              'JD',
-              style: TextStyle(
-                fontSize: 24,
-                fontWeight: FontWeight.bold,
-                color: AppColors.primary,
+    return FutureBuilder(
+      future: _fetchUserProfile(),
+      builder: (context, snapshot) {
+        final isLoading = snapshot.connectionState == ConnectionState.waiting;
+        final hasError = snapshot.hasError;
+        final user = snapshot.data;
+
+        final initials = user?.initials ?? (ThemeController.userName.value.isNotEmpty
+            ? ThemeController.userName.value.trim().substring(0, 1).toUpperCase()
+            : 'U');
+        final fullName = user?.fullName ?? ThemeController.userName.value;
+        final email = user?.email ?? '';
+
+        return Container(
+          width: double.infinity,
+          padding: const EdgeInsets.all(AppDimensions.spacingLg),
+          decoration: BoxDecoration(
+            color: Theme.of(context).cardColor,
+            borderRadius: BorderRadius.circular(AppDimensions.radiusLg),
+            border: Border.all(color: Theme.of(context).dividerColor),
+          ),
+          child: Column(
+            children: [
+              CircleAvatar(
+                radius: 40,
+                backgroundColor: AppColors.primary.withValues(alpha: 0.1),
+                child: Text(
+                  initials,
+                  style: TextStyle(
+                    fontSize: 24,
+                    fontWeight: FontWeight.bold,
+                    color: AppColors.primary,
+                  ),
+                ),
               ),
-            ),
+              const SizedBox(height: 16),
+              if (isLoading) const SizedBox(height: 4),
+              Text(
+                fullName,
+                style: const TextStyle(
+                  fontSize: 24,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              const SizedBox(height: 4),
+              if (isLoading)
+                const SizedBox(
+                  height: 16,
+                  width: 16,
+                  child: CircularProgressIndicator(strokeWidth: 2),
+                )
+              else if (hasError)
+                const Text(
+                  'Could not load profile',
+                  style: TextStyle(color: AppColors.grey600),
+                )
+              else
+                Text(
+                  email,
+                  style: const TextStyle(
+                    color: AppColors.grey600,
+                  ),
+                ),
+            ],
           ),
-          const SizedBox(height: 16),
-          Text(
-            'John Doe',
-            style: TextStyle(
-              fontSize: 24,
-              fontWeight: FontWeight.bold,
-            ),
-          ),
-          const SizedBox(height: 4),
-          Text(
-            'john.doe@example.com',
-            style: TextStyle(
-              color: AppColors.grey600,
-            ),
-          ),
-        ],
-      ),
-      ),
+        );
+      },
     );
+  }
+
+  Future<UserProfile?> _fetchUserProfile() async {
+    try {
+      final profile = await AuthApi.getCurrentUser();
+      // Update the global userName as well to keep Dashboard in sync
+      await ThemeController.setUserName(profile.fullName);
+      return profile;
+    } catch (_) {
+      return null;
+    }
   }
 
   Widget _buildProfileOptions(BuildContext context) {

@@ -14,6 +14,60 @@ class AuthResult {
   AuthResult({this.token, this.refreshToken, this.displayName, this.filingType});
 }
 
+class UserProfile {
+  final String id;
+  final String email;
+  final String? firstName;
+  final String? lastName;
+  final String? phone;
+  final bool emailVerified;
+  final bool isActive;
+  final String? createdAt;
+  final String? updatedAt;
+
+  UserProfile({
+    required this.id,
+    required this.email,
+    this.firstName,
+    this.lastName,
+    this.phone,
+    required this.emailVerified,
+    required this.isActive,
+    this.createdAt,
+    this.updatedAt,
+  });
+
+  String get fullName {
+    final f = (firstName ?? '').trim();
+    final l = (lastName ?? '').trim();
+    final combined = ('$f $l').trim();
+    if (combined.isEmpty) return email.split('@').first;
+    return combined;
+  }
+
+  String get initials {
+    final f = (firstName ?? '').trim();
+    final l = (lastName ?? '').trim();
+    if (f.isEmpty && l.isEmpty) return email.isNotEmpty ? email[0].toUpperCase() : 'U';
+    if (l.isEmpty) return f.substring(0, 1).toUpperCase();
+    return (f.substring(0, 1) + l.substring(0, 1)).toUpperCase();
+  }
+
+  factory UserProfile.fromJson(Map<String, dynamic> json) {
+    return UserProfile(
+      id: (json['id'] ?? '').toString(),
+      email: (json['email'] ?? '').toString(),
+      firstName: json['first_name']?.toString(),
+      lastName: json['last_name']?.toString(),
+      phone: json['phone']?.toString(),
+      emailVerified: (json['email_verified'] == true),
+      isActive: (json['is_active'] == true),
+      createdAt: json['created_at']?.toString(),
+      updatedAt: json['updated_at']?.toString(),
+    );
+  }
+}
+
 class AuthApi {
   AuthApi._();
 
@@ -22,7 +76,7 @@ class AuthApi {
           baseUrl: ApiEndpoints.BASE_URL,
           connectTimeout: const Duration(seconds: 15),
           receiveTimeout: const Duration(seconds: 20),
-headers: {
+          headers: {
             'Content-Type': 'application/json',
             // Bypass ngrok browser interstitial for API calls
             'ngrok-skip-browser-warning': 'true',
@@ -109,6 +163,25 @@ headers: {
           'purpose': purpose,
         },
       );
+    } on DioException catch (e) {
+      throw Exception(_extractErrorMessage(e));
+    }
+  }
+
+  /// GET /auth/me - fetch current user's profile.
+  static Future<UserProfile> getCurrentUser() async {
+    try {
+      final res = await _dio().get(ApiEndpoints.ME);
+      final data = res.data;
+      if (data is Map<String, dynamic>) return UserProfile.fromJson(data);
+      if (data is Map) return UserProfile.fromJson(Map<String, dynamic>.from(data));
+      if (data is String) {
+        try {
+          final parsed = json.decode(data) as Map<String, dynamic>;
+          return UserProfile.fromJson(parsed);
+        } catch (_) {}
+      }
+      throw Exception('Unexpected response format');
     } on DioException catch (e) {
       throw Exception(_extractErrorMessage(e));
     }

@@ -2,7 +2,7 @@
 
 class ApiEndpoints {
   // OpenAPI base
-  static const String BASE_URL = 'https://855eda9948b8.ngrok-free.app/api/v1';
+  static const String BASE_URL = 'https://ee736495b330.ngrok-free.app/api/v1';
 
   // Auth paths
   static const String REGISTER = '/auth/register';
@@ -10,4 +10,7 @@ class ApiEndpoints {
   static const String REQUEST_OTP = '/auth/request-otp';
   static const String VERIFY_OTP = '/auth/verify-otp';
   static const String ME = '/auth/me';
+
+  // Files paths
+  static const String FILES_UPLOAD = '/files/upload';
 }

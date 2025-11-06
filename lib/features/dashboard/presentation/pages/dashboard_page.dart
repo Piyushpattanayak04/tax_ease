@@ -7,6 +7,7 @@ import '../../../../core/theme/theme_controller.dart';
 import '../../../tax_forms/data/services/t1_form_storage_service.dart';
 import '../../../tax_forms/data/services/t2_form_storage_service.dart';
 import '../../../tax_forms/data/services/unified_form_service.dart';
+import '../../../auth/data/auth_api.dart';
 
 class DashboardPage extends StatefulWidget {
   const DashboardPage({super.key});
@@ -24,6 +25,7 @@ class _DashboardPageState extends State<DashboardPage> with AutomaticKeepAliveCl
   static const _taxDeadlinesKey = ValueKey('dashboard_tax_deadlines');
 
   late ScrollController _scrollController;
+  String? _userEmail;
 
   @override
   bool get wantKeepAlive => true;
@@ -33,6 +35,7 @@ class _DashboardPageState extends State<DashboardPage> with AutomaticKeepAliveCl
     super.initState();
     _scrollController = ScrollController();
     WidgetsBinding.instance.addObserver(this);
+    _ensureUserNameFromMe();
   }
 
   @override
@@ -219,41 +222,42 @@ class _DashboardPageState extends State<DashboardPage> with AutomaticKeepAliveCl
                   Expanded(
                     child: ValueListenableBuilder<String>(
                       valueListenable: ThemeController.userName,
-                      builder: (context, name, _) {
-                        return Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              _greeting(now),
-                              style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                color: AppColors.white.withValues(alpha: 0.85),
-                                fontWeight: FontWeight.w500,
-                                letterSpacing: 0.2,
-                              ),
+                    builder: (context, name, _) {
+                      final firstName = _firstName(name);
+                      return Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            _greeting(now),
+                            style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                              color: AppColors.white.withValues(alpha: 0.85),
+                              fontWeight: FontWeight.w500,
+                              letterSpacing: 0.2,
                             ),
-                            const SizedBox(height: 4),
-                            Text(
-                              name.isEmpty ? 'Welcome Back!' : name,
-                              maxLines: 1,
-                              overflow: TextOverflow.ellipsis,
-                              style: Theme.of(context).textTheme.headlineMedium?.copyWith(
-                                color: AppColors.white,
-                                fontWeight: FontWeight.w700,
-                                letterSpacing: -0.5,
-                                height: 1.1,
-                              ),
+                          ),
+                          const SizedBox(height: 4),
+                          Text(
+                            'Hello ${firstName.isEmpty ? 'there!' : firstName}',
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            style: Theme.of(context).textTheme.headlineMedium?.copyWith(
+                              color: AppColors.white,
+                              fontWeight: FontWeight.w700,
+                              letterSpacing: -0.5,
+                              height: 1.1,
                             ),
-                            const SizedBox(height: 2),
-                            Text(
-                              'Let\'s make tax filing effortless',
-                              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                color: AppColors.white.withValues(alpha: 0.75),
-                                fontWeight: FontWeight.w400,
-                              ),
+                          ),
+                          const SizedBox(height: 2),
+                          Text(
+                            'Let\'s make tax filing effortless',
+                            style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                              color: AppColors.white.withValues(alpha: 0.75),
+                              fontWeight: FontWeight.w400,
                             ),
-                          ],
-                        );
-                      },
+                          ),
+                        ],
+                      );
+                    },
                     ),
                   ),
                   const SizedBox(width: 16),
@@ -406,6 +410,25 @@ class _DashboardPageState extends State<DashboardPage> with AutomaticKeepAliveCl
     if (parts.isEmpty) return 'U';
     if (parts.length == 1) return parts.first.substring(0, 1).toUpperCase();
     return (parts.first.substring(0, 1) + parts.last.substring(0, 1)).toUpperCase();
+  }
+
+  String _firstName(String name) {
+    final trimmed = name.trim();
+    if (trimmed.isEmpty) return '';
+    return trimmed.split(RegExp(r"\s+")).first;
+  }
+
+  Future<void> _ensureUserNameFromMe() async {
+    try {
+      // Only try if we seem logged in and have a token
+      if (ThemeController.isLoggedIn.value && ThemeController.authToken != null) {
+        final me = await AuthApi.getCurrentUser();
+        await ThemeController.setUserName(me.fullName);
+        if (mounted) setState(() => _userEmail = me.email);
+      }
+    } catch (_) {
+      // ignore failures silently for the dashboard
+    }
   }
 
 
