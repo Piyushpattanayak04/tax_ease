@@ -88,10 +88,8 @@ class _DashboardPageState extends State<DashboardPage> with AutomaticKeepAliveCl
             },
           ),
           IconButton(
-            icon: const Icon(Icons.notifications_outlined),
-            onPressed: () {
-              // Show notifications
-            },
+icon: const Icon(Icons.notifications_outlined),
+            onPressed: () => context.push('/notifications'),
           ),
           IconButton(
             icon: const Icon(Icons.settings_outlined),
@@ -167,8 +165,6 @@ class _DashboardPageState extends State<DashboardPage> with AutomaticKeepAliveCl
   }
 
   Widget _buildWelcomeSection() {
-    final now = DateTime.now();
-
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.all(AppDimensions.spacingXl),
@@ -228,15 +224,6 @@ class _DashboardPageState extends State<DashboardPage> with AutomaticKeepAliveCl
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            _greeting(now),
-                            style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                              color: AppColors.white.withValues(alpha: 0.85),
-                              fontWeight: FontWeight.w500,
-                              letterSpacing: 0.2,
-                            ),
-                          ),
-                          const SizedBox(height: 4),
-                          Text(
                             'Hello ${firstName.isEmpty ? 'there!' : firstName}',
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,
@@ -249,7 +236,7 @@ class _DashboardPageState extends State<DashboardPage> with AutomaticKeepAliveCl
                           ),
                           const SizedBox(height: 2),
                           Text(
-                            'Let\'s make tax filing effortless',
+                            'Let\'s make tax filing ease',
                             style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                               color: AppColors.white.withValues(alpha: 0.75),
                               fontWeight: FontWeight.w400,
@@ -307,20 +294,6 @@ class _DashboardPageState extends State<DashboardPage> with AutomaticKeepAliveCl
                 children: [
                   Expanded(
                     child: _buildMiniStat(
-                      icon: Icons.trending_up_rounded,
-                      label: 'Filings',
-                      value: '\$500',
-                    ),
-                  ),
-                  const SizedBox(width: 12),
-                  Container(
-                    width: 1,
-                    height: 30,
-                    color: AppColors.white.withValues(alpha: 0.2),
-                  ),
-                  const SizedBox(width: 12),
-                  Expanded(
-                    child: _buildMiniStat(
                       icon: Icons.event_available_rounded,
                       label: 'Due Date',
                       value: 'Apr 30',
@@ -337,7 +310,9 @@ class _DashboardPageState extends State<DashboardPage> with AutomaticKeepAliveCl
                     child: _buildMiniStat(
                       icon: Icons.schedule_rounded,
                       label: 'Time Left',
-                      value: '45 days',
+                      value: _daysLeftToNextApril30() == 0
+                          ? 'Due today'
+                          : '${_daysLeftToNextApril30()} days',
                     ),
                   ),
                 ],
@@ -398,12 +373,19 @@ class _DashboardPageState extends State<DashboardPage> with AutomaticKeepAliveCl
     );
   }
 
-  String _greeting(DateTime now) {
-    final hour = now.hour;
-    if (hour < 12) return 'Good morning';
-    if (hour < 17) return 'Good afternoon';
-    return 'Good evening';
+  int _daysLeftToNextApril30() {
+    final now = DateTime.now();
+    final currentYear = now.year;
+    final april30ThisYear = DateTime(currentYear, 4, 30);
+    // Normalize times to dates only
+    final today = DateTime(now.year, now.month, now.day);
+    final target = today.isAfter(april30ThisYear)
+        ? DateTime(currentYear + 1, 4, 30)
+        : april30ThisYear;
+    final diff = target.difference(today).inDays;
+    return diff.clamp(0, 366);
   }
+
 
   String _userInitials(String name) {
     final parts = name.trim().split(RegExp(r"\s+")).where((p) => p.isNotEmpty).toList();
@@ -897,7 +879,7 @@ class _DashboardPageState extends State<DashboardPage> with AutomaticKeepAliveCl
           icon: Icons.upload_file_outlined,
           title: 'Upload Documents',
           subtitle: 'Add tax documents',
-          onTap: () => context.go('/documents/upload'),
+          onTap: () => context.go('/documents'),
         ),
       ),
       SizedBox(

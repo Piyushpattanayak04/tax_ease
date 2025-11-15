@@ -17,6 +17,7 @@ import '../../features/documents/presentation/pages/documents_page.dart';
 import '../../features/documents/presentation/pages/upload_documents_page.dart';
 import '../../features/filing/presentation/pages/filing_status_page.dart';
 import '../../features/filing/presentation/pages/filing_summary_page.dart';
+import '../../features/notifications/presentation/pages/notifications_page.dart';
 import '../../features/profile/presentation/pages/profile_page.dart';
 import '../../features/settings/presentation/pages/settings_page.dart';
 import '../../features/settings/presentation/pages/help_support_page.dart';
@@ -191,6 +192,13 @@ class AppRouter {
           final filingId = state.uri.queryParameters['id'] ?? '';
           return _page(FilingSummaryPage(filingId: filingId));
         },
+      ),
+
+      // Notifications / Communication
+      GoRoute(
+        path: '/notifications',
+        name: 'notifications',
+        pageBuilder: (context, state) => _page(const NotificationsPage()),
       ),
 
       // Settings Routes (full screen)

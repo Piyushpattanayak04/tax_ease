@@ -108,6 +108,16 @@ class _FilingStatusPageState extends State<FilingStatusPage> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Filing Status'),
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back),
+          onPressed: () {
+            if (Navigator.of(context).canPop()) {
+              Navigator.of(context).pop();
+            } else {
+              context.go('/home');
+            }
+          },
+        ),
         actions: [
           IconButton(
             tooltip: 'Refresh',
@@ -147,22 +157,38 @@ class _FilingStatusPageState extends State<FilingStatusPage> {
               SliverToBoxAdapter(
                 child: Padding(
                   padding: const EdgeInsets.all(16.0),
-                  child: Row(
-                    children: [
-                      Expanded(
-                        child: OutlinedButton(
-                          onPressed: _refresh,
-                          child: const Text('Refresh Status'),
+                  child: LayoutBuilder(
+                    builder: (context, constraints) {
+                      final isNarrow = constraints.maxWidth < 380;
+                      final actions = [
+OutlinedButton(
+                          onPressed: () => context.push('/notifications'),
+                          child: const Text('Communication'),
                         ),
-                      ),
-                      const SizedBox(width: 12),
-                      Expanded(
-                        child: ElevatedButton(
+                        ElevatedButton(
                           onPressed: () => _goToForms(context),
                           child: const Text('View Forms'),
                         ),
-                      ),
-                    ],
+                      ];
+
+                      if (isNarrow) {
+                        return Column(
+                          crossAxisAlignment: CrossAxisAlignment.stretch,
+                          children: [
+                            actions[0],
+                            const SizedBox(height: 12),
+                            actions[1],
+                          ],
+                        );
+                      }
+                      return Row(
+                        children: [
+                          Expanded(child: actions[0]),
+                          const SizedBox(width: 12),
+                          Expanded(child: actions[1]),
+                        ],
+                      );
+                    },
                   ),
                 ),
               ),
@@ -221,7 +247,7 @@ style: AppTextStyles.bodySmall.copyWith(color: Colors.white.withValues(alpha: 0.
           ),
           const SizedBox(height: 8),
           Text(
-            '${info.formType} • ${_shortId(info.formId)}',
+            '${info.formType} Return',
             style: AppTextStyles.h2LargeWhite,
           ),
           const SizedBox(height: 8),
@@ -238,10 +264,6 @@ _Chip(icon: Icons.schedule_rounded, text: 'Updated $dateText', color: Colors.whi
     );
   }
 
-  String _shortId(String id) {
-    if (id.length <= 10) return id;
-    return '${id.substring(0, 6)}…${id.substring(id.length - 4)}';
-  }
 }
 
 class _Chip extends StatelessWidget {
