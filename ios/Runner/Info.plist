@@ -45,5 +45,12 @@
 	<true/>
 	<key>UIApplicationSupportsIndirectInputEvents</key>
 	<true/>
+	<!-- iOS privacy permissions for plugins like image_picker, file_picker, and permission_handler -->
+	<key>NSCameraUsageDescription</key>
+	<string>Tax Ease needs camera access to capture documents and receipts.</string>
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>Tax Ease needs photo library access to upload receipts and documents.</string>
+	<key>NSPhotoLibraryAddUsageDescription</key>
+	<string>Tax Ease needs permission to save generated documents to your photo library.</string>
 </dict>
 </plist>
