@@ -73,14 +73,15 @@ class YourFormsPage extends StatefulWidget {
 
 class _YourFormsPageState extends State<YourFormsPage> with WidgetsBindingObserver {
   List<CombinedFormData> _allForms = [];
-  bool _isLoading = true;
+  bool _isInitialLoad = true;
+  bool _isRefreshing = false;
 
   @override
   void initState() {
     super.initState();
     WidgetsBinding.instance.addObserver(this);
-_loadAllForms();
-    
+    _loadAllForms(isInitial: true);
+
     // If we should refresh (e.g., after form submission), delay and reload
     if (widget.shouldRefresh == true) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -107,16 +108,32 @@ _loadAllForms();
     }
   }
 
-  Future<void> _loadAllForms() async {
+  Future<void> _loadAllForms({bool isInitial = false}) async {
+    // For the very first load, we show a full-page loader. For subsequent loads
+    // (e.g. refresh after submission or when resuming the app), keep the existing
+    // content visible and just show a lightweight loader.
+    if (isInitial) {
+      setState(() {
+        _isInitialLoad = true;
+        _isRefreshing = false;
+      });
+    } else {
+      if (mounted) {
+        setState(() {
+          _isRefreshing = true;
+        });
+      }
+    }
+
     try {
       // Load T1 forms
       final t1Forms = await T1FormStorageService.instance.loadAllForms();
       final t1CombinedForms = t1Forms.map((form) => CombinedFormData.fromT1(form)).toList();
-      
+
       // Load T2 forms
       final t2Forms = await T2FormStorageService.instance.loadAllForms();
       final t2CombinedForms = t2Forms.map((form) => CombinedFormData.fromT2(form)).toList();
-      
+
       // Combine and sort by updated date
       final allForms = [...t1CombinedForms, ...t2CombinedForms];
       allForms.sort((a, b) {
@@ -124,16 +141,22 @@ _loadAllForms();
         final bDate = b.updatedAt ?? DateTime(0);
         return bDate.compareTo(aDate); // Most recent first
       });
-      
-      setState(() {
-        _allForms = allForms;
-        _isLoading = false;
-      });
+
+      if (mounted) {
+        setState(() {
+          _allForms = allForms;
+          _isInitialLoad = false;
+          _isRefreshing = false;
+        });
+      }
     } catch (e) {
-      setState(() {
-        _allForms = [];
-        _isLoading = false;
-      });
+      if (mounted) {
+        setState(() {
+          _allForms = [];
+          _isInitialLoad = false;
+          _isRefreshing = false;
+        });
+      }
     }
   }
 
@@ -222,7 +245,7 @@ _loadAllForms();
           tablet: AppDimensions.screenPaddingLarge,
           desktop: AppDimensions.spacingXl,
         )),
-        child: _isLoading
+        child: _isInitialLoad
             ? const Center(child: CircularProgressIndicator())
             : Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -245,6 +268,10 @@ _loadAllForms();
                             color: AppColors.grey600,
                           ),
                         ),
+                        if (_isRefreshing) ...[
+                          const SizedBox(height: 12),
+                          const LinearProgressIndicator(minHeight: 2),
+                        ],
                       ],
                     ),
                   ),

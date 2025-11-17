@@ -6,18 +6,32 @@ import '../../../../core/utils/smooth_scroll_physics.dart';
 import '../../../../core/utils/responsive.dart';
 import '../../data/models/t1_form_models_simple.dart';
 
+/// Detail page types for Questionnaire 2 sections
+enum T1DetailStepType {
+  movingExpenses,
+  uberSkipDoordash,
+  generalBusiness,
+  rentalIncome,
+}
+
 class T1Questionnaire2Step extends StatefulWidget {
+  final T1DetailStepType stepType;
   final T1FormData formData;
   final Function(T1FormData) onFormDataChanged;
   final VoidCallback onPrevious;
-  final VoidCallback onSubmit;
+  final VoidCallback onPrimary;
+  final String primaryButtonLabel;
+  final String? previousStepTitle;
 
   const T1Questionnaire2Step({
     super.key,
+    required this.stepType,
     required this.formData,
     required this.onFormDataChanged,
     required this.onPrevious,
-    required this.onSubmit,
+    required this.onPrimary,
+    required this.primaryButtonLabel,
+    this.previousStepTitle,
   });
 
   @override
@@ -50,8 +64,22 @@ class _T1Questionnaire2StepState extends State<T1Questionnaire2Step> {
 
   @override
   Widget build(BuildContext context) {
-    final hasMovingExpenses = _formData.hasMovingExpenses ?? false;
-    final isSelfEmployed = _formData.isSelfEmployed ?? false;
+    // Build a single detailed section based on the configured step type
+    Widget detailSection;
+    switch (widget.stepType) {
+      case T1DetailStepType.movingExpenses:
+        detailSection = _buildMovingExpenseDetails();
+        break;
+      case T1DetailStepType.uberSkipDoordash:
+        detailSection = _buildUberBusinessDetails();
+        break;
+      case T1DetailStepType.generalBusiness:
+        detailSection = _buildGeneralBusinessDetails();
+        break;
+      case T1DetailStepType.rentalIncome:
+        detailSection = _buildRentalIncomeDetails();
+        break;
+    }
 
     return ResponsiveContainer(
       padding: EdgeInsets.all(Responsive.responsive(
@@ -69,40 +97,25 @@ class _T1Questionnaire2StepState extends State<T1Questionnaire2Step> {
             _buildHeader(),
             const SizedBox(height: 24),
 
-            // Moving Expense Details (if Q4 was Yes)
-            if (hasMovingExpenses) ...[
-              _buildMovingExpenseDetails(),
-              const SizedBox(height: 24),
-            ],
-
-            // Self Employment Details (if Q5 was Yes)
-            if (isSelfEmployed) ...[
-              if (_formData.selfEmployment?.businessTypes.contains('uber') ?? false) ...[
-                _buildUberBusinessDetails(),
-                const SizedBox(height: 24),
-              ],
-              if (_formData.selfEmployment?.businessTypes.contains('general') ?? false) ...[
-                _buildGeneralBusinessDetails(),
-                const SizedBox(height: 24),
-              ],
-              if (_formData.selfEmployment?.businessTypes.contains('rental') ?? false) ...[
-                _buildRentalIncomeDetails(),
-                const SizedBox(height: 24),
-              ],
-            ],
+            detailSection,
+            const SizedBox(height: 24),
 
             // Navigation Buttons
             Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
                 ElevatedButton(
-                  onPressed: widget.onSubmit,
-                  child: const Text('Submit Form'),
+                  onPressed: widget.onPrimary,
+                  child: Text(widget.primaryButtonLabel),
                 ),
                 const SizedBox(height: 12),
                 OutlinedButton(
                   onPressed: widget.onPrevious,
-                  child: const Text('Previous: Questionnaire 1'),
+                  child: Text(
+                    widget.previousStepTitle != null
+                        ? 'Previous: ${widget.previousStepTitle}'
+                        : 'Previous',
+                  ),
                 ),
               ],
             ),
@@ -115,6 +128,30 @@ class _T1Questionnaire2StepState extends State<T1Questionnaire2Step> {
   }
 
   Widget _buildHeader() {
+    String title;
+    String? subtitle;
+
+    switch (widget.stepType) {
+      case T1DetailStepType.movingExpenses:
+        title = 'Moving Expenses';
+        subtitle =
+            'Provide detailed moving expense information for you and/or your spouse.';
+        break;
+      case T1DetailStepType.uberSkipDoordash:
+        title = 'Uber/Skip/DoorDash Details';
+        subtitle =
+            'Provide income and expense details for ride-sharing or food delivery.';
+        break;
+      case T1DetailStepType.generalBusiness:
+        title = 'General Business Details';
+        subtitle = 'Provide income and expense details for your business.';
+        break;
+      case T1DetailStepType.rentalIncome:
+        title = 'Rental Income Details';
+        subtitle = 'Provide income and expense details for your rental properties.';
+        break;
+    }
+
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.all(AppDimensions.spacingMd),
@@ -127,18 +164,20 @@ class _T1Questionnaire2StepState extends State<T1Questionnaire2Step> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            'Questionnaire 2 - Detailed Information',
+            title,
             style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-              fontWeight: FontWeight.w600,
-            ),
+                  fontWeight: FontWeight.w600,
+                ),
           ),
-          const SizedBox(height: 4),
-          Text(
-            'Please provide detailed information for the items you selected in Questionnaire 1.',
-            style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-              color: AppColors.grey600,
+          if (subtitle != null) ...[
+            const SizedBox(height: 4),
+            Text(
+              subtitle!,
+              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                    color: AppColors.grey600,
+                  ),
             ),
-          ),
+          ],
         ],
       ),
     );

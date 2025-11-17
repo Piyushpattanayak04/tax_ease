@@ -147,17 +147,17 @@ class _T1Questionnaire1StepState extends State<T1Questionnaire1Step> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            'Questionnaire 1',
+            'Questionnaire',
             style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-              fontWeight: FontWeight.w600,
-            ),
+                  fontWeight: FontWeight.w600,
+                ),
           ),
           const SizedBox(height: 4),
           Text(
-            'Please answer the following questions. Detailed information will be collected in the next step if applicable.',
+            'Please answer the following questions. Detailed information will be collected in additional steps if applicable.',
             style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-              color: AppColors.grey600,
-            ),
+                  color: AppColors.grey600,
+                ),
           ),
         ],
       ),
@@ -1119,14 +1119,14 @@ class _T1Questionnaire1StepState extends State<T1Questionnaire1Step> {
   Widget _buildNavigationButtons() {
     final hasMovingExpenses = _formData.hasMovingExpenses ?? false;
     final isSelfEmployed = _formData.isSelfEmployed ?? false;
-    final needsQuestionnaire2 = hasMovingExpenses || isSelfEmployed;
+    final needsAdditionalSteps = hasMovingExpenses || isSelfEmployed;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         ElevatedButton(
           onPressed: widget.onNext,
-          child: Text(needsQuestionnaire2 ? 'Next: Questionnaire 2' : 'Submit Form'),
+          child: Text(needsAdditionalSteps ? 'Next' : 'Submit Form'),
         ),
         const SizedBox(height: 12),
         OutlinedButton(

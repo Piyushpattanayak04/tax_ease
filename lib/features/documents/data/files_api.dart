@@ -4,6 +4,7 @@ import 'package:dio/dio.dart';
 
 import '../../../../core/constants/api_endpoints.dart';
 import '../../../../core/theme/theme_controller.dart';
+import '../../../../core/network/ui_error.dart';
 
 class FilesApi {
   FilesApi._();
@@ -63,10 +64,13 @@ class FilesApi {
     }
   }
 
+  /// Centralised mapping from DioException to a user-friendly upload error message.
   static String _extractErrorMessage(DioException e) {
-    if (e.response?.data is Map && (e.response!.data as Map)['message'] != null) {
-      return (e.response!.data as Map)['message'].toString();
+    final uiError = mapDioErrorToUIError(e);
+    // Customise the default message slightly for the upload context.
+    if (uiError.type == UIErrorType.network || uiError.type == UIErrorType.timeout) {
+      return 'Upload failed. ${uiError.message}';
     }
-    return e.message ?? 'Upload failed';
+    return uiError.message.isNotEmpty ? uiError.message : 'Upload failed. Please try again.';
   }
 }

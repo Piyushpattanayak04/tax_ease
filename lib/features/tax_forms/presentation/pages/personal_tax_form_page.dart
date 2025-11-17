@@ -26,7 +26,20 @@ class _PersonalTaxFormPageState extends State<PersonalTaxFormPage>
   late AnimationController _slideController;
   
   int _currentStep = 0;
-  final int _totalSteps = 3; // Personal Info, Questionnaire 1, Questionnaire 2
+  
+  /// Dynamic list of step titles shown in the top bar.
+  /// Always starts with:
+  /// 0: Personal Info
+  /// 1: Questionnaire
+  /// Followed by optional detail pages in this order:
+  /// - Uber/Skip/DoorDash
+  /// - Rental Income
+  /// - General Business
+  /// - Moving Expenses
+  List<String> _stepTitles = const [];
+
+  /// Detail steps corresponding to indices >= 2 in [_stepTitles].
+  List<T1DetailStepType> _detailSteps = const [];
   
   T1FormData _formData = const T1FormData.empty();
   bool _isLoading = true;
@@ -75,6 +88,7 @@ class _PersonalTaxFormPageState extends State<PersonalTaxFormPage>
     setState(() {
       _formData = savedData!;
       _isLoading = false;
+      _rebuildSteps();
     });
   }
 
@@ -125,29 +139,72 @@ class _PersonalTaxFormPageState extends State<PersonalTaxFormPage>
     }
   }
 
+  void _rebuildSteps() {
+    final hasMovingExpenses = _formData.hasMovingExpenses ?? false;
+    final isSelfEmployed = _formData.isSelfEmployed ?? false;
+    final businessTypes = _formData.selfEmployment?.businessTypes ?? <String>[];
+
+    final detailSteps = <T1DetailStepType>[];
+    final titles = <String>['Personal Info', 'Questionnaire'];
+
+    if (isSelfEmployed && businessTypes.contains('uber')) {
+      detailSteps.add(T1DetailStepType.uberSkipDoordash);
+      titles.add('Uberskip/Doordash');
+    }
+    if (isSelfEmployed && businessTypes.contains('rental')) {
+      detailSteps.add(T1DetailStepType.rentalIncome);
+      titles.add('Rental Income');
+    }
+    if (isSelfEmployed && businessTypes.contains('general')) {
+      detailSteps.add(T1DetailStepType.generalBusiness);
+      titles.add('General Business');
+    }
+    if (hasMovingExpenses) {
+      detailSteps.add(T1DetailStepType.movingExpenses);
+      titles.add('Moving Expenses');
+    }
+
+    _detailSteps = detailSteps;
+    _stepTitles = titles;
+
+    if (_stepTitles.isEmpty) {
+      _currentStep = 0;
+      _progressController.animateTo(0.0);
+      return;
+    }
+
+    if (_currentStep >= _stepTitles.length) {
+      _currentStep = _stepTitles.length - 1;
+    }
+
+    _updateProgress();
+  }
+
+  void _updateProgress() {
+    if (_stepTitles.length <= 1) {
+      _progressController.animateTo(0.0);
+    } else {
+      _progressController.animateTo(_currentStep / (_stepTitles.length - 1));
+    }
+  }
+
   void _nextStep() {
-    // Special logic: Skip Questionnaire 2 if both Q4 and Q5 are false
-    if (_currentStep == 1) {
-      final hasMovingExpenses = _formData.hasMovingExpenses ?? false;
-      final isSelfEmployed = _formData.isSelfEmployed ?? false;
-      
-      if (!hasMovingExpenses && !isSelfEmployed) {
-        // Skip to submission (Questionnaire 2 not needed)
-        _submitForm();
-        return;
-      }
+    if (_stepTitles.isEmpty) return;
+
+    // If this is the last step, submitting the form instead of navigating forward
+    if (_currentStep >= _stepTitles.length - 1) {
+      _submitForm();
+      return;
     }
-    
-    if (_currentStep < _totalSteps - 1) {
-      setState(() {
-        _currentStep++;
-      });
-      _pageController.nextPage(
-        duration: const Duration(milliseconds: 300),
-        curve: Curves.easeInOut,
-      );
-      _progressController.animateTo(_currentStep / (_totalSteps - 1));
-    }
+
+    setState(() {
+      _currentStep++;
+    });
+    _pageController.nextPage(
+      duration: const Duration(milliseconds: 300),
+      curve: Curves.easeInOut,
+    );
+    _updateProgress();
   }
 
   void _previousStep() {
@@ -159,7 +216,7 @@ class _PersonalTaxFormPageState extends State<PersonalTaxFormPage>
         duration: const Duration(milliseconds: 300),
         curve: Curves.easeInOut,
       );
-      _progressController.animateTo(_currentStep / (_totalSteps - 1));
+      _updateProgress();
     }
   }
 
@@ -201,6 +258,7 @@ class _PersonalTaxFormPageState extends State<PersonalTaxFormPage>
   void _updateFormData(T1FormData newData) {
     setState(() {
       _formData = newData;
+      _rebuildSteps();
     });
     // Auto-save the form data when it changes
     _autoSaveFormData();
@@ -275,47 +333,26 @@ class _PersonalTaxFormPageState extends State<PersonalTaxFormPage>
               children: [
                 T1FormProgressBar(
                   currentStep: _currentStep,
-                  totalSteps: _totalSteps,
+                  totalSteps: _stepTitles.length,
                   controller: _progressController,
                 ),
                 const SizedBox(height: 8),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Flexible(
+                  children: List.generate(_stepTitles.length, (index) {
+                    final isActive = index == _currentStep;
+                    return Flexible(
                       child: Text(
-                        'Personal Info',
+                        _stepTitles[index],
                         style: TextStyle(
                           fontSize: 11,
-                          fontWeight: _currentStep == 0 ? FontWeight.w600 : FontWeight.w400,
-                          color: _currentStep == 0 ? AppColors.primary : AppColors.grey500,
+                          fontWeight: isActive ? FontWeight.w600 : FontWeight.w400,
+                          color: isActive ? AppColors.primary : AppColors.grey500,
                         ),
                         textAlign: TextAlign.center,
                       ),
-                    ),
-                    Flexible(
-                      child: Text(
-                        'Questionnaire 1',
-                        style: TextStyle(
-                          fontSize: 11,
-                          fontWeight: _currentStep == 1 ? FontWeight.w600 : FontWeight.w400,
-                          color: _currentStep == 1 ? AppColors.primary : AppColors.grey500,
-                        ),
-                        textAlign: TextAlign.center,
-                      ),
-                    ),
-                    Flexible(
-                      child: Text(
-                        'Questionnaire 2',
-                        style: TextStyle(
-                          fontSize: 11,
-                          fontWeight: _currentStep == 2 ? FontWeight.w600 : FontWeight.w400,
-                          color: _currentStep == 2 ? AppColors.primary : AppColors.grey500,
-                        ),
-                        textAlign: TextAlign.center,
-                      ),
-                    ),
-                  ],
+                    );
+                  }),
                 ),
               ],
             ),
@@ -328,32 +365,54 @@ class _PersonalTaxFormPageState extends State<PersonalTaxFormPage>
                 setState(() {
                   _currentStep = index;
                 });
-                _progressController.animateTo(index / (_totalSteps - 1));
+                _updateProgress();
               },
-              children: [
-                // Step 1: Personal Information
-                T1PersonalInfoStep(
-                  personalInfo: _formData.personalInfo,
-                  onPersonalInfoChanged: (personalInfo) {
-                    _updateFormData(_formData.copyWith(personalInfo: personalInfo));
-                  },
-                  onNext: _nextStep,
-                ),
-                // Step 2: Questionnaire 1 (Basic Yes/No Questions)
-                T1Questionnaire1Step(
+              children: List.generate(_stepTitles.length, (index) {
+                // Step 0: Personal Information
+                if (index == 0) {
+                  return T1PersonalInfoStep(
+                    personalInfo: _formData.personalInfo,
+                    onPersonalInfoChanged: (personalInfo) {
+                      _updateFormData(_formData.copyWith(personalInfo: personalInfo));
+                    },
+                    onNext: _nextStep,
+                  );
+                }
+
+                // Step 1: Questionnaire (basic questions)
+                if (index == 1) {
+                  return T1Questionnaire1Step(
+                    formData: _formData,
+                    onFormDataChanged: _updateFormData,
+                    onPrevious: _previousStep,
+                    onNext: _nextStep,
+                  );
+                }
+
+                // Subsequent steps: detailed sections (Uber, Rental, General Business, Moving)
+                final detailIndex = index - 2;
+                if (detailIndex < 0 || detailIndex >= _detailSteps.length) {
+                  // Fallback to an empty container if something goes out of sync
+                  return const SizedBox.shrink();
+                }
+
+                final detailType = _detailSteps[detailIndex];
+                final isLastStep = index == _stepTitles.length - 1;
+                final String primaryLabel = isLastStep
+                    ? 'Submit Form'
+                    : 'Next: ${_stepTitles[index + 1]}';
+                final String previousTitle = _stepTitles[index - 1];
+
+                return T1Questionnaire2Step(
+                  stepType: detailType,
                   formData: _formData,
                   onFormDataChanged: _updateFormData,
                   onPrevious: _previousStep,
-                  onNext: _nextStep,
-                ),
-                // Step 3: Questionnaire 2 (Detailed Forms)
-                T1Questionnaire2Step(
-                  formData: _formData,
-                  onFormDataChanged: _updateFormData,
-                  onPrevious: _previousStep,
-                  onSubmit: _submitForm,
-                ),
-              ],
+                  onPrimary: isLastStep ? _submitForm : _nextStep,
+                  primaryButtonLabel: primaryLabel,
+                  previousStepTitle: previousTitle,
+                );
+              }),
             ),
           ),
         ],

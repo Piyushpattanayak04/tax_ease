@@ -4,6 +4,7 @@ import 'package:dio/dio.dart';
 
 import '../../../core/constants/api_endpoints.dart';
 import '../../../core/theme/theme_controller.dart';
+import '../../../core/network/ui_error.dart';
 
 class AuthResult {
   final String? token; // access_token
@@ -217,11 +218,12 @@ class AuthApi {
     );
   }
 
+  /// Centralised mapping from DioException to a user-friendly error message.
+  ///
+  /// This uses [UIError] so the UI can distinguish between network/server/client issues
+  /// if needed, while still returning a simple message for existing callers.
   static String _extractErrorMessage(DioException e) {
-    if (e.response?.data is Map && (e.response!.data as Map)['message'] != null) {
-      return (e.response!.data as Map)['message'].toString();
-    }
-    if (e.message != null) return e.message!;
-    return 'Login failed. Please try again.';
+    final uiError = mapDioErrorToUIError(e);
+    return uiError.message;
   }
 }
