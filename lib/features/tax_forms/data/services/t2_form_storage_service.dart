@@ -99,6 +99,18 @@ Future<T2OnboardingData?> getFormById(String id) async {
     }
   }
 
+  /// Delete a specific form by ID
+  Future<bool> deleteForm(String id) async {
+    try {
+      final forms = await loadAllForms();
+      final updatedForms = forms.where((f) => f.id != id).toList();
+      return await saveAllForms(updatedForms);
+    } catch (e) {
+      _logger.e('Error deleting T2 form: $e');
+      return false;
+    }
+  }
+
   /// Save T2 form data to SharedPreferences (Legacy method)
 Future<bool> saveT2FormData(T2OnboardingData formData) async {
     try {

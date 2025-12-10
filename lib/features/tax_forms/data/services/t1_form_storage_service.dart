@@ -104,6 +104,18 @@ class T1FormStorageService {
     }
   }
 
+  /// Delete a specific form by ID
+  Future<bool> deleteForm(String id) async {
+    try {
+      final forms = await loadAllForms();
+      final updatedForms = forms.where((f) => f.id != id).toList();
+      return await saveAllForms(updatedForms);
+    } catch (e) {
+      _logger.e('Error deleting T1 form: $e');
+      return false;
+    }
+  }
+
   /// Save T1 form data to SharedPreferences
   Future<bool> saveT1FormData(T1FormData formData) async {
     try {

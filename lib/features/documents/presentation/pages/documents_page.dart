@@ -6,6 +6,9 @@ import '../../../../core/utils/smooth_scroll_physics.dart';
 import '../../../../core/utils/responsive.dart';
 import '../../../../shared/animations/smooth_animations.dart';
 import '../../data/files_api.dart';
+import '../../../tax_forms/data/models/t1_form_models_simple.dart';
+import '../../../tax_forms/data/services/t1_form_storage_service.dart';
+import '../../../tax_forms/data/services/unified_form_service.dart';
 
 class DocumentsPage extends StatefulWidget {
   const DocumentsPage({super.key});
@@ -16,9 +19,104 @@ class DocumentsPage extends StatefulWidget {
 
 class _DocumentsPageState extends State<DocumentsPage> {
   final List<String> _uploadedFileNames = [];
+
+  /// T1 form whose questionnaire answers drive which document cards appear.
+  T1FormData? _activeT1Form;
+  bool _hasLoadedForm = false;
+
+  /// Predefined document types + rules for when they are required.
+  final List<_DocumentRequirement> _documentRequirements = [
+    // NOTE: Disability question is not yet implemented in T1FormData,
+    // so this card is always shown for now.
+    _DocumentRequirement(
+      label: 'Disability Approval form',
+    ),
+    _DocumentRequirement(
+      label: 'Charitable Donation Receipts',
+      isRequiredWhen: (form) => form.hasCharitableDonations == true,
+    ),
+    _DocumentRequirement(
+      label: 'Moving Expense',
+      isRequiredWhen: (form) => form.hasMovingExpenses == true,
+    ),
+    _DocumentRequirement(
+      label: 'Statement of Adjustment issued by lawyer',
+      isRequiredWhen: (form) => form.isFirstHomeBuyer == true,
+    ),
+    _DocumentRequirement(
+      label: 'T2202 Form',
+      isRequiredWhen: (form) => form.wasStudentLastYear == true,
+    ),
+    _DocumentRequirement(
+      label: 'Union Dues Receipt',
+      isRequiredWhen: (form) => form.isUnionMember == true,
+    ),
+    _DocumentRequirement(
+      label: 'Day Care Expense Receipts',
+      isRequiredWhen: (form) => form.hasDaycareExpenses == true,
+    ),
+    _DocumentRequirement(
+      label: 'Professional Fees Receipt',
+      isRequiredWhen: (form) => form.hasProfessionalDues == true,
+    ),
+    _DocumentRequirement(
+      label: 'RRSP/FHSA T-slips',
+      isRequiredWhen: (form) => form.hasRrspFhsaInvestment == true,
+    ),
+    _DocumentRequirement(
+      label: "Receipt for Child's Sport/Fitness & Art",
+      isRequiredWhen: (form) => form.hasChildArtSportCredit == true,
+    ),
+  ];
+
+  /// Tracks the most recently uploaded file name for each document type.
+  final Map<String, String?> _documentUploads = {};
+
+  /// Tracks which document types are currently uploading so we can show
+  /// per-card loading indicators.
+  final Set<String> _uploadingDocumentTypes = {};
+
   bool _isUploading = false;
 
-  Future<void> _pickAndUpload() async {
+  @override
+  void initState() {
+    super.initState();
+    _loadActiveT1Form();
+  }
+
+  Future<void> _loadActiveT1Form() async {
+    try {
+      // Try to use the same "most recent draft" logic as the dashboard.
+      final status = await UnifiedFormService.instance.getUnifiedProgressStatus();
+      T1FormData? active;
+
+      if (status['formType'] == 'T1' && status['formId'] != null) {
+        final formId = status['formId'] as String;
+        active = await T1FormStorageService.instance.getFormById(formId);
+      } else {
+        // Fallback: pick the most recently updated T1 form, if any.
+        final t1Forms = await T1FormStorageService.instance.loadAllForms();
+        if (t1Forms.isNotEmpty) {
+          active = t1Forms.reduce((a, b) =>
+              (a.updatedAt ?? DateTime(0)).isAfter(b.updatedAt ?? DateTime(0)) ? a : b);
+        }
+      }
+
+      if (!mounted) return;
+      setState(() {
+        _activeT1Form = active;
+        _hasLoadedForm = true;
+      });
+    } catch (_) {
+      if (!mounted) return;
+      setState(() {
+        _activeT1Form = null;
+        _hasLoadedForm = true;
+      });
+    }
+  }
+
+  Future<void> _pickAndUpload({String? documentType}) async {
     try {
       final result = await FilePicker.platform.pickFiles(
         type: FileType.custom,
@@ -40,7 +138,12 @@ class _DocumentsPageState extends State<DocumentsPage> {
         return;
       }
 
-      setState(() => _isUploading = true);
+      setState(() {
+        _isUploading = true;
+        if (documentType != null) {
+          _uploadingDocumentTypes.add(documentType);
+        }
+      });
       final resp = await FilesApi.uploadFile(filePath: path);
 
       // Prefer original filename from API if provided, else from picker
@@ -50,14 +153,24 @@ class _DocumentsPageState extends State<DocumentsPage> {
         setState(() {
           _uploadedFileNames.add(name);
           _isUploading = false;
+          if (documentType != null) {
+            _uploadingDocumentTypes.remove(documentType);
+            _documentUploads[documentType] = name;
+          }
         });
+        final prefix = documentType != null ? '$documentType: ' : '';
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Uploaded: $name')),
+          SnackBar(content: Text('Uploaded: $prefix$name')),
         );
       }
     } catch (e) {
       if (mounted) {
-        setState(() => _isUploading = false);
+        setState(() {
+          _isUploading = false;
+          if (documentType != null) {
+            _uploadingDocumentTypes.remove(documentType);
+          }
+        });
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text('Upload failed: $e')),
         );
@@ -71,13 +184,6 @@ class _DocumentsPageState extends State<DocumentsPage> {
       appBar: AppBar(
         title: const Text('Documents'),
         automaticallyImplyLeading: false,
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.upload_outlined),
-            onPressed: _isUploading ? null : _pickAndUpload,
-            tooltip: 'Upload document',
-          ),
-        ],
       ),
       body: ResponsiveContainer(
         centerContent: false,
@@ -94,18 +200,33 @@ class _DocumentsPageState extends State<DocumentsPage> {
             children: [
               SmoothAnimations.slideUp(
                 child: Text(
-                  'Your Documents',
+                  'Upload Tax Documents',
                   style: Theme.of(context).textTheme.headlineMedium?.copyWith(
                         fontWeight: FontWeight.bold,
                       ),
                 ),
               ),
-              const SizedBox(height: 24),
+              const SizedBox(height: 16),
+              SmoothAnimations.slideUp(
+                delay: const Duration(milliseconds: 100),
+                child: _buildDocumentTypeCards(),
+              ),
+              const SizedBox(height: 32),
+              SmoothAnimations.slideUp(
+                delay: const Duration(milliseconds: 150),
+                child: Text(
+                  'Your Documents',
+                  style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                        fontWeight: FontWeight.w600,
+                      ),
+                ),
+              ),
+              const SizedBox(height: 16),
               if (_isUploading)
                 const LinearProgressIndicator(minHeight: 2),
               const SizedBox(height: 12),
               SmoothAnimations.slideUp(
-                delay: const Duration(milliseconds: 200),
+                delay: const Duration(milliseconds: 250),
                 child: _buildDocumentsList(),
               ),
             ],
@@ -113,10 +234,133 @@ class _DocumentsPageState extends State<DocumentsPage> {
         ),
       ),
       floatingActionButton: FloatingActionButton(
-        onPressed: _isUploading ? null : _pickAndUpload,
+        onPressed: _isUploading ? null : () => _pickAndUpload(),
         child: const Icon(Icons.add),
       ),
     );
+  }
+
+  /// Builds the grid of 10 document cards with individual upload buttons.
+  Widget _buildDocumentTypeCards() {
+    final visibleRequirements = _getVisibleDocumentRequirements();
+
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final maxWidth = constraints.maxWidth;
+
+        // Decide an approximate card width based on available width.
+        // - 3 cards per row on very wide screens
+        // - 2 cards per row on tablets / medium
+        // - full width on small phones
+        double cardWidth;
+        if (maxWidth >= 1024) {
+          cardWidth = (maxWidth - (AppDimensions.spacingMd * 2)) / 3;
+        } else if (maxWidth >= 700) {
+          cardWidth = (maxWidth - AppDimensions.spacingMd) / 2;
+        } else {
+          cardWidth = maxWidth;
+        }
+
+        return Wrap(
+          spacing: AppDimensions.spacingMd,
+          runSpacing: AppDimensions.spacingMd,
+          children: visibleRequirements.map((req) {
+            final documentType = req.label;
+            final uploadedName = _documentUploads[documentType];
+            final isUploadingThis = _uploadingDocumentTypes.contains(documentType);
+
+            return SizedBox(
+              width: cardWidth,
+              child: Container(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: AppDimensions.spacingMd,
+                  vertical: AppDimensions.spacingSm,
+                ),
+                decoration: BoxDecoration(
+                  color: Theme.of(context).cardColor,
+                  borderRadius: BorderRadius.circular(AppDimensions.radiusLg),
+                  border: Border.all(color: Theme.of(context).dividerColor),
+                ),
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Text(
+                            documentType,
+                            style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                                  fontWeight: FontWeight.w600,
+                                ),
+                            maxLines: 2,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                          const SizedBox(height: AppDimensions.spacing2xs),
+                          Text(
+                            uploadedName ?? 'No file uploaded yet',
+                            style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                                  color: AppColors.grey600,
+                                ),
+                            maxLines: 2,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ],
+                      ),
+                    ),
+                    const SizedBox(width: AppDimensions.spacingSm),
+                    Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        ElevatedButton.icon(
+                          onPressed: isUploadingThis
+                              ? null
+                              : () => _pickAndUpload(documentType: documentType),
+                          icon: isUploadingThis
+                              ? const SizedBox(
+                                  width: 16,
+                                  height: 16,
+                                  child: CircularProgressIndicator(
+                                    strokeWidth: 2,
+                                    valueColor: AlwaysStoppedAnimation<Color>(
+                                      Colors.white,
+                                    ),
+                                  ),
+                                )
+                              : const Icon(Icons.upload_file, size: 18),
+                          label: Text(uploadedName == null ? 'Upload' : 'Replace'),
+                          style: ElevatedButton.styleFrom(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: AppDimensions.spacingSm,
+                              vertical: AppDimensions.spacing2xs,
+                            ),
+                            minimumSize: const Size(0, AppDimensions.buttonHeightSm),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+            );
+          }).toList(),
+        );
+      },
+    );
+  }
+
+  List<_DocumentRequirement> _getVisibleDocumentRequirements() {
+    // Until we've attempted to load a form, fall back to showing all cards.
+    if (!_hasLoadedForm || _activeT1Form == null) {
+      return _documentRequirements;
+    }
+
+    final form = _activeT1Form!;
+    return _documentRequirements.where((req) {
+      if (req.isRequiredWhen == null) return true;
+      return req.isRequiredWhen!(form);
+    }).toList();
   }
 
   Widget _buildDocumentsList() {
@@ -170,4 +414,14 @@ class _DocumentsPageState extends State<DocumentsPage> {
       },
     );
   }
+}
+
+class _DocumentRequirement {
+  final String label;
+  final bool Function(T1FormData form)? isRequiredWhen;
+
+  const _DocumentRequirement({
+    required this.label,
+    this.isRequiredWhen,
+  });
 }

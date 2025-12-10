@@ -220,6 +220,7 @@ class _T1PersonalInfoStepState extends State<T1PersonalInfoStep> {
                     FilteringTextInputFormatter.digitsOnly,
                     LengthLimitingTextInputFormatter(9),
                   ],
+                  maxLength: 9,
                   onChanged: (_) => _updatePersonalInfo(),
                 ),
                 const SizedBox(height: 16),
@@ -326,6 +327,7 @@ class _T1PersonalInfoStepState extends State<T1PersonalInfoStep> {
                       FilteringTextInputFormatter.digitsOnly,
                       LengthLimitingTextInputFormatter(9),
                     ],
+                    maxLength: 9,
                     onChanged: (_) => _updatePersonalInfo(),
                   ),
                   const SizedBox(height: 16),
@@ -417,12 +419,14 @@ class _T1PersonalInfoStepState extends State<T1PersonalInfoStep> {
     required String label,
     TextInputType? keyboardType,
     List<TextInputFormatter>? inputFormatters,
+    int? maxLength,
     required Function(String) onChanged,
   }) {
     return TextFormField(
       controller: controller,
       keyboardType: keyboardType,
       inputFormatters: inputFormatters,
+      maxLength: maxLength,
       onChanged: onChanged,
       decoration: InputDecoration(
         labelText: label,
@@ -593,6 +597,7 @@ class _T1PersonalInfoStepState extends State<T1PersonalInfoStep> {
               FilteringTextInputFormatter.digitsOnly,
               LengthLimitingTextInputFormatter(9),
             ],
+            maxLength: 9,
             onChanged: (_) => updateChild(),
           ),
           const SizedBox(height: 16),

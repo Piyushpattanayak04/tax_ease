@@ -27,6 +27,38 @@ class T1Questionnaire1Step extends StatefulWidget {
 class _T1Questionnaire1StepState extends State<T1Questionnaire1Step> {
   late T1FormData _formData;
 
+  // Local UI state for dynamic tables and date fields
+  final List<int> _foreignPropertyRowIds = [0];
+  int _foreignPropertyRowCounter = 1;
+
+  final List<int> _medicalExpenseRowIds = [0];
+  int _medicalExpenseRowCounter = 1;
+  final Map<int, DateTime?> _medicalExpenseDates = {};
+
+  final List<int> _charitableDonationRowIds = [0];
+  int _charitableDonationRowCounter = 1;
+
+  final List<int> _unionDueRowIds = [0];
+  int _unionDueRowCounter = 1;
+
+  final List<int> _daycareExpenseRowIds = [0];
+  int _daycareExpenseRowCounter = 1;
+
+  final List<int> _professionalDueRowIds = [0];
+  int _professionalDueRowCounter = 1;
+
+  final List<int> _childArtSportRowIds = [0];
+  int _childArtSportRowCounter = 1;
+
+  final List<int> _provinceFilerRowIds = [0];
+  int _provinceFilerRowCounter = 1;
+
+  DateTime? _firstTimeFilerLandingDate;
+  DateTime? _longTermPurchaseDate;
+  DateTime? _longTermSellDate;
+  DateTime? _shortTermPurchaseDate;
+  DateTime? _shortTermSellDate;
+
   @override
   void initState() {
     super.initState();
@@ -46,6 +78,104 @@ class _T1Questionnaire1StepState extends State<T1Questionnaire1Step> {
       _formData = newData;
     });
     widget.onFormDataChanged(_formData);
+  }
+
+  // Helpers for dynamic rows
+  void _addForeignPropertyRow() {
+    setState(() {
+      _foreignPropertyRowIds.add(_foreignPropertyRowCounter++);
+    });
+  }
+
+  void _removeForeignPropertyRow(int id) {
+    setState(() {
+      _foreignPropertyRowIds.remove(id);
+    });
+  }
+
+  void _addMedicalExpenseRow() {
+    setState(() {
+      _medicalExpenseRowIds.add(_medicalExpenseRowCounter++);
+    });
+  }
+
+  void _removeMedicalExpenseRow(int id) {
+    setState(() {
+      _medicalExpenseRowIds.remove(id);
+      _medicalExpenseDates.remove(id);
+    });
+  }
+
+  void _addCharitableDonationRow() {
+    setState(() {
+      _charitableDonationRowIds.add(_charitableDonationRowCounter++);
+    });
+  }
+
+  void _removeCharitableDonationRow(int id) {
+    setState(() {
+      _charitableDonationRowIds.remove(id);
+    });
+  }
+
+  void _addUnionDueRow() {
+    setState(() {
+      _unionDueRowIds.add(_unionDueRowCounter++);
+    });
+  }
+
+  void _removeUnionDueRow(int id) {
+    setState(() {
+      _unionDueRowIds.remove(id);
+    });
+  }
+
+  void _addDaycareExpenseRow() {
+    setState(() {
+      _daycareExpenseRowIds.add(_daycareExpenseRowCounter++);
+    });
+  }
+
+  void _removeDaycareExpenseRow(int id) {
+    setState(() {
+      _daycareExpenseRowIds.remove(id);
+    });
+  }
+
+  void _addProfessionalDueRow() {
+    setState(() {
+      _professionalDueRowIds.add(_professionalDueRowCounter++);
+    });
+  }
+
+  void _removeProfessionalDueRow(int id) {
+    setState(() {
+      _professionalDueRowIds.remove(id);
+    });
+  }
+
+  void _addChildArtSportRow() {
+    setState(() {
+      _childArtSportRowIds.add(_childArtSportRowCounter++);
+    });
+  }
+
+  void _removeChildArtSportRow(int id) {
+    setState(() {
+      _childArtSportRowIds.remove(id);
+    });
+  }
+
+  void _addProvinceFilerRow() {
+    setState(() {
+      _provinceFilerRowIds.add(_provinceFilerRowCounter++);
+    });
+  }
+
+  void _removeProvinceFilerRow(int id) {
+    setState(() {
+      _provinceFilerRowIds.remove(id);
+    });
   }
 
   @override
@@ -315,42 +445,67 @@ class _T1Questionnaire1StepState extends State<T1Questionnaire1Step> {
           ),
         ),
         const SizedBox(height: 8),
-        Container(
-          padding: const EdgeInsets.all(12),
-          decoration: BoxDecoration(
-            color: Theme.of(context).brightness == Brightness.dark
-                ? Theme.of(context).colorScheme.surface.withOpacity(0.7)
-                : AppColors.grey50,
-            borderRadius: BorderRadius.circular(8),
-            border: Border.all(color: Theme.of(context).dividerColor),
-          ),
-          child: Column(
-            children: [
-              _buildTextField(
-                label: 'Investment Details',
-                onChanged: (value) {},
-              ),
-              const SizedBox(height: 12),
-              _buildTextField(
-                label: 'Gross Income',
-                keyboardType: TextInputType.number,
-                onChanged: (value) {},
-              ),
-              const SizedBox(height: 12),
-              _buildTextField(
-                label: 'Country',
-                onChanged: (value) {},
-              ),
-              const SizedBox(height: 12),
-              OutlinedButton.icon(
-                onPressed: () {},
-                icon: const Icon(Icons.add),
-                label: const Text('Add Row'),
-              ),
-            ],
-          ),
+        ..._foreignPropertyRowIds.map(_buildForeignPropertyRow),
+        const SizedBox(height: 12),
+        OutlinedButton.icon(
+          onPressed: _addForeignPropertyRow,
+          icon: const Icon(Icons.add),
+          label: const Text('Add Row'),
         ),
       ],
+    );
+  }
+
+  Widget _buildForeignPropertyRow(int id) {
+    final index = _foreignPropertyRowIds.indexOf(id);
+    return Container(
+      key: ValueKey('foreign_property_$id'),
+      margin: const EdgeInsets.only(bottom: 12),
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: Theme.of(context).brightness == Brightness.dark
+            ? Theme.of(context).colorScheme.surface.withOpacity(0.7)
+            : AppColors.grey50,
+        borderRadius: BorderRadius.circular(8),
+        border: Border.all(color: Theme.of(context).dividerColor),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(
+                'Property ${index + 1}',
+                style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                      fontWeight: FontWeight.w600,
+                    ),
+              ),
+              if (_foreignPropertyRowIds.length > 1)
+                IconButton(
+                  icon: const Icon(Icons.delete, color: Colors.red),
+                  onPressed: () => _removeForeignPropertyRow(id),
+                ),
+            ],
+          ),
+          const SizedBox(height: 12),
+          _buildTextField(
+            label: 'Investment Details',
+            onChanged: (value) {},
+          ),
+          const SizedBox(height: 12),
+          _buildTextField(
+            label: 'Gross Income',
+            keyboardType: TextInputType.number,
+            onChanged: (value) {},
+          ),
+          const SizedBox(height: 12),
+          _buildTextField(
+            label: 'Country',
+            onChanged: (value) {},
+          ),
+        ],
+      ),
     );
   }
 
@@ -371,7 +526,25 @@ class _T1Questionnaire1StepState extends State<T1Questionnaire1Step> {
   }
 
   Widget _buildMedicalExpensesTable() {
+    return Column(
+      children: [
+        ..._medicalExpenseRowIds.map(_buildMedicalExpenseRow),
+        const SizedBox(height: 12),
+        OutlinedButton.icon(
+          onPressed: _addMedicalExpenseRow,
+          icon: const Icon(Icons.add),
+          label: const Text('Add Row'),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildMedicalExpenseRow(int id) {
+    final index = _medicalExpenseRowIds.indexOf(id);
+    final date = _medicalExpenseDates[id];
     return Container(
+      key: ValueKey('medical_expense_$id'),
+      margin: const EdgeInsets.only(bottom: 12),
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
         color: Theme.of(context).brightness == Brightness.dark
@@ -381,11 +554,33 @@ class _T1Questionnaire1StepState extends State<T1Questionnaire1Step> {
         border: Border.all(color: Theme.of(context).dividerColor),
       ),
       child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(
+                'Medical Expense ${index + 1}',
+                style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                      fontWeight: FontWeight.w600,
+                    ),
+              ),
+              if (_medicalExpenseRowIds.length > 1)
+                IconButton(
+                  icon: const Icon(Icons.delete, color: Colors.red),
+                  onPressed: () => _removeMedicalExpenseRow(id),
+                ),
+            ],
+          ),
+          const SizedBox(height: 12),
           _buildDateField(
             label: 'Payment Date',
-            date: null,
-            onChanged: (date) {},
+            date: date,
+            onChanged: (picked) {
+              setState(() {
+                _medicalExpenseDates[id] = picked;
+              });
+            },
           ),
           const SizedBox(height: 12),
           _buildTextField(
@@ -397,12 +592,6 @@ class _T1Questionnaire1StepState extends State<T1Questionnaire1Step> {
             label: 'Amount Paid',
             keyboardType: TextInputType.number,
             onChanged: (value) {},
-          ),
-          const SizedBox(height: 12),
-          OutlinedButton.icon(
-            onPressed: () {},
-            icon: const Icon(Icons.add),
-            label: const Text('Add Row'),
           ),
         ],
       ),
@@ -426,7 +615,24 @@ class _T1Questionnaire1StepState extends State<T1Questionnaire1Step> {
   }
 
   Widget _buildCharitableDonationsTable() {
+    return Column(
+      children: [
+        ..._charitableDonationRowIds.map(_buildCharitableDonationRow),
+        const SizedBox(height: 12),
+        OutlinedButton.icon(
+          onPressed: _addCharitableDonationRow,
+          icon: const Icon(Icons.add),
+          label: const Text('Add Row'),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildCharitableDonationRow(int id) {
+    final index = _charitableDonationRowIds.indexOf(id);
     return Container(
+      key: ValueKey('charitable_donation_$id'),
+      margin: const EdgeInsets.only(bottom: 12),
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
         color: Theme.of(context).brightness == Brightness.dark
@@ -436,7 +642,25 @@ class _T1Questionnaire1StepState extends State<T1Questionnaire1Step> {
         border: Border.all(color: Theme.of(context).dividerColor),
       ),
       child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(
+                'Donation ${index + 1}',
+                style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                      fontWeight: FontWeight.w600,
+                    ),
+              ),
+              if (_charitableDonationRowIds.length > 1)
+                IconButton(
+                  icon: const Icon(Icons.delete, color: Colors.red),
+                  onPressed: () => _removeCharitableDonationRow(id),
+                ),
+            ],
+          ),
+          const SizedBox(height: 12),
           _buildTextField(
             label: 'Organization Name',
             onChanged: (value) {},
@@ -446,12 +670,6 @@ class _T1Questionnaire1StepState extends State<T1Questionnaire1Step> {
             label: 'Amount Paid',
             keyboardType: TextInputType.number,
             onChanged: (value) {},
-          ),
-          const SizedBox(height: 12),
-          OutlinedButton.icon(
-            onPressed: () {},
-            icon: const Icon(Icons.add),
-            label: const Text('Add Row'),
           ),
         ],
       ),
@@ -653,6 +871,9 @@ class _T1Questionnaire1StepState extends State<T1Questionnaire1Step> {
   }
 
   Widget _buildPropertySaleDetails({required bool isLongTerm}) {
+    final purchaseDate = isLongTerm ? _longTermPurchaseDate : _shortTermPurchaseDate;
+    final sellDate = isLongTerm ? _longTermSellDate : _shortTermSellDate;
+
     return Container(
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
@@ -671,14 +892,30 @@ class _T1Questionnaire1StepState extends State<T1Questionnaire1Step> {
           const SizedBox(height: 12),
           _buildDateField(
             label: 'Purchase Date',
-            date: null,
-            onChanged: (date) {},
+            date: purchaseDate,
+            onChanged: (date) {
+              setState(() {
+                if (isLongTerm) {
+                  _longTermPurchaseDate = date;
+                } else {
+                  _shortTermPurchaseDate = date;
+                }
+              });
+            },
           ),
           const SizedBox(height: 12),
           _buildDateField(
             label: 'Sell Date',
-            date: null,
-            onChanged: (date) {},
+            date: sellDate,
+            onChanged: (date) {
+              setState(() {
+                if (isLongTerm) {
+                  _longTermSellDate = date;
+                } else {
+                  _shortTermSellDate = date;
+                }
+              });
+            },
           ),
           const SizedBox(height: 12),
           _buildTextField(
@@ -785,7 +1022,24 @@ class _T1Questionnaire1StepState extends State<T1Questionnaire1Step> {
   }
 
   Widget _buildUnionDuesTable() {
+    return Column(
+      children: [
+        ..._unionDueRowIds.map(_buildUnionDueRow),
+        const SizedBox(height: 12),
+        OutlinedButton.icon(
+          onPressed: _addUnionDueRow,
+          icon: const Icon(Icons.add),
+          label: const Text('Add Row'),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildUnionDueRow(int id) {
+    final index = _unionDueRowIds.indexOf(id);
     return Container(
+      key: ValueKey('union_due_$id'),
+      margin: const EdgeInsets.only(bottom: 12),
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
         color: Theme.of(context).brightness == Brightness.dark
@@ -795,7 +1049,25 @@ class _T1Questionnaire1StepState extends State<T1Questionnaire1Step> {
         border: Border.all(color: Theme.of(context).dividerColor),
       ),
       child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(
+                'Union Due ${index + 1}',
+                style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                      fontWeight: FontWeight.w600,
+                    ),
+              ),
+              if (_unionDueRowIds.length > 1)
+                IconButton(
+                  icon: const Icon(Icons.delete, color: Colors.red),
+                  onPressed: () => _removeUnionDueRow(id),
+                ),
+            ],
+          ),
+          const SizedBox(height: 12),
           _buildTextField(
             label: 'Institution Name',
             onChanged: (value) {},
@@ -805,12 +1077,6 @@ class _T1Questionnaire1StepState extends State<T1Questionnaire1Step> {
             label: 'Amount',
             keyboardType: TextInputType.number,
             onChanged: (value) {},
-          ),
-          const SizedBox(height: 12),
-          OutlinedButton.icon(
-            onPressed: () {},
-            icon: const Icon(Icons.add),
-            label: const Text('Add Row'),
           ),
         ],
       ),
@@ -834,7 +1100,24 @@ class _T1Questionnaire1StepState extends State<T1Questionnaire1Step> {
   }
 
   Widget _buildDaycareExpensesTable() {
+    return Column(
+      children: [
+        ..._daycareExpenseRowIds.map(_buildDaycareExpenseRow),
+        const SizedBox(height: 12),
+        OutlinedButton.icon(
+          onPressed: _addDaycareExpenseRow,
+          icon: const Icon(Icons.add),
+          label: const Text('Add Row'),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildDaycareExpenseRow(int id) {
+    final index = _daycareExpenseRowIds.indexOf(id);
     return Container(
+      key: ValueKey('daycare_expense_$id'),
+      margin: const EdgeInsets.only(bottom: 12),
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
         color: Theme.of(context).brightness == Brightness.dark
@@ -844,7 +1127,25 @@ class _T1Questionnaire1StepState extends State<T1Questionnaire1Step> {
         border: Border.all(color: Theme.of(context).dividerColor),
       ),
       child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(
+                'Daycare Expense ${index + 1}',
+                style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                      fontWeight: FontWeight.w600,
+                    ),
+              ),
+              if (_daycareExpenseRowIds.length > 1)
+                IconButton(
+                  icon: const Icon(Icons.delete, color: Colors.red),
+                  onPressed: () => _removeDaycareExpenseRow(id),
+                ),
+            ],
+          ),
+          const SizedBox(height: 12),
           _buildTextField(
             label: 'Childcare Provider',
             onChanged: (value) {},
@@ -854,12 +1155,6 @@ class _T1Questionnaire1StepState extends State<T1Questionnaire1Step> {
             label: 'Amount',
             keyboardType: TextInputType.number,
             onChanged: (value) {},
-          ),
-          const SizedBox(height: 12),
-          OutlinedButton.icon(
-            onPressed: () {},
-            icon: const Icon(Icons.add),
-            label: const Text('Add Row'),
           ),
         ],
       ),
@@ -896,8 +1191,12 @@ class _T1Questionnaire1StepState extends State<T1Questionnaire1Step> {
         children: [
           _buildDateField(
             label: 'Date of Landing (Individual)',
-            date: null,
-            onChanged: (date) {},
+            date: _firstTimeFilerLandingDate,
+            onChanged: (date) {
+              setState(() {
+                _firstTimeFilerLandingDate = date;
+              });
+            },
           ),
           const SizedBox(height: 12),
           _buildTextField(
@@ -950,7 +1249,24 @@ class _T1Questionnaire1StepState extends State<T1Questionnaire1Step> {
   }
 
   Widget _buildProfessionalDuesTable() {
+    return Column(
+      children: [
+        ..._professionalDueRowIds.map(_buildProfessionalDueRow),
+        const SizedBox(height: 12),
+        OutlinedButton.icon(
+          onPressed: _addProfessionalDueRow,
+          icon: const Icon(Icons.add),
+          label: const Text('Add Row'),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildProfessionalDueRow(int id) {
+    final index = _professionalDueRowIds.indexOf(id);
     return Container(
+      key: ValueKey('professional_due_$id'),
+      margin: const EdgeInsets.only(bottom: 12),
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
         color: Theme.of(context).brightness == Brightness.dark
@@ -960,7 +1276,25 @@ class _T1Questionnaire1StepState extends State<T1Questionnaire1Step> {
         border: Border.all(color: Theme.of(context).dividerColor),
       ),
       child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(
+                'Professional Due ${index + 1}',
+                style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                      fontWeight: FontWeight.w600,
+                    ),
+              ),
+              if (_professionalDueRowIds.length > 1)
+                IconButton(
+                  icon: const Icon(Icons.delete, color: Colors.red),
+                  onPressed: () => _removeProfessionalDueRow(id),
+                ),
+            ],
+          ),
+          const SizedBox(height: 12),
           _buildTextField(
             label: 'Name',
             onChanged: (value) {},
@@ -975,12 +1309,6 @@ class _T1Questionnaire1StepState extends State<T1Questionnaire1Step> {
             label: 'Amount',
             keyboardType: TextInputType.number,
             onChanged: (value) {},
-          ),
-          const SizedBox(height: 12),
-          OutlinedButton.icon(
-            onPressed: () {},
-            icon: const Icon(Icons.add),
-            label: const Text('Add Row'),
           ),
         ],
       ),
@@ -1017,7 +1345,24 @@ class _T1Questionnaire1StepState extends State<T1Questionnaire1Step> {
   }
 
   Widget _buildChildArtSportTable() {
+    return Column(
+      children: [
+        ..._childArtSportRowIds.map(_buildChildArtSportRow),
+        const SizedBox(height: 12),
+        OutlinedButton.icon(
+          onPressed: _addChildArtSportRow,
+          icon: const Icon(Icons.add),
+          label: const Text('Add Row'),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildChildArtSportRow(int id) {
+    final index = _childArtSportRowIds.indexOf(id);
     return Container(
+      key: ValueKey('child_art_sport_$id'),
+      margin: const EdgeInsets.only(bottom: 12),
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
         color: Theme.of(context).brightness == Brightness.dark
@@ -1027,7 +1372,25 @@ class _T1Questionnaire1StepState extends State<T1Questionnaire1Step> {
         border: Border.all(color: Theme.of(context).dividerColor),
       ),
       child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(
+                'Entry ${index + 1}',
+                style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                      fontWeight: FontWeight.w600,
+                    ),
+              ),
+              if (_childArtSportRowIds.length > 1)
+                IconButton(
+                  icon: const Icon(Icons.delete, color: Colors.red),
+                  onPressed: () => _removeChildArtSportRow(id),
+                ),
+            ],
+          ),
+          const SizedBox(height: 12),
           _buildTextField(
             label: 'Institute Name',
             onChanged: (value) {},
@@ -1042,12 +1405,6 @@ class _T1Questionnaire1StepState extends State<T1Questionnaire1Step> {
             label: 'Amount',
             keyboardType: TextInputType.number,
             onChanged: (value) {},
-          ),
-          const SizedBox(height: 12),
-          OutlinedButton.icon(
-            onPressed: () {},
-            icon: const Icon(Icons.add),
-            label: const Text('Add Row'),
           ),
         ],
       ),
@@ -1071,7 +1428,24 @@ class _T1Questionnaire1StepState extends State<T1Questionnaire1Step> {
   }
 
   Widget _buildProvinceFilerTable() {
+    return Column(
+      children: [
+        ..._provinceFilerRowIds.map(_buildProvinceFilerRow),
+        const SizedBox(height: 12),
+        OutlinedButton.icon(
+          onPressed: _addProvinceFilerRow,
+          icon: const Icon(Icons.add),
+          label: const Text('Add Row'),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildProvinceFilerRow(int id) {
+    final index = _provinceFilerRowIds.indexOf(id);
     return Container(
+      key: ValueKey('province_filer_$id'),
+      margin: const EdgeInsets.only(bottom: 12),
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
         color: Theme.of(context).brightness == Brightness.dark
@@ -1081,13 +1455,31 @@ class _T1Questionnaire1StepState extends State<T1Questionnaire1Step> {
         border: Border.all(color: Theme.of(context).dividerColor),
       ),
       child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(
+                'Entry ${index + 1}',
+                style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                      fontWeight: FontWeight.w600,
+                    ),
+              ),
+              if (_provinceFilerRowIds.length > 1)
+                IconButton(
+                  icon: const Icon(Icons.delete, color: Colors.red),
+                  onPressed: () => _removeProvinceFilerRow(id),
+                ),
+            ],
+          ),
+          const SizedBox(height: 8),
           Text(
             'Quebec Filer - Provide RL-31',
             style: Theme.of(context).textTheme.bodySmall?.copyWith(
-              color: AppColors.grey600,
-              fontStyle: FontStyle.italic,
-            ),
+                  color: AppColors.grey600,
+                  fontStyle: FontStyle.italic,
+                ),
           ),
           const SizedBox(height: 8),
           _buildTextField(
@@ -1104,12 +1496,6 @@ class _T1Questionnaire1StepState extends State<T1Questionnaire1Step> {
             label: 'Amount Paid',
             keyboardType: TextInputType.number,
             onChanged: (value) {},
-          ),
-          const SizedBox(height: 12),
-          OutlinedButton.icon(
-            onPressed: () {},
-            icon: const Icon(Icons.add),
-            label: const Text('Add Row'),
           ),
         ],
       ),

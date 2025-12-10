@@ -165,6 +165,75 @@ class _YourFormsPageState extends State<YourFormsPage> with WidgetsBindingObserv
     return '${dateTime.day}/${dateTime.month}/${dateTime.year} at ${dateTime.hour}:${dateTime.minute.toString().padLeft(2, '0')}';
   }
 
+  Future<void> _deleteForm(CombinedFormData form) async {
+    try {
+      final bool success;
+      if (form.formType == 'T1') {
+        success = await T1FormStorageService.instance.deleteForm(form.id);
+      } else {
+        success = await T2FormStorageService.instance.deleteForm(form.id);
+      }
+
+      if (!mounted) return;
+
+      if (success) {
+        setState(() {
+          _allForms = _allForms.where((f) => f.id != form.id || f.formType != form.formType).toList();
+        });
+
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('${form.formType} draft deleted'),
+          ),
+        );
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Failed to delete form. Please try again.'),
+          ),
+        );
+      }
+    } catch (e) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Error deleting form: $e'),
+        ),
+      );
+    }
+  }
+
+  Future<void> _showDeleteDraftDialog(CombinedFormData form) async {
+    if (form.status != 'draft') return;
+
+    final shouldDelete = await showDialog<bool>(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: const Text('Delete draft form?'),
+          content: Text(
+            'This will permanently delete this ${form.formType} draft from this device. '
+            'Submitted forms cannot be deleted.',
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(false),
+              child: const Text('Cancel'),
+            ),
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(true),
+              child: const Text('Delete', style: TextStyle(color: Colors.red)),
+            ),
+          ],
+        );
+      },
+    );
+
+    if (shouldDelete == true) {
+      await _deleteForm(form);
+    }
+  }
+
   Future<void> _handleNewFiling() async {
     final filingType = ThemeController.filingType.value;
     
@@ -396,6 +465,9 @@ class _YourFormsPageState extends State<YourFormsPage> with WidgetsBindingObserv
             context.push('/tax-forms/business?formId=${form.id}');
           }
         },
+        onLongPress: form.status == 'draft'
+            ? () => _showDeleteDraftDialog(form)
+            : null,
         child: Padding(
           padding: const EdgeInsets.all(AppDimensions.spacingLg),
           child: Column(
