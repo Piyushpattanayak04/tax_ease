@@ -158,6 +158,12 @@ class ProfilePage extends StatelessWidget {
         'onTap': () => context.go('/help-support'),
       },
       {
+        'icon': Icons.description_outlined,
+        'title': 'Terms & Conditions',
+        'subtitle': 'Read our terms and data residency policy',
+        'onTap': () => context.go('/terms-conditions'),
+      },
+      {
         'icon': Icons.logout,
         'title': 'Sign Out',
         'subtitle': 'Sign out of your account',
