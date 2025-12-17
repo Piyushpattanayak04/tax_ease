@@ -12,12 +12,17 @@ class T1Questionnaire1Step extends StatefulWidget {
   final VoidCallback onPrevious;
   final VoidCallback onNext;
 
+  /// Label to use when there are no additional steps (i.e. the questionnaire is the last step).
+  /// Defaults to "Submit Form".
+  final String finalActionLabel;
+
   const T1Questionnaire1Step({
     super.key,
     required this.formData,
     required this.onFormDataChanged,
     required this.onPrevious,
     required this.onNext,
+    this.finalActionLabel = 'Submit Form',
   });
 
   @override
@@ -1512,7 +1517,7 @@ class _T1Questionnaire1StepState extends State<T1Questionnaire1Step> {
       children: [
         ElevatedButton(
           onPressed: widget.onNext,
-          child: Text(needsAdditionalSteps ? 'Next' : 'Submit Form'),
+          child: Text(needsAdditionalSteps ? 'Next' : widget.finalActionLabel),
         ),
         const SizedBox(height: 12),
         OutlinedButton(

@@ -1097,6 +1097,14 @@ class T1FormData {
   final bool? hasChildArtSportCredit;
   final bool? isProvinceFiler;
 
+  /// Per-document latest uploaded filename, keyed by document label.
+  /// Used to gate submission when documents are required.
+  final Map<String, String> uploadedDocuments;
+
+  /// Set to true when the user reaches the final step and must upload documents
+  /// before submission.
+  final bool awaitingDocuments;
+
   T1FormData({
     this.id = '',
     this.status = 'draft',
@@ -1129,6 +1137,8 @@ class T1FormData {
     this.hasRrspFhsaInvestment,
     this.hasChildArtSportCredit,
     this.isProvinceFiler,
+    this.uploadedDocuments = const {},
+    this.awaitingDocuments = false,
   }) : createdAt = createdAt ?? DateTime.now(),
        updatedAt = updatedAt ?? DateTime.now();
 
@@ -1164,9 +1174,18 @@ class T1FormData {
         hasProfessionalDues = null,
         hasRrspFhsaInvestment = null,
         hasChildArtSportCredit = null,
-        isProvinceFiler = null;
+        isProvinceFiler = null,
+        uploadedDocuments = const {},
+        awaitingDocuments = false;
 
   factory T1FormData.fromJson(Map<String, dynamic> json) {
+    final uploadedRaw = (json['uploadedDocuments'] as Map?) ?? const {};
+    final uploadedDocuments = Map<String, String>.fromEntries(
+      uploadedRaw.entries.map(
+        (e) => MapEntry(e.key.toString(), (e.value ?? '').toString()),
+      ),
+    );
+
     return T1FormData(
       id: json['id'] ?? '',
       status: json['status'] ?? 'draft',
@@ -1211,6 +1230,8 @@ class T1FormData {
       hasRrspFhsaInvestment: json['hasRrspFhsaInvestment'],
       hasChildArtSportCredit: json['hasChildArtSportCredit'],
       isProvinceFiler: json['isProvinceFiler'],
+      uploadedDocuments: uploadedDocuments,
+      awaitingDocuments: json['awaitingDocuments'] == true,
     );
   }
 
@@ -1247,6 +1268,8 @@ class T1FormData {
       'hasRrspFhsaInvestment': hasRrspFhsaInvestment,
       'hasChildArtSportCredit': hasChildArtSportCredit,
       'isProvinceFiler': isProvinceFiler,
+      'uploadedDocuments': uploadedDocuments,
+      'awaitingDocuments': awaitingDocuments,
     };
   }
 
@@ -1282,6 +1305,8 @@ class T1FormData {
     bool? hasRrspFhsaInvestment,
     bool? hasChildArtSportCredit,
     bool? isProvinceFiler,
+    Map<String, String>? uploadedDocuments,
+    bool? awaitingDocuments,
   }) {
     return T1FormData(
       id: id ?? this.id,
@@ -1315,6 +1340,8 @@ class T1FormData {
       hasRrspFhsaInvestment: hasRrspFhsaInvestment ?? this.hasRrspFhsaInvestment,
       hasChildArtSportCredit: hasChildArtSportCredit ?? this.hasChildArtSportCredit,
       isProvinceFiler: isProvinceFiler ?? this.isProvinceFiler,
+      uploadedDocuments: uploadedDocuments ?? this.uploadedDocuments,
+      awaitingDocuments: awaitingDocuments ?? this.awaitingDocuments,
     );
   }
 }

@@ -18,7 +18,14 @@ class TermsConditionsPage extends StatelessWidget {
         title: const Text('Terms & Conditions'),
         leading: IconButton(
           icon: const Icon(Icons.arrow_back),
-          onPressed: () => context.pop(),
+          onPressed: () {
+            if (context.canPop()) {
+              context.pop();
+            } else {
+              // If user reached here via context.go(), there may be nothing to pop.
+              context.go('/profile');
+            }
+          },
         ),
       ),
       body: ResponsiveContainer(

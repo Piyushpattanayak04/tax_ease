@@ -5,6 +5,7 @@ import '../../../../core/constants/app_colors.dart';
 import '../../../../core/constants/app_dimensions.dart';
 import '../../data/models/t1_form_models_simple.dart';
 import '../../data/services/t1_form_storage_service.dart';
+import '../../../documents/data/t1_document_requirements.dart';
 import '../widgets/t1_personal_info_step.dart';
 import '../widgets/t1_questionnaire_1_step.dart';
 import '../widgets/t1_questionnaire_2_step.dart';
@@ -191,9 +192,9 @@ class _PersonalTaxFormPageState extends State<PersonalTaxFormPage>
   void _nextStep() {
     if (_stepTitles.isEmpty) return;
 
-    // If this is the last step, submitting the form instead of navigating forward
+    // If this is the last step, take the final action (submit or upload documents)
     if (_currentStep >= _stepTitles.length - 1) {
-      _submitForm();
+      _handleFinalAction();
       return;
     }
 
@@ -220,9 +221,26 @@ class _PersonalTaxFormPageState extends State<PersonalTaxFormPage>
     }
   }
 
+  bool get _requiresDocuments => T1DocumentRequirements.requiresAny(_formData);
+
+  Future<void> _handleFinalAction() async {
+    // If docs are required, always route user through the documents workflow.
+    if (_requiresDocuments) {
+      _formData = _formData.copyWith(awaitingDocuments: true);
+      await T1FormStorageService.instance.saveForm(_formData);
+
+      if (mounted) {
+        context.go('/documents?t1FormId=${_formData.id}');
+      }
+      return;
+    }
+
+    await _submitForm();
+  }
+
   Future<void> _submitForm() async {
     // Update form status to submitted
-    _formData = _formData.copyWith(status: 'submitted');
+    _formData = _formData.copyWith(status: 'submitted', awaitingDocuments: false);
     await _saveFormData();
     
     if (mounted) {
@@ -256,6 +274,11 @@ class _PersonalTaxFormPageState extends State<PersonalTaxFormPage>
   }
 
   void _updateFormData(T1FormData newData) {
+    // If questionnaire updates mean documents are no longer required, clear the documents flow flag.
+    if (!T1DocumentRequirements.requiresAny(newData) && newData.awaitingDocuments) {
+      newData = newData.copyWith(awaitingDocuments: false);
+    }
+
     setState(() {
       _formData = newData;
       _rebuildSteps();
@@ -386,6 +409,7 @@ class _PersonalTaxFormPageState extends State<PersonalTaxFormPage>
                     onFormDataChanged: _updateFormData,
                     onPrevious: _previousStep,
                     onNext: _nextStep,
+                    finalActionLabel: _requiresDocuments ? 'Upload Documents' : 'Submit Form',
                   );
                 }
 
@@ -399,7 +423,7 @@ class _PersonalTaxFormPageState extends State<PersonalTaxFormPage>
                 final detailType = _detailSteps[detailIndex];
                 final isLastStep = index == _stepTitles.length - 1;
                 final String primaryLabel = isLastStep
-                    ? 'Submit Form'
+                    ? (_requiresDocuments ? 'Upload Documents' : 'Submit Form')
                     : 'Next: ${_stepTitles[index + 1]}';
                 final String previousTitle = _stepTitles[index - 1];
 
@@ -408,7 +432,11 @@ class _PersonalTaxFormPageState extends State<PersonalTaxFormPage>
                   formData: _formData,
                   onFormDataChanged: _updateFormData,
                   onPrevious: _previousStep,
-                  onPrimary: isLastStep ? _submitForm : _nextStep,
+                  onPrimary: isLastStep
+                      ? () {
+                          _handleFinalAction();
+                        }
+                      : _nextStep,
                   primaryButtonLabel: primaryLabel,
                   previousStepTitle: previousTitle,
                 );
