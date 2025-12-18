@@ -12,6 +12,7 @@ enum T1DetailStepType {
   uberSkipDoordash,
   generalBusiness,
   rentalIncome,
+  deceasedReturn,
 }
 
 class T1Questionnaire2Step extends StatefulWidget {
@@ -78,6 +79,9 @@ class _T1Questionnaire2StepState extends State<T1Questionnaire2Step> {
         break;
       case T1DetailStepType.rentalIncome:
         detailSection = _buildRentalIncomeDetails();
+        break;
+      case T1DetailStepType.deceasedReturn:
+        detailSection = _buildDeceasedReturnDetails();
         break;
     }
 
@@ -149,6 +153,10 @@ class _T1Questionnaire2StepState extends State<T1Questionnaire2Step> {
       case T1DetailStepType.rentalIncome:
         title = 'Rental Income Details';
         subtitle = 'Provide income and expense details for your rental properties.';
+        break;
+      case T1DetailStepType.deceasedReturn:
+        title = 'Deceased Return';
+        subtitle = 'Provide details for filing a return on behalf of a deceased person.';
         break;
     }
 
@@ -228,12 +236,14 @@ class _T1Questionnaire2StepState extends State<T1Questionnaire2Step> {
     TextInputType? keyboardType,
     List<TextInputFormatter>? inputFormatters,
     String? prefix,
+    int? maxLines,
     required Function(String) onChanged,
   }) {
     return TextFormField(
       initialValue: initialValue,
       keyboardType: keyboardType,
       inputFormatters: inputFormatters,
+      maxLines: maxLines ?? 1,
       onChanged: onChanged,
       decoration: InputDecoration(
         labelText: label,
@@ -477,6 +487,95 @@ prefix: '\$ ',
             inputFormatters: [FilteringTextInputFormatter.digitsOnly],
             onChanged: (value) {
               onChanged(movingExpense.copyWith(grossIncomeAfterMoving: double.tryParse(value) ?? 0));
+            },
+          ),
+        ],
+      ),
+    );
+  }
+
+  // ========== DECEASED RETURN DETAILS ==========
+  Widget _buildDeceasedReturnDetails() {
+    final info = _formData.deceasedReturnInfo ?? const T1DeceasedReturnInfo();
+
+    return _buildSection(
+      title: 'Deceased Return Details',
+      subtitle: 'Fill this only if you are filing on behalf of a person who died in this tax year.',
+      child: Column(
+        children: [
+          _buildTextField(
+            label: 'Name of deceased person',
+            initialValue: info.deceasedFullName,
+            onChanged: (v) {
+              _updateFormData(_formData.copyWith(
+                deceasedReturnInfo: info.copyWith(deceasedFullName: v),
+              ));
+            },
+          ),
+          const SizedBox(height: 16),
+          _buildDateField(
+            label: 'Date of death',
+            date: info.dateOfDeath,
+            onChanged: (d) {
+              _updateFormData(_formData.copyWith(
+                deceasedReturnInfo: info.copyWith(dateOfDeath: d),
+              ));
+            },
+          ),
+          const SizedBox(height: 16),
+          _buildTextField(
+            label: 'Deceased person SIN',
+            initialValue: info.deceasedSin,
+            keyboardType: TextInputType.number,
+            inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+            onChanged: (v) {
+              _updateFormData(_formData.copyWith(
+                deceasedReturnInfo: info.copyWith(deceasedSin: v),
+              ));
+            },
+          ),
+          const SizedBox(height: 16),
+          _buildTextField(
+            label: 'Mailing address of deceased person',
+            initialValue: info.deceasedMailingAddress,
+            maxLines: 2,
+            onChanged: (v) {
+              _updateFormData(_formData.copyWith(
+                deceasedReturnInfo: info.copyWith(deceasedMailingAddress: v),
+              ));
+            },
+          ),
+          const SizedBox(height: 16),
+          _buildTextField(
+            label: 'Name of legal representative',
+            initialValue: info.legalRepresentativeName,
+            onChanged: (v) {
+              _updateFormData(_formData.copyWith(
+                deceasedReturnInfo: info.copyWith(legalRepresentativeName: v),
+              ));
+            },
+          ),
+          const SizedBox(height: 16),
+          _buildTextField(
+            label: 'Contact number of legal representative',
+            initialValue: info.legalRepresentativeContactNumber,
+            keyboardType: TextInputType.number,
+            inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+            onChanged: (v) {
+              _updateFormData(_formData.copyWith(
+                deceasedReturnInfo: info.copyWith(legalRepresentativeContactNumber: v),
+              ));
+            },
+          ),
+          const SizedBox(height: 16),
+          _buildTextField(
+            label: 'Address of legal representative',
+            initialValue: info.legalRepresentativeAddress,
+            maxLines: 2,
+            onChanged: (v) {
+              _updateFormData(_formData.copyWith(
+                deceasedReturnInfo: info.copyWith(legalRepresentativeAddress: v),
+              ));
             },
           ),
         ],

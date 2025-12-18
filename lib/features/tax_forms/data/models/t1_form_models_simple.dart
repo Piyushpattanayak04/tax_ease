@@ -199,6 +199,120 @@ class T1ChildInfo {
   }
 }
 
+// ===== NEW: DISABILITY TAX CREDIT =====
+class T1DisabilityClaimMember {
+  final String firstName;
+  final String lastName;
+  final String relation;
+  final String approvedYear;
+
+  const T1DisabilityClaimMember({
+    this.firstName = '',
+    this.lastName = '',
+    this.relation = '',
+    this.approvedYear = '',
+  });
+
+  factory T1DisabilityClaimMember.fromJson(Map<String, dynamic> json) {
+    return T1DisabilityClaimMember(
+      firstName: json['firstName'] ?? '',
+      lastName: json['lastName'] ?? '',
+      relation: json['relation'] ?? '',
+      approvedYear: (json['approvedYear'] ?? '').toString(),
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'firstName': firstName,
+      'lastName': lastName,
+      'relation': relation,
+      'approvedYear': approvedYear,
+    };
+  }
+
+  T1DisabilityClaimMember copyWith({
+    String? firstName,
+    String? lastName,
+    String? relation,
+    String? approvedYear,
+  }) {
+    return T1DisabilityClaimMember(
+      firstName: firstName ?? this.firstName,
+      lastName: lastName ?? this.lastName,
+      relation: relation ?? this.relation,
+      approvedYear: approvedYear ?? this.approvedYear,
+    );
+  }
+}
+
+// ===== NEW: DECEASED RETURN (STEP 3) =====
+class T1DeceasedReturnInfo {
+  final String deceasedFullName;
+  final DateTime? dateOfDeath;
+  final String deceasedSin;
+  final String deceasedMailingAddress;
+  final String legalRepresentativeName;
+  final String legalRepresentativeContactNumber;
+  final String legalRepresentativeAddress;
+
+  const T1DeceasedReturnInfo({
+    this.deceasedFullName = '',
+    this.dateOfDeath,
+    this.deceasedSin = '',
+    this.deceasedMailingAddress = '',
+    this.legalRepresentativeName = '',
+    this.legalRepresentativeContactNumber = '',
+    this.legalRepresentativeAddress = '',
+  });
+
+  factory T1DeceasedReturnInfo.fromJson(Map<String, dynamic> json) {
+    return T1DeceasedReturnInfo(
+      deceasedFullName: json['deceasedFullName'] ?? '',
+      dateOfDeath: json['dateOfDeath'] != null ? DateTime.parse(json['dateOfDeath']) : null,
+      deceasedSin: json['deceasedSin'] ?? '',
+      deceasedMailingAddress: json['deceasedMailingAddress'] ?? '',
+      legalRepresentativeName: json['legalRepresentativeName'] ?? '',
+      legalRepresentativeContactNumber: json['legalRepresentativeContactNumber'] ?? '',
+      legalRepresentativeAddress: json['legalRepresentativeAddress'] ?? '',
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'deceasedFullName': deceasedFullName,
+      'dateOfDeath': dateOfDeath?.toIso8601String(),
+      'deceasedSin': deceasedSin,
+      'deceasedMailingAddress': deceasedMailingAddress,
+      'legalRepresentativeName': legalRepresentativeName,
+      'legalRepresentativeContactNumber': legalRepresentativeContactNumber,
+      'legalRepresentativeAddress': legalRepresentativeAddress,
+    };
+  }
+
+  T1DeceasedReturnInfo copyWith({
+    String? deceasedFullName,
+    DateTime? dateOfDeath,
+    String? deceasedSin,
+    String? deceasedMailingAddress,
+    String? legalRepresentativeName,
+    String? legalRepresentativeContactNumber,
+    String? legalRepresentativeAddress,
+  }) {
+    return T1DeceasedReturnInfo(
+      deceasedFullName: deceasedFullName ?? this.deceasedFullName,
+      dateOfDeath: dateOfDeath ?? this.dateOfDeath,
+      deceasedSin: deceasedSin ?? this.deceasedSin,
+      deceasedMailingAddress: deceasedMailingAddress ?? this.deceasedMailingAddress,
+      legalRepresentativeName: legalRepresentativeName ?? this.legalRepresentativeName,
+      legalRepresentativeContactNumber:
+          legalRepresentativeContactNumber ?? this.legalRepresentativeContactNumber,
+      legalRepresentativeAddress:
+          legalRepresentativeAddress ?? this.legalRepresentativeAddress,
+    );
+  }
+}
+
 // Simplified classes for questionnaire sections
 class T1ForeignProperty {
   final String investmentDetails;
@@ -1097,6 +1211,14 @@ class T1FormData {
   final bool? hasChildArtSportCredit;
   final bool? isProvinceFiler;
 
+  /// 19. Disability tax credit claim
+  final bool? hasDisabilityTaxCredit;
+  final List<T1DisabilityClaimMember> disabilityClaimMembers;
+
+  /// 20. Deceased return
+  final bool? isFilingForDeceased;
+  final T1DeceasedReturnInfo? deceasedReturnInfo;
+
   /// Per-document latest uploaded filename, keyed by document label.
   /// Used to gate submission when documents are required.
   final Map<String, String> uploadedDocuments;
@@ -1137,6 +1259,10 @@ class T1FormData {
     this.hasRrspFhsaInvestment,
     this.hasChildArtSportCredit,
     this.isProvinceFiler,
+    this.hasDisabilityTaxCredit,
+    this.disabilityClaimMembers = const [],
+    this.isFilingForDeceased,
+    this.deceasedReturnInfo,
     this.uploadedDocuments = const {},
     this.awaitingDocuments = false,
   }) : createdAt = createdAt ?? DateTime.now(),
@@ -1175,6 +1301,10 @@ class T1FormData {
         hasRrspFhsaInvestment = null,
         hasChildArtSportCredit = null,
         isProvinceFiler = null,
+        hasDisabilityTaxCredit = null,
+        disabilityClaimMembers = const [],
+        isFilingForDeceased = null,
+        deceasedReturnInfo = null,
         uploadedDocuments = const {},
         awaitingDocuments = false;
 
@@ -1230,6 +1360,16 @@ class T1FormData {
       hasRrspFhsaInvestment: json['hasRrspFhsaInvestment'],
       hasChildArtSportCredit: json['hasChildArtSportCredit'],
       isProvinceFiler: json['isProvinceFiler'],
+      hasDisabilityTaxCredit: json['hasDisabilityTaxCredit'],
+      disabilityClaimMembers: (json['disabilityClaimMembers'] as List? ?? [])
+          .map((e) => T1DisabilityClaimMember.fromJson(Map<String, dynamic>.from(e)))
+          .toList(),
+      isFilingForDeceased: json['isFilingForDeceased'],
+      deceasedReturnInfo: json['deceasedReturnInfo'] != null
+          ? T1DeceasedReturnInfo.fromJson(
+              Map<String, dynamic>.from(json['deceasedReturnInfo']),
+            )
+          : null,
       uploadedDocuments: uploadedDocuments,
       awaitingDocuments: json['awaitingDocuments'] == true,
     );
@@ -1268,6 +1408,10 @@ class T1FormData {
       'hasRrspFhsaInvestment': hasRrspFhsaInvestment,
       'hasChildArtSportCredit': hasChildArtSportCredit,
       'isProvinceFiler': isProvinceFiler,
+      'hasDisabilityTaxCredit': hasDisabilityTaxCredit,
+      'disabilityClaimMembers': disabilityClaimMembers.map((e) => e.toJson()).toList(),
+      'isFilingForDeceased': isFilingForDeceased,
+      'deceasedReturnInfo': deceasedReturnInfo?.toJson(),
       'uploadedDocuments': uploadedDocuments,
       'awaitingDocuments': awaitingDocuments,
     };
@@ -1305,6 +1449,10 @@ class T1FormData {
     bool? hasRrspFhsaInvestment,
     bool? hasChildArtSportCredit,
     bool? isProvinceFiler,
+    bool? hasDisabilityTaxCredit,
+    List<T1DisabilityClaimMember>? disabilityClaimMembers,
+    bool? isFilingForDeceased,
+    T1DeceasedReturnInfo? deceasedReturnInfo,
     Map<String, String>? uploadedDocuments,
     bool? awaitingDocuments,
   }) {
@@ -1340,6 +1488,10 @@ class T1FormData {
       hasRrspFhsaInvestment: hasRrspFhsaInvestment ?? this.hasRrspFhsaInvestment,
       hasChildArtSportCredit: hasChildArtSportCredit ?? this.hasChildArtSportCredit,
       isProvinceFiler: isProvinceFiler ?? this.isProvinceFiler,
+      hasDisabilityTaxCredit: hasDisabilityTaxCredit ?? this.hasDisabilityTaxCredit,
+      disabilityClaimMembers: disabilityClaimMembers ?? this.disabilityClaimMembers,
+      isFilingForDeceased: isFilingForDeceased ?? this.isFilingForDeceased,
+      deceasedReturnInfo: deceasedReturnInfo ?? this.deceasedReturnInfo,
       uploadedDocuments: uploadedDocuments ?? this.uploadedDocuments,
       awaitingDocuments: awaitingDocuments ?? this.awaitingDocuments,
     );

@@ -257,6 +257,12 @@ class _T1Questionnaire1StepState extends State<T1Questionnaire1Step> {
             const SizedBox(height: 16),
 
             _buildProvinceFilerSection(),
+            const SizedBox(height: 16),
+
+            _buildDisabilityTaxCreditSection(),
+            const SizedBox(height: 16),
+
+            _buildDeceasedReturnQuestionSection(),
             const SizedBox(height: 32),
 
             // Navigation Buttons
@@ -1507,10 +1513,179 @@ class _T1Questionnaire1StepState extends State<T1Questionnaire1Step> {
     );
   }
 
+  Widget _buildDisabilityTaxCreditSection() {
+    return _buildSection(
+      title: '19. Is any family member has disability tax credit?',
+      child: _buildRadioQuestion(
+        question: 'Please provide details of the person who wants to claim the credit.',
+        value: _formData.hasDisabilityTaxCredit,
+        onChanged: (value) {
+          // If turned off, clear members and remove any previously uploaded disability document reference.
+          if (value == false) {
+            final updatedDocs = Map<String, String>.from(_formData.uploadedDocuments);
+            updatedDocs.remove('Disability Approval form');
+
+            _updateFormData(_formData.copyWith(
+              hasDisabilityTaxCredit: value,
+              disabilityClaimMembers: const [],
+              uploadedDocuments: updatedDocs,
+            ));
+            return;
+          }
+
+          // If turned on, ensure at least one member subform exists.
+          final members = _formData.disabilityClaimMembers.isNotEmpty
+              ? _formData.disabilityClaimMembers
+              : const [T1DisabilityClaimMember()];
+
+          _updateFormData(_formData.copyWith(
+            hasDisabilityTaxCredit: value,
+            disabilityClaimMembers: members,
+          ));
+        },
+        conditionalWidget: _formData.hasDisabilityTaxCredit == true
+            ? _buildDisabilityMembersList()
+            : null,
+      ),
+    );
+  }
+
+  Widget _buildDisabilityMembersList() {
+    final members = _formData.disabilityClaimMembers.isNotEmpty
+        ? _formData.disabilityClaimMembers
+        : const [T1DisabilityClaimMember()];
+
+    // If form data didn't have any members yet, keep UI usable but don't mutate here.
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        ...List.generate(members.length, (index) {
+          final member = members[index];
+          return Container(
+            margin: const EdgeInsets.only(bottom: 12),
+            padding: const EdgeInsets.all(12),
+            decoration: BoxDecoration(
+              color: Theme.of(context).brightness == Brightness.dark
+                  ? Theme.of(context).colorScheme.surface.withValues(alpha: 0.7)
+                  : AppColors.grey50,
+              borderRadius: BorderRadius.circular(8),
+              border: Border.all(color: Theme.of(context).dividerColor),
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(
+                      'Member ${index + 1}',
+                      style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                            fontWeight: FontWeight.w600,
+                          ),
+                    ),
+                    if (members.length > 1)
+                      IconButton(
+                        icon: const Icon(Icons.delete, color: Colors.red),
+                        onPressed: () {
+                          final updated = List<T1DisabilityClaimMember>.from(members);
+                          updated.removeAt(index);
+                          _updateFormData(_formData.copyWith(disabilityClaimMembers: updated));
+                        },
+                      ),
+                  ],
+                ),
+                const SizedBox(height: 12),
+                _buildTextField(
+                  label: 'First Name',
+                  initialValue: member.firstName,
+                  onChanged: (v) {
+                    final updated = List<T1DisabilityClaimMember>.from(members);
+                    updated[index] = member.copyWith(firstName: v);
+                    _updateFormData(_formData.copyWith(disabilityClaimMembers: updated));
+                  },
+                ),
+                const SizedBox(height: 12),
+                _buildTextField(
+                  label: 'Last Name',
+                  initialValue: member.lastName,
+                  onChanged: (v) {
+                    final updated = List<T1DisabilityClaimMember>.from(members);
+                    updated[index] = member.copyWith(lastName: v);
+                    _updateFormData(_formData.copyWith(disabilityClaimMembers: updated));
+                  },
+                ),
+                const SizedBox(height: 12),
+                _buildTextField(
+                  label: 'Relation',
+                  initialValue: member.relation,
+                  onChanged: (v) {
+                    final updated = List<T1DisabilityClaimMember>.from(members);
+                    updated[index] = member.copyWith(relation: v);
+                    _updateFormData(_formData.copyWith(disabilityClaimMembers: updated));
+                  },
+                ),
+                const SizedBox(height: 12),
+                _buildTextField(
+                  label: 'Approved Year',
+                  initialValue: member.approvedYear,
+                  keyboardType: TextInputType.number,
+                  inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+                  onChanged: (v) {
+                    final updated = List<T1DisabilityClaimMember>.from(members);
+                    updated[index] = member.copyWith(approvedYear: v);
+                    _updateFormData(_formData.copyWith(disabilityClaimMembers: updated));
+                  },
+                ),
+              ],
+            ),
+          );
+        }),
+        OutlinedButton.icon(
+          onPressed: () {
+            final updated = List<T1DisabilityClaimMember>.from(members);
+            updated.add(const T1DisabilityClaimMember());
+            _updateFormData(_formData.copyWith(disabilityClaimMembers: updated));
+          },
+          icon: const Icon(Icons.add),
+          label: const Text('Add another member'),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildDeceasedReturnQuestionSection() {
+    return _buildSection(
+      title: '20. Are you filing a return on behalf of a person who died in this Tax Year?',
+      child: _buildRadioQuestion(
+        question: '',
+        value: _formData.isFilingForDeceased,
+        onChanged: (value) {
+          if (value == false) {
+            final updatedDocs = Map<String, String>.from(_formData.uploadedDocuments);
+            updatedDocs.remove('Clearance Certificate');
+
+            _updateFormData(_formData.copyWith(
+              isFilingForDeceased: value,
+              deceasedReturnInfo: null,
+              uploadedDocuments: updatedDocs,
+            ));
+            return;
+          }
+
+          _updateFormData(_formData.copyWith(
+            isFilingForDeceased: value,
+            deceasedReturnInfo: _formData.deceasedReturnInfo ?? const T1DeceasedReturnInfo(),
+          ));
+        },
+      ),
+    );
+  }
+
   Widget _buildNavigationButtons() {
     final hasMovingExpenses = _formData.hasMovingExpenses ?? false;
     final isSelfEmployed = _formData.isSelfEmployed ?? false;
-    final needsAdditionalSteps = hasMovingExpenses || isSelfEmployed;
+    final isFilingForDeceased = _formData.isFilingForDeceased ?? false;
+    final needsAdditionalSteps = hasMovingExpenses || isSelfEmployed || isFilingForDeceased;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,

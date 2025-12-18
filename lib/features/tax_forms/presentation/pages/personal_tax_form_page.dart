@@ -143,6 +143,7 @@ class _PersonalTaxFormPageState extends State<PersonalTaxFormPage>
   void _rebuildSteps() {
     final hasMovingExpenses = _formData.hasMovingExpenses ?? false;
     final isSelfEmployed = _formData.isSelfEmployed ?? false;
+    final isFilingForDeceased = _formData.isFilingForDeceased ?? false;
     final businessTypes = _formData.selfEmployment?.businessTypes ?? <String>[];
 
     final detailSteps = <T1DetailStepType>[];
@@ -163,6 +164,11 @@ class _PersonalTaxFormPageState extends State<PersonalTaxFormPage>
     if (hasMovingExpenses) {
       detailSteps.add(T1DetailStepType.movingExpenses);
       titles.add('Moving Expenses');
+    }
+
+    if (isFilingForDeceased) {
+      detailSteps.add(T1DetailStepType.deceasedReturn);
+      titles.add('Deceased Return');
     }
 
     _detailSteps = detailSteps;

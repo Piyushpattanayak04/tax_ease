@@ -232,7 +232,7 @@ class T1FormStorageService {
 
     // Questionnaire sections (Weight: 60%)
     // Simplified progress calculation for questionnaire
-    totalFields += 18; // One field per question (18 questions total)
+    totalFields += 20; // One field per question (20 questions total)
     
     // Count answered questions
     if (formData.hasForeignProperty != null) filledFields++;
@@ -253,6 +253,8 @@ class T1FormStorageService {
     if (formData.hasRrspFhsaInvestment != null) filledFields++;
     if (formData.hasChildArtSportCredit != null) filledFields++;
     if (formData.isProvinceFiler != null) filledFields++;
+    if (formData.hasDisabilityTaxCredit != null) filledFields++;
+    if (formData.isFilingForDeceased != null) filledFields++;
     
     // Give extra weight to details if they exist
     if (formData.hasForeignProperty == true && formData.foreignProperties.isNotEmpty) {

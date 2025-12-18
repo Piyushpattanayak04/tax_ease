@@ -19,13 +19,16 @@ class T1DocumentRequirements {
 
   /// All supported document cards.
   ///
-  /// NOTE: "Disability Approval form" is intentionally marked optional
-  /// (countsTowardsSubmission=false) until the questionnaire includes a question
-  /// that makes it required.
   static const List<T1DocumentRequirement> all = [
+    // Q19
     T1DocumentRequirement(
       label: 'Disability Approval form',
-      countsTowardsSubmission: false,
+      isRequiredWhen: _hasDisabilityTaxCredit,
+    ),
+    // Q20
+    T1DocumentRequirement(
+      label: 'Clearance Certificate',
+      isRequiredWhen: _isFilingForDeceased,
     ),
     T1DocumentRequirement(
       label: 'Charitable Donation Receipts',
@@ -107,4 +110,6 @@ class T1DocumentRequirements {
   static bool _hasProfessionalDues(T1FormData f) => f.hasProfessionalDues == true;
   static bool _hasRrspFhsaInvestment(T1FormData f) => f.hasRrspFhsaInvestment == true;
   static bool _hasChildArtSportCredit(T1FormData f) => f.hasChildArtSportCredit == true;
+  static bool _hasDisabilityTaxCredit(T1FormData f) => f.hasDisabilityTaxCredit == true;
+  static bool _isFilingForDeceased(T1FormData f) => f.isFilingForDeceased == true;
 }
