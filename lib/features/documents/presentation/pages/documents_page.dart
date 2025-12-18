@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:go_router/go_router.dart';
+import 'package:image_picker/image_picker.dart';
 import '../../../../core/constants/app_colors.dart';
 import '../../../../core/constants/app_dimensions.dart';
 import '../../../../core/utils/smooth_scroll_physics.dart';
@@ -96,38 +97,23 @@ class _DocumentsPageState extends State<DocumentsPage> {
     }
   }
 
-  Future<void> _pickAndUpload({String? documentType}) async {
+  Future<void> _uploadFilePath({
+    required String filePath,
+    required String? documentType,
+    String? fallbackName,
+  }) async {
     try {
-      final result = await FilePicker.platform.pickFiles(
-        type: FileType.custom,
-        allowMultiple: false,
-        allowedExtensions: const ['pdf', 'jpg', 'jpeg', 'png', 'doc', 'docx', 'xls', 'xlsx'],
-        withReadStream: false,
-        withData: false,
-      );
-      if (result == null || result.files.isEmpty) return; // user canceled
-
-      final file = result.files.single;
-      final path = file.path;
-      if (path == null) {
-        if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('Could not access the selected file path.')),
-          );
-        }
-        return;
-      }
-
       setState(() {
         _isUploading = true;
         if (documentType != null) {
           _uploadingDocumentTypes.add(documentType);
         }
       });
-      final resp = await FilesApi.uploadFile(filePath: path);
 
-      // Prefer original filename from API if provided, else from picker
-      final name = (resp['original_filename'] ?? file.name)?.toString() ?? 'Uploaded file';
+      final resp = await FilesApi.uploadFile(filePath: filePath);
+
+      final derivedName = (fallbackName ?? filePath.split(RegExp(r"[\\/]")).last);
+      final name = (resp['original_filename'] ?? derivedName).toString();
 
       if (!mounted) return;
 
@@ -171,18 +157,99 @@ class _DocumentsPageState extends State<DocumentsPage> {
         SnackBar(content: Text('Uploaded: $prefix$name')),
       );
     } catch (e) {
-      if (mounted) {
-        setState(() {
-          _isUploading = false;
-          if (documentType != null) {
-            _uploadingDocumentTypes.remove(documentType);
-          }
-        });
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Upload failed: $e')),
-        );
-      }
+      if (!mounted) return;
+      setState(() {
+        _isUploading = false;
+        if (documentType != null) {
+          _uploadingDocumentTypes.remove(documentType);
+        }
+      });
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Upload failed: $e')),
+      );
     }
+  }
+
+  Future<void> _pickFileAndUpload({String? documentType}) async {
+    final result = await FilePicker.platform.pickFiles(
+      type: FileType.custom,
+      allowMultiple: false,
+      allowedExtensions: const ['pdf', 'jpg', 'jpeg', 'png', 'doc', 'docx', 'xls', 'xlsx'],
+      withReadStream: false,
+      withData: false,
+    );
+    if (result == null || result.files.isEmpty) return;
+
+    final file = result.files.single;
+    final path = file.path;
+    if (path == null) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Could not access the selected file path.')),
+      );
+      return;
+    }
+
+    await _uploadFilePath(
+      filePath: path,
+      documentType: documentType,
+      fallbackName: file.name,
+    );
+  }
+
+  Future<void> _capturePhotoAndUpload({String? documentType}) async {
+    final picker = ImagePicker();
+    final XFile? captured = await picker.pickImage(
+      source: ImageSource.camera,
+      imageQuality: 90,
+    );
+    if (captured == null) return;
+
+    // No cropping (direct capture -> confirm -> upload)
+    await _uploadFilePath(
+      filePath: captured.path,
+      documentType: documentType,
+      fallbackName: captured.name,
+    );
+  }
+
+  Future<void> _showUploadOptions({String? documentType}) async {
+    if (!mounted) return;
+
+    await showModalBottomSheet<void>(
+      context: context,
+      showDragHandle: true,
+      builder: (context) {
+        // The app uses a floating bottom nav (overlay). Add extra bottom padding so
+        // the sheet content doesn't sit under the nav pill.
+        return SafeArea(
+          child: Padding(
+            padding: const EdgeInsets.only(bottom: 100),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                ListTile(
+                  leading: const Icon(Icons.folder_open),
+                  title: const Text('Choose file'),
+                  onTap: () async {
+                    Navigator.of(context).pop();
+                    await _pickFileAndUpload(documentType: documentType);
+                  },
+                ),
+                ListTile(
+                  leading: const Icon(Icons.camera_alt),
+                  title: const Text('Open camera'),
+                  onTap: () async {
+                    Navigator.of(context).pop();
+                    await _capturePhotoAndUpload(documentType: documentType);
+                  },
+                ),
+              ],
+            ),
+          ),
+        );
+      },
+    );
   }
 
   bool get _showSubmitForT1 =>
@@ -339,7 +406,7 @@ class _DocumentsPageState extends State<DocumentsPage> {
       ),
       floatingActionButton: _hasAnyDraftForm
           ? FloatingActionButton(
-              onPressed: _isUploading ? null : () => _pickAndUpload(),
+              onPressed: _isUploading ? null : () => _showUploadOptions(),
               child: const Icon(Icons.add),
             )
           : null,
@@ -422,7 +489,7 @@ class _DocumentsPageState extends State<DocumentsPage> {
                         ElevatedButton.icon(
                           onPressed: isUploadingThis
                               ? null
-                              : () => _pickAndUpload(documentType: documentType),
+                              : () => _showUploadOptions(documentType: documentType),
                           icon: isUploadingThis
                               ? const SizedBox(
                                   width: 16,
