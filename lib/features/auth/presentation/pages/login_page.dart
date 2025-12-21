@@ -15,6 +15,9 @@ class LoginPage extends StatefulWidget {
 }
 
 class _LoginPageState extends State<LoginPage> {
+  static const String _demoEmail = 'client@taxease.ca';
+  static const String _demoPassword = 'demo123';
+
   final _formKey = GlobalKey<FormState>();
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
@@ -156,7 +159,29 @@ class _LoginPageState extends State<LoginPage> {
                         ),
                       ),
 
-                      const SizedBox(height: 32),
+                      const SizedBox(height: 12),
+
+                      // Demo credentials (temporary)
+                      Align(
+                        alignment: Alignment.centerLeft,
+                        child: TextButton.icon(
+                          onPressed: _isLoading
+                              ? null
+                              : () {
+                                  _emailController.text = _demoEmail;
+                                  _passwordController.text = _demoPassword;
+                                  FocusScope.of(context).unfocus();
+                                },
+                          icon: const Icon(Icons.bolt, size: 18),
+                          label: const Text('Use demo login'),
+                          style: TextButton.styleFrom(
+                            foregroundColor: AppColors.primary,
+                            padding: EdgeInsets.zero,
+                          ),
+                        ),
+                      ),
+
+                      const SizedBox(height: 16),
 
                       // Login button
                       SizedBox(
@@ -280,6 +305,25 @@ class _LoginPageState extends State<LoginPage> {
     try {
       final email = _emailController.text.trim();
       final password = _passwordController.text;
+
+      // Temporary demo bypass (no API call)
+      if (email.toLowerCase() == _demoEmail && password == _demoPassword) {
+        await ThemeController.setAuthToken(null);
+        await ThemeController.setLoggedIn(true);
+        await ThemeController.setUserName('Demo Client');
+        await ThemeController.setFilingType('T1');
+
+        if (!mounted) return;
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: const Text('Demo login successful!'),
+            backgroundColor: AppColors.success,
+            behavior: SnackBarBehavior.floating,
+          ),
+        );
+        context.go('/home');
+        return;
+      }
 
       // Call backend API
       final result = await AuthApi.login(email: email, password: password);
