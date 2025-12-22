@@ -352,6 +352,524 @@ class T1ForeignProperty {
       'country': country,
     };
   }
+
+  T1ForeignProperty copyWith({
+    String? investmentDetails,
+    double? grossIncome,
+    double? gainLossOnSale,
+    double? maxCostDuringYear,
+    double? costAmountYearEnd,
+    String? country,
+  }) {
+    return T1ForeignProperty(
+      investmentDetails: investmentDetails ?? this.investmentDetails,
+      grossIncome: grossIncome ?? this.grossIncome,
+      gainLossOnSale: gainLossOnSale ?? this.gainLossOnSale,
+      maxCostDuringYear: maxCostDuringYear ?? this.maxCostDuringYear,
+      costAmountYearEnd: costAmountYearEnd ?? this.costAmountYearEnd,
+      country: country ?? this.country,
+    );
+  }
+}
+
+/// Q2: Medical expenses row
+class T1MedicalExpense {
+  final DateTime? paymentDate;
+  final String patientName;
+  final String paymentMadeTo;
+  final String descriptionOfExpense;
+  final double insuranceCovered;
+  final double amountPaidFromPocket;
+
+  const T1MedicalExpense({
+    this.paymentDate,
+    this.patientName = '',
+    this.paymentMadeTo = '',
+    this.descriptionOfExpense = '',
+    this.insuranceCovered = 0.0,
+    this.amountPaidFromPocket = 0.0,
+  });
+
+  factory T1MedicalExpense.fromJson(Map<String, dynamic> json) {
+    return T1MedicalExpense(
+      paymentDate:
+          json['paymentDate'] != null ? DateTime.parse(json['paymentDate']) : null,
+      patientName: json['patientName'] ?? '',
+      paymentMadeTo: json['paymentMadeTo'] ?? '',
+      descriptionOfExpense: json['descriptionOfExpense'] ?? '',
+      insuranceCovered: (json['insuranceCovered'] ?? 0.0).toDouble(),
+      amountPaidFromPocket: (json['amountPaidFromPocket'] ?? 0.0).toDouble(),
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'paymentDate': paymentDate?.toIso8601String(),
+      'patientName': patientName,
+      'paymentMadeTo': paymentMadeTo,
+      'descriptionOfExpense': descriptionOfExpense,
+      'insuranceCovered': insuranceCovered,
+      'amountPaidFromPocket': amountPaidFromPocket,
+    };
+  }
+
+  T1MedicalExpense copyWith({
+    DateTime? paymentDate,
+    String? patientName,
+    String? paymentMadeTo,
+    String? descriptionOfExpense,
+    double? insuranceCovered,
+    double? amountPaidFromPocket,
+  }) {
+    return T1MedicalExpense(
+      paymentDate: paymentDate ?? this.paymentDate,
+      patientName: patientName ?? this.patientName,
+      paymentMadeTo: paymentMadeTo ?? this.paymentMadeTo,
+      descriptionOfExpense: descriptionOfExpense ?? this.descriptionOfExpense,
+      insuranceCovered: insuranceCovered ?? this.insuranceCovered,
+      amountPaidFromPocket: amountPaidFromPocket ?? this.amountPaidFromPocket,
+    );
+  }
+}
+
+/// Q9: Work from home expense (per person)
+class T1WorkFromHomeExpense {
+  final String personType; // 'individual' or 'spouse'
+  final double totalHouseArea;
+  final double totalWorkArea;
+  final double rentExpense;
+  final double mortgageExpense;
+  final double wifiExpense;
+  final double electricityExpense;
+  final double waterExpense;
+  final double heatExpense;
+  final double totalInsuranceExpense;
+
+  const T1WorkFromHomeExpense({
+    this.personType = 'individual',
+    this.totalHouseArea = 0.0,
+    this.totalWorkArea = 0.0,
+    this.rentExpense = 0.0,
+    this.mortgageExpense = 0.0,
+    this.wifiExpense = 0.0,
+    this.electricityExpense = 0.0,
+    this.waterExpense = 0.0,
+    this.heatExpense = 0.0,
+    this.totalInsuranceExpense = 0.0,
+  });
+
+  factory T1WorkFromHomeExpense.fromJson(Map<String, dynamic> json) {
+    return T1WorkFromHomeExpense(
+      personType: json['personType'] ?? 'individual',
+      totalHouseArea: (json['totalHouseArea'] ?? 0.0).toDouble(),
+      totalWorkArea: (json['totalWorkArea'] ?? 0.0).toDouble(),
+      rentExpense: (json['rentExpense'] ?? 0.0).toDouble(),
+      mortgageExpense: (json['mortgageExpense'] ?? 0.0).toDouble(),
+      wifiExpense: (json['wifiExpense'] ?? 0.0).toDouble(),
+      electricityExpense: (json['electricityExpense'] ?? 0.0).toDouble(),
+      waterExpense: (json['waterExpense'] ?? 0.0).toDouble(),
+      heatExpense: (json['heatExpense'] ?? 0.0).toDouble(),
+      totalInsuranceExpense: (json['totalInsuranceExpense'] ?? 0.0).toDouble(),
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'personType': personType,
+      'totalHouseArea': totalHouseArea,
+      'totalWorkArea': totalWorkArea,
+      'rentExpense': rentExpense,
+      'mortgageExpense': mortgageExpense,
+      'wifiExpense': wifiExpense,
+      'electricityExpense': electricityExpense,
+      'waterExpense': waterExpense,
+      'heatExpense': heatExpense,
+      'totalInsuranceExpense': totalInsuranceExpense,
+    };
+  }
+
+  T1WorkFromHomeExpense copyWith({
+    String? personType,
+    double? totalHouseArea,
+    double? totalWorkArea,
+    double? rentExpense,
+    double? mortgageExpense,
+    double? wifiExpense,
+    double? electricityExpense,
+    double? waterExpense,
+    double? heatExpense,
+    double? totalInsuranceExpense,
+  }) {
+    return T1WorkFromHomeExpense(
+      personType: personType ?? this.personType,
+      totalHouseArea: totalHouseArea ?? this.totalHouseArea,
+      totalWorkArea: totalWorkArea ?? this.totalWorkArea,
+      rentExpense: rentExpense ?? this.rentExpense,
+      mortgageExpense: mortgageExpense ?? this.mortgageExpense,
+      wifiExpense: wifiExpense ?? this.wifiExpense,
+      electricityExpense: electricityExpense ?? this.electricityExpense,
+      waterExpense: waterExpense ?? this.waterExpense,
+      heatExpense: heatExpense ?? this.heatExpense,
+      totalInsuranceExpense:
+          totalInsuranceExpense ?? this.totalInsuranceExpense,
+    );
+  }
+}
+
+/// Q12: Daycare expense row
+class T1DaycareExpense {
+  final String childcareProvider;
+  final double amount;
+  final String identificationNumberSin;
+  final double weeks;
+
+  const T1DaycareExpense({
+    this.childcareProvider = '',
+    this.amount = 0.0,
+    this.identificationNumberSin = '',
+    this.weeks = 0.0,
+  });
+
+  factory T1DaycareExpense.fromJson(Map<String, dynamic> json) {
+    return T1DaycareExpense(
+      childcareProvider: json['childcareProvider'] ?? '',
+      amount: (json['amount'] ?? 0.0).toDouble(),
+      identificationNumberSin: json['identificationNumberSin'] ?? '',
+      weeks: (json['weeks'] ?? 0.0).toDouble(),
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'childcareProvider': childcareProvider,
+      'amount': amount,
+      'identificationNumberSin': identificationNumberSin,
+      'weeks': weeks,
+    };
+  }
+
+  T1DaycareExpense copyWith({
+    String? childcareProvider,
+    double? amount,
+    String? identificationNumberSin,
+    double? weeks,
+  }) {
+    return T1DaycareExpense(
+      childcareProvider: childcareProvider ?? this.childcareProvider,
+      amount: amount ?? this.amount,
+      identificationNumberSin:
+          identificationNumberSin ?? this.identificationNumberSin,
+      weeks: weeks ?? this.weeks,
+    );
+  }
+}
+
+/// Q13: First-time filer income (per person)
+class T1FirstTimeFilerIncome {
+  final DateTime? dateOfLanding;
+  final double incomeOutsideCanada;
+  final double backHomeIncome2024;
+  final double backHomeIncome2023;
+
+  const T1FirstTimeFilerIncome({
+    this.dateOfLanding,
+    this.incomeOutsideCanada = 0.0,
+    this.backHomeIncome2024 = 0.0,
+    this.backHomeIncome2023 = 0.0,
+  });
+
+  factory T1FirstTimeFilerIncome.fromJson(Map<String, dynamic> json) {
+    return T1FirstTimeFilerIncome(
+      dateOfLanding:
+          json['dateOfLanding'] != null ? DateTime.parse(json['dateOfLanding']) : null,
+      incomeOutsideCanada: (json['incomeOutsideCanada'] ?? 0.0).toDouble(),
+      backHomeIncome2024: (json['backHomeIncome2024'] ?? 0.0).toDouble(),
+      backHomeIncome2023: (json['backHomeIncome2023'] ?? 0.0).toDouble(),
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'dateOfLanding': dateOfLanding?.toIso8601String(),
+      'incomeOutsideCanada': incomeOutsideCanada,
+      'backHomeIncome2024': backHomeIncome2024,
+      'backHomeIncome2023': backHomeIncome2023,
+    };
+  }
+
+  T1FirstTimeFilerIncome copyWith({
+    DateTime? dateOfLanding,
+    double? incomeOutsideCanada,
+    double? backHomeIncome2024,
+    double? backHomeIncome2023,
+  }) {
+    return T1FirstTimeFilerIncome(
+      dateOfLanding: dateOfLanding ?? this.dateOfLanding,
+      incomeOutsideCanada: incomeOutsideCanada ?? this.incomeOutsideCanada,
+      backHomeIncome2024: backHomeIncome2024 ?? this.backHomeIncome2024,
+      backHomeIncome2023: backHomeIncome2023 ?? this.backHomeIncome2023,
+    );
+  }
+}
+
+/// Q18: Province filer entry
+class T1ProvinceFilerEntry {
+  final String rentOrPropertyTax;
+  final String propertyAddress;
+  final String postalCode;
+  final double monthsResides;
+
+  const T1ProvinceFilerEntry({
+    this.rentOrPropertyTax = '',
+    this.propertyAddress = '',
+    this.postalCode = '',
+    this.monthsResides = 0.0,
+  });
+
+  factory T1ProvinceFilerEntry.fromJson(Map<String, dynamic> json) {
+    return T1ProvinceFilerEntry(
+      rentOrPropertyTax: json['rentOrPropertyTax'] ?? '',
+      propertyAddress: json['propertyAddress'] ?? '',
+      postalCode: json['postalCode'] ?? '',
+      monthsResides: (json['monthsResides'] ?? 0.0).toDouble(),
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'rentOrPropertyTax': rentOrPropertyTax,
+      'propertyAddress': propertyAddress,
+      'postalCode': postalCode,
+      'monthsResides': monthsResides,
+    };
+  }
+
+  T1ProvinceFilerEntry copyWith({
+    String? rentOrPropertyTax,
+    String? propertyAddress,
+    String? postalCode,
+    double? monthsResides,
+  }) {
+    return T1ProvinceFilerEntry(
+      rentOrPropertyTax: rentOrPropertyTax ?? this.rentOrPropertyTax,
+      propertyAddress: propertyAddress ?? this.propertyAddress,
+      postalCode: postalCode ?? this.postalCode,
+      monthsResides: monthsResides ?? this.monthsResides,
+    );
+  }
+}
+
+/// Q3: Charitable donation row
+class T1CharitableDonation {
+  final String organizationName;
+  final double amount;
+
+  const T1CharitableDonation({
+    this.organizationName = '',
+    this.amount = 0.0,
+  });
+
+  factory T1CharitableDonation.fromJson(Map<String, dynamic> json) {
+    return T1CharitableDonation(
+      organizationName: json['organizationName'] ?? '',
+      amount: (json['amount'] ?? 0.0).toDouble(),
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'organizationName': organizationName,
+      'amount': amount,
+    };
+  }
+
+  T1CharitableDonation copyWith({
+    String? organizationName,
+    double? amount,
+  }) {
+    return T1CharitableDonation(
+      organizationName: organizationName ?? this.organizationName,
+      amount: amount ?? this.amount,
+    );
+  }
+}
+
+/// Q11: Union due row
+class T1UnionDue {
+  final String institutionName;
+  final double amount;
+
+  const T1UnionDue({
+    this.institutionName = '',
+    this.amount = 0.0,
+  });
+
+  factory T1UnionDue.fromJson(Map<String, dynamic> json) {
+    return T1UnionDue(
+      institutionName: json['institutionName'] ?? '',
+      amount: (json['amount'] ?? 0.0).toDouble(),
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'institutionName': institutionName,
+      'amount': amount,
+    };
+  }
+
+  T1UnionDue copyWith({
+    String? institutionName,
+    double? amount,
+  }) {
+    return T1UnionDue(
+      institutionName: institutionName ?? this.institutionName,
+      amount: amount ?? this.amount,
+    );
+  }
+}
+
+/// Q15: Professional due row
+class T1ProfessionalDue {
+  final String name;
+  final String organization;
+  final double amount;
+
+  const T1ProfessionalDue({
+    this.name = '',
+    this.organization = '',
+    this.amount = 0.0,
+  });
+
+  factory T1ProfessionalDue.fromJson(Map<String, dynamic> json) {
+    return T1ProfessionalDue(
+      name: json['name'] ?? '',
+      organization: json['organization'] ?? '',
+      amount: (json['amount'] ?? 0.0).toDouble(),
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'name': name,
+      'organization': organization,
+      'amount': amount,
+    };
+  }
+
+  T1ProfessionalDue copyWith({
+    String? name,
+    String? organization,
+    double? amount,
+  }) {
+    return T1ProfessionalDue(
+      name: name ?? this.name,
+      organization: organization ?? this.organization,
+      amount: amount ?? this.amount,
+    );
+  }
+}
+
+/// Q17: Child art & sport entry
+class T1ChildArtSportEntry {
+  final String instituteName;
+  final String description;
+  final double amount;
+
+  const T1ChildArtSportEntry({
+    this.instituteName = '',
+    this.description = '',
+    this.amount = 0.0,
+  });
+
+  factory T1ChildArtSportEntry.fromJson(Map<String, dynamic> json) {
+    return T1ChildArtSportEntry(
+      instituteName: json['instituteName'] ?? '',
+      description: json['description'] ?? '',
+      amount: (json['amount'] ?? 0.0).toDouble(),
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'instituteName': instituteName,
+      'description': description,
+      'amount': amount,
+    };
+  }
+
+  T1ChildArtSportEntry copyWith({
+    String? instituteName,
+    String? description,
+    double? amount,
+  }) {
+    return T1ChildArtSportEntry(
+      instituteName: instituteName ?? this.instituteName,
+      description: description ?? this.description,
+      amount: amount ?? this.amount,
+    );
+  }
+}
+
+/// Q7/Q8: Property sale details
+class T1PropertySaleDetails {
+  final bool isLongTerm; // true for >365 days, false for <365 days
+  final String propertyAddress;
+  final DateTime? purchaseDate;
+  final DateTime? sellDate;
+  final double purchaseSellExpenses;
+  final double capitalGainEarned; // used only for long-term (Q7)
+
+  const T1PropertySaleDetails({
+    this.isLongTerm = true,
+    this.propertyAddress = '',
+    this.purchaseDate,
+    this.sellDate,
+    this.purchaseSellExpenses = 0.0,
+    this.capitalGainEarned = 0.0,
+  });
+
+  factory T1PropertySaleDetails.fromJson(Map<String, dynamic> json) {
+    return T1PropertySaleDetails(
+      isLongTerm: json['isLongTerm'] ?? true,
+      propertyAddress: json['propertyAddress'] ?? '',
+      purchaseDate:
+          json['purchaseDate'] != null ? DateTime.parse(json['purchaseDate']) : null,
+      sellDate:
+          json['sellDate'] != null ? DateTime.parse(json['sellDate']) : null,
+      purchaseSellExpenses: (json['purchaseSellExpenses'] ?? 0.0).toDouble(),
+      capitalGainEarned: (json['capitalGainEarned'] ?? 0.0).toDouble(),
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'isLongTerm': isLongTerm,
+      'propertyAddress': propertyAddress,
+      'purchaseDate': purchaseDate?.toIso8601String(),
+      'sellDate': sellDate?.toIso8601String(),
+      'purchaseSellExpenses': purchaseSellExpenses,
+      'capitalGainEarned': capitalGainEarned,
+    };
+  }
+
+  T1PropertySaleDetails copyWith({
+    bool? isLongTerm,
+    String? propertyAddress,
+    DateTime? purchaseDate,
+    DateTime? sellDate,
+    double? purchaseSellExpenses,
+    double? capitalGainEarned,
+  }) {
+    return T1PropertySaleDetails(
+      isLongTerm: isLongTerm ?? this.isLongTerm,
+      propertyAddress: propertyAddress ?? this.propertyAddress,
+      purchaseDate: purchaseDate ?? this.purchaseDate,
+      sellDate: sellDate ?? this.sellDate,
+      purchaseSellExpenses: purchaseSellExpenses ?? this.purchaseSellExpenses,
+      capitalGainEarned: capitalGainEarned ?? this.capitalGainEarned,
+    );
+  }
 }
 
 // Moving Expense Details (from moving_expense.xlsx)
@@ -1184,6 +1702,10 @@ class T1FormData {
   final T1PersonalInfo personalInfo;
   final bool? hasForeignProperty;
   final List<T1ForeignProperty> foreignProperties;
+
+  /// Q2: medical expenses table rows
+  final List<T1MedicalExpense> medicalExpenses;
+
   final bool? hasMedicalExpenses;
   final bool? hasCharitableDonations;
   final bool? hasMovingExpenses;
@@ -1199,17 +1721,51 @@ class T1FormData {
   final bool? isFirstHomeBuyer;
   final bool? soldPropertyLongTerm;
   final bool? soldPropertyShortTerm;
+
+  /// Q7/Q8: property sale details
+  final T1PropertySaleDetails? propertySaleLongTerm;
+  final T1PropertySaleDetails? propertySaleShortTerm;
+
   final bool? hasWorkFromHomeExpense;
+
+  /// Q9: work from home detailed claims per person
+  final T1WorkFromHomeExpense? workFromHomeIndividual;
+  final T1WorkFromHomeExpense? workFromHomeSpouse;
+
   final bool? wasStudentLastYear;
   final bool? isUnionMember;
   final bool? hasDaycareExpenses;
+
+  /// Q12: daycare expenses table rows
+  final List<T1DaycareExpense> daycareExpenses;
+
   final bool? isFirstTimeFiler;
+
+  /// Q13: first time filer income details per person
+  final T1FirstTimeFilerIncome? firstTimeFilerIndividual;
+  final T1FirstTimeFilerIncome? firstTimeFilerSpouse;
+
   final bool? hasOtherIncome;
   final String otherIncomeDescription;
   final bool? hasProfessionalDues;
+
+  /// Q3: charitable donations rows
+  final List<T1CharitableDonation> charitableDonations;
+
+  /// Q11: union dues rows
+  final List<T1UnionDue> unionDues;
+
+  /// Q15: professional dues rows
+  final List<T1ProfessionalDue> professionalDues;
+
+  /// Q17: child art & sport rows
+  final List<T1ChildArtSportEntry> childArtSportEntries;
   final bool? hasRrspFhsaInvestment;
   final bool? hasChildArtSportCredit;
   final bool? isProvinceFiler;
+
+  /// Q18: province filer rows (rent/property tax details)
+  final List<T1ProvinceFilerEntry> provinceFilerEntries;
 
   /// 19. Disability tax credit claim
   final bool? hasDisabilityTaxCredit;
@@ -1235,6 +1791,7 @@ class T1FormData {
     this.personalInfo = const T1PersonalInfo(),
     this.hasForeignProperty,
     this.foreignProperties = const [],
+    this.medicalExpenses = const [],
     this.hasMedicalExpenses,
     this.hasCharitableDonations,
     this.hasMovingExpenses,
@@ -1248,17 +1805,29 @@ class T1FormData {
     this.isFirstHomeBuyer,
     this.soldPropertyLongTerm,
     this.soldPropertyShortTerm,
+    this.propertySaleLongTerm,
+    this.propertySaleShortTerm,
     this.hasWorkFromHomeExpense,
+    this.workFromHomeIndividual,
+    this.workFromHomeSpouse,
     this.wasStudentLastYear,
     this.isUnionMember,
     this.hasDaycareExpenses,
+    this.daycareExpenses = const [],
     this.isFirstTimeFiler,
+    this.firstTimeFilerIndividual,
+    this.firstTimeFilerSpouse,
     this.hasOtherIncome,
     this.otherIncomeDescription = '',
     this.hasProfessionalDues,
+    this.charitableDonations = const [],
+    this.unionDues = const [],
+    this.professionalDues = const [],
+    this.childArtSportEntries = const [],
     this.hasRrspFhsaInvestment,
     this.hasChildArtSportCredit,
     this.isProvinceFiler,
+    this.provinceFilerEntries = const [],
     this.hasDisabilityTaxCredit,
     this.disabilityClaimMembers = const [],
     this.isFilingForDeceased,
@@ -1277,6 +1846,7 @@ class T1FormData {
         personalInfo = const T1PersonalInfo(),
         hasForeignProperty = null,
         foreignProperties = const [],
+        medicalExpenses = const [],
         hasMedicalExpenses = null,
         hasCharitableDonations = null,
         hasMovingExpenses = null,
@@ -1290,17 +1860,29 @@ class T1FormData {
         isFirstHomeBuyer = null,
         soldPropertyLongTerm = null,
         soldPropertyShortTerm = null,
+        propertySaleLongTerm = null,
+        propertySaleShortTerm = null,
         hasWorkFromHomeExpense = null,
+        workFromHomeIndividual = null,
+        workFromHomeSpouse = null,
         wasStudentLastYear = null,
         isUnionMember = null,
         hasDaycareExpenses = null,
+        daycareExpenses = const [],
         isFirstTimeFiler = null,
+        firstTimeFilerIndividual = null,
+        firstTimeFilerSpouse = null,
         hasOtherIncome = null,
         otherIncomeDescription = '',
         hasProfessionalDues = null,
+        charitableDonations = const [],
+        unionDues = const [],
+        professionalDues = const [],
+        childArtSportEntries = const [],
         hasRrspFhsaInvestment = null,
         hasChildArtSportCredit = null,
         isProvinceFiler = null,
+        provinceFilerEntries = const [],
         hasDisabilityTaxCredit = null,
         disabilityClaimMembers = const [],
         isFilingForDeceased = null,
@@ -1326,7 +1908,10 @@ class T1FormData {
           : const T1PersonalInfo(),
       hasForeignProperty: json['hasForeignProperty'],
       foreignProperties: (json['foreignProperties'] as List? ?? [])
-          .map((e) => T1ForeignProperty.fromJson(e))
+          .map((e) => T1ForeignProperty.fromJson(Map<String, dynamic>.from(e)))
+          .toList(),
+      medicalExpenses: (json['medicalExpenses'] as List? ?? [])
+          .map((e) => T1MedicalExpense.fromJson(Map<String, dynamic>.from(e)))
           .toList(),
       hasMedicalExpenses: json['hasMedicalExpenses'],
       hasCharitableDonations: json['hasCharitableDonations'],
@@ -1349,17 +1934,65 @@ class T1FormData {
       isFirstHomeBuyer: json['isFirstHomeBuyer'],
       soldPropertyLongTerm: json['soldPropertyLongTerm'],
       soldPropertyShortTerm: json['soldPropertyShortTerm'],
+      propertySaleLongTerm: json['propertySaleLongTerm'] != null
+          ? T1PropertySaleDetails.fromJson(
+              Map<String, dynamic>.from(json['propertySaleLongTerm']),
+            )
+          : null,
+      propertySaleShortTerm: json['propertySaleShortTerm'] != null
+          ? T1PropertySaleDetails.fromJson(
+              Map<String, dynamic>.from(json['propertySaleShortTerm']),
+            )
+          : null,
       hasWorkFromHomeExpense: json['hasWorkFromHomeExpense'],
+      workFromHomeIndividual: json['workFromHomeIndividual'] != null
+          ? T1WorkFromHomeExpense.fromJson(
+              Map<String, dynamic>.from(json['workFromHomeIndividual']),
+            )
+          : null,
+      workFromHomeSpouse: json['workFromHomeSpouse'] != null
+          ? T1WorkFromHomeExpense.fromJson(
+              Map<String, dynamic>.from(json['workFromHomeSpouse']),
+            )
+          : null,
       wasStudentLastYear: json['wasStudentLastYear'],
       isUnionMember: json['isUnionMember'],
       hasDaycareExpenses: json['hasDaycareExpenses'],
+      daycareExpenses: (json['daycareExpenses'] as List? ?? [])
+          .map((e) => T1DaycareExpense.fromJson(Map<String, dynamic>.from(e)))
+          .toList(),
       isFirstTimeFiler: json['isFirstTimeFiler'],
+      firstTimeFilerIndividual: json['firstTimeFilerIndividual'] != null
+          ? T1FirstTimeFilerIncome.fromJson(
+              Map<String, dynamic>.from(json['firstTimeFilerIndividual']),
+            )
+          : null,
+      firstTimeFilerSpouse: json['firstTimeFilerSpouse'] != null
+          ? T1FirstTimeFilerIncome.fromJson(
+              Map<String, dynamic>.from(json['firstTimeFilerSpouse']),
+            )
+          : null,
       hasOtherIncome: json['hasOtherIncome'],
       otherIncomeDescription: json['otherIncomeDescription'] ?? '',
       hasProfessionalDues: json['hasProfessionalDues'],
+      charitableDonations: (json['charitableDonations'] as List? ?? [])
+          .map((e) => T1CharitableDonation.fromJson(Map<String, dynamic>.from(e)))
+          .toList(),
+      unionDues: (json['unionDues'] as List? ?? [])
+          .map((e) => T1UnionDue.fromJson(Map<String, dynamic>.from(e)))
+          .toList(),
+      professionalDues: (json['professionalDues'] as List? ?? [])
+          .map((e) => T1ProfessionalDue.fromJson(Map<String, dynamic>.from(e)))
+          .toList(),
+      childArtSportEntries: (json['childArtSportEntries'] as List? ?? [])
+          .map((e) => T1ChildArtSportEntry.fromJson(Map<String, dynamic>.from(e)))
+          .toList(),
       hasRrspFhsaInvestment: json['hasRrspFhsaInvestment'],
       hasChildArtSportCredit: json['hasChildArtSportCredit'],
       isProvinceFiler: json['isProvinceFiler'],
+      provinceFilerEntries: (json['provinceFilerEntries'] as List? ?? [])
+          .map((e) => T1ProvinceFilerEntry.fromJson(Map<String, dynamic>.from(e)))
+          .toList(),
       hasDisabilityTaxCredit: json['hasDisabilityTaxCredit'],
       disabilityClaimMembers: (json['disabilityClaimMembers'] as List? ?? [])
           .map((e) => T1DisabilityClaimMember.fromJson(Map<String, dynamic>.from(e)))
@@ -1382,8 +2015,9 @@ class T1FormData {
       'createdAt': createdAt?.toIso8601String(),
       'updatedAt': updatedAt?.toIso8601String(),
       'personalInfo': personalInfo.toJson(),
-      'hasForeignProperty': hasForeignProperty,
+'hasForeignProperty': hasForeignProperty,
       'foreignProperties': foreignProperties.map((e) => e.toJson()).toList(),
+      'medicalExpenses': medicalExpenses.map((e) => e.toJson()).toList(),
       'hasMedicalExpenses': hasMedicalExpenses,
       'hasCharitableDonations': hasCharitableDonations,
       'hasMovingExpenses': hasMovingExpenses,
@@ -1395,19 +2029,31 @@ class T1FormData {
       'isSelfEmployed': isSelfEmployed,
       'selfEmployment': selfEmployment?.toJson(),
       'isFirstHomeBuyer': isFirstHomeBuyer,
-      'soldPropertyLongTerm': soldPropertyLongTerm,
-      'soldPropertyShortTerm': soldPropertyShortTerm,
+'soldPropertyLongTerm': soldPropertyLongTerm,
+'soldPropertyShortTerm': soldPropertyShortTerm,
+      'propertySaleLongTerm': propertySaleLongTerm?.toJson(),
+      'propertySaleShortTerm': propertySaleShortTerm?.toJson(),
       'hasWorkFromHomeExpense': hasWorkFromHomeExpense,
+      'workFromHomeIndividual': workFromHomeIndividual?.toJson(),
+      'workFromHomeSpouse': workFromHomeSpouse?.toJson(),
       'wasStudentLastYear': wasStudentLastYear,
-      'isUnionMember': isUnionMember,
+'isUnionMember': isUnionMember,
       'hasDaycareExpenses': hasDaycareExpenses,
+      'daycareExpenses': daycareExpenses.map((e) => e.toJson()).toList(),
       'isFirstTimeFiler': isFirstTimeFiler,
+      'firstTimeFilerIndividual': firstTimeFilerIndividual?.toJson(),
+      'firstTimeFilerSpouse': firstTimeFilerSpouse?.toJson(),
       'hasOtherIncome': hasOtherIncome,
-      'otherIncomeDescription': otherIncomeDescription,
+'otherIncomeDescription': otherIncomeDescription,
       'hasProfessionalDues': hasProfessionalDues,
+      'charitableDonations': charitableDonations.map((e) => e.toJson()).toList(),
+      'unionDues': unionDues.map((e) => e.toJson()).toList(),
+      'professionalDues': professionalDues.map((e) => e.toJson()).toList(),
+      'childArtSportEntries': childArtSportEntries.map((e) => e.toJson()).toList(),
       'hasRrspFhsaInvestment': hasRrspFhsaInvestment,
-      'hasChildArtSportCredit': hasChildArtSportCredit,
+'hasChildArtSportCredit': hasChildArtSportCredit,
       'isProvinceFiler': isProvinceFiler,
+      'provinceFilerEntries': provinceFilerEntries.map((e) => e.toJson()).toList(),
       'hasDisabilityTaxCredit': hasDisabilityTaxCredit,
       'disabilityClaimMembers': disabilityClaimMembers.map((e) => e.toJson()).toList(),
       'isFilingForDeceased': isFilingForDeceased,
@@ -1425,6 +2071,7 @@ class T1FormData {
     T1PersonalInfo? personalInfo,
     bool? hasForeignProperty,
     List<T1ForeignProperty>? foreignProperties,
+    List<T1MedicalExpense>? medicalExpenses,
     bool? hasMedicalExpenses,
     bool? hasCharitableDonations,
     bool? hasMovingExpenses,
@@ -1438,17 +2085,29 @@ class T1FormData {
     bool? isFirstHomeBuyer,
     bool? soldPropertyLongTerm,
     bool? soldPropertyShortTerm,
+    T1PropertySaleDetails? propertySaleLongTerm,
+    T1PropertySaleDetails? propertySaleShortTerm,
     bool? hasWorkFromHomeExpense,
+    T1WorkFromHomeExpense? workFromHomeIndividual,
+    T1WorkFromHomeExpense? workFromHomeSpouse,
     bool? wasStudentLastYear,
     bool? isUnionMember,
     bool? hasDaycareExpenses,
+    List<T1DaycareExpense>? daycareExpenses,
     bool? isFirstTimeFiler,
+    T1FirstTimeFilerIncome? firstTimeFilerIndividual,
+    T1FirstTimeFilerIncome? firstTimeFilerSpouse,
     bool? hasOtherIncome,
     String? otherIncomeDescription,
     bool? hasProfessionalDues,
+    List<T1CharitableDonation>? charitableDonations,
+    List<T1UnionDue>? unionDues,
+    List<T1ProfessionalDue>? professionalDues,
+    List<T1ChildArtSportEntry>? childArtSportEntries,
     bool? hasRrspFhsaInvestment,
     bool? hasChildArtSportCredit,
     bool? isProvinceFiler,
+    List<T1ProvinceFilerEntry>? provinceFilerEntries,
     bool? hasDisabilityTaxCredit,
     List<T1DisabilityClaimMember>? disabilityClaimMembers,
     bool? isFilingForDeceased,
@@ -1464,6 +2123,7 @@ class T1FormData {
       personalInfo: personalInfo ?? this.personalInfo,
       hasForeignProperty: hasForeignProperty ?? this.hasForeignProperty,
       foreignProperties: foreignProperties ?? this.foreignProperties,
+      medicalExpenses: medicalExpenses ?? this.medicalExpenses,
       hasMedicalExpenses: hasMedicalExpenses ?? this.hasMedicalExpenses,
       hasCharitableDonations: hasCharitableDonations ?? this.hasCharitableDonations,
       hasMovingExpenses: hasMovingExpenses ?? this.hasMovingExpenses,
@@ -1477,17 +2137,31 @@ class T1FormData {
       isFirstHomeBuyer: isFirstHomeBuyer ?? this.isFirstHomeBuyer,
       soldPropertyLongTerm: soldPropertyLongTerm ?? this.soldPropertyLongTerm,
       soldPropertyShortTerm: soldPropertyShortTerm ?? this.soldPropertyShortTerm,
+      propertySaleLongTerm: propertySaleLongTerm ?? this.propertySaleLongTerm,
+      propertySaleShortTerm: propertySaleShortTerm ?? this.propertySaleShortTerm,
       hasWorkFromHomeExpense: hasWorkFromHomeExpense ?? this.hasWorkFromHomeExpense,
+      workFromHomeIndividual: workFromHomeIndividual ?? this.workFromHomeIndividual,
+      workFromHomeSpouse: workFromHomeSpouse ?? this.workFromHomeSpouse,
       wasStudentLastYear: wasStudentLastYear ?? this.wasStudentLastYear,
       isUnionMember: isUnionMember ?? this.isUnionMember,
       hasDaycareExpenses: hasDaycareExpenses ?? this.hasDaycareExpenses,
+      daycareExpenses: daycareExpenses ?? this.daycareExpenses,
       isFirstTimeFiler: isFirstTimeFiler ?? this.isFirstTimeFiler,
+      firstTimeFilerIndividual:
+          firstTimeFilerIndividual ?? this.firstTimeFilerIndividual,
+      firstTimeFilerSpouse: firstTimeFilerSpouse ?? this.firstTimeFilerSpouse,
       hasOtherIncome: hasOtherIncome ?? this.hasOtherIncome,
       otherIncomeDescription: otherIncomeDescription ?? this.otherIncomeDescription,
       hasProfessionalDues: hasProfessionalDues ?? this.hasProfessionalDues,
+      charitableDonations: charitableDonations ?? this.charitableDonations,
+      unionDues: unionDues ?? this.unionDues,
+      professionalDues: professionalDues ?? this.professionalDues,
+      childArtSportEntries:
+          childArtSportEntries ?? this.childArtSportEntries,
       hasRrspFhsaInvestment: hasRrspFhsaInvestment ?? this.hasRrspFhsaInvestment,
       hasChildArtSportCredit: hasChildArtSportCredit ?? this.hasChildArtSportCredit,
       isProvinceFiler: isProvinceFiler ?? this.isProvinceFiler,
+      provinceFilerEntries: provinceFilerEntries ?? this.provinceFilerEntries,
       hasDisabilityTaxCredit: hasDisabilityTaxCredit ?? this.hasDisabilityTaxCredit,
       disabilityClaimMembers: disabilityClaimMembers ?? this.disabilityClaimMembers,
       isFilingForDeceased: isFilingForDeceased ?? this.isFilingForDeceased,

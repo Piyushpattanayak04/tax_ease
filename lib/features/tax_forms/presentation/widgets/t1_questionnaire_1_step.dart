@@ -33,41 +33,41 @@ class _T1Questionnaire1StepState extends State<T1Questionnaire1Step> {
   late T1FormData _formData;
 
   // Local UI state for dynamic tables and date fields
-  final List<int> _foreignPropertyRowIds = [0];
-  int _foreignPropertyRowCounter = 1;
+  final List<int> _foreignPropertyRowIds = [];
+  int _foreignPropertyRowCounter = 0;
 
-  final List<int> _medicalExpenseRowIds = [0];
-  int _medicalExpenseRowCounter = 1;
-  final Map<int, DateTime?> _medicalExpenseDates = {};
+  final List<int> _medicalExpenseRowIds = [];
+  int _medicalExpenseRowCounter = 0;
 
-  final List<int> _charitableDonationRowIds = [0];
-  int _charitableDonationRowCounter = 1;
+  final List<int> _charitableDonationRowIds = [];
+  int _charitableDonationRowCounter = 0;
 
-  final List<int> _unionDueRowIds = [0];
-  int _unionDueRowCounter = 1;
+  final List<int> _unionDueRowIds = [];
+  int _unionDueRowCounter = 0;
 
-  final List<int> _daycareExpenseRowIds = [0];
-  int _daycareExpenseRowCounter = 1;
+  final List<int> _daycareExpenseRowIds = [];
+  int _daycareExpenseRowCounter = 0;
 
-  final List<int> _professionalDueRowIds = [0];
-  int _professionalDueRowCounter = 1;
+  final List<int> _professionalDueRowIds = [];
+  int _professionalDueRowCounter = 0;
 
-  final List<int> _childArtSportRowIds = [0];
-  int _childArtSportRowCounter = 1;
+  final List<int> _childArtSportRowIds = [];
+  int _childArtSportRowCounter = 0;
 
-  final List<int> _provinceFilerRowIds = [0];
-  int _provinceFilerRowCounter = 1;
+  final List<int> _provinceFilerRowIds = [];
+  int _provinceFilerRowCounter = 0;
 
   DateTime? _firstTimeFilerLandingDate;
-  DateTime? _longTermPurchaseDate;
-  DateTime? _longTermSellDate;
-  DateTime? _shortTermPurchaseDate;
-  DateTime? _shortTermSellDate;
+  DateTime? _firstTimeFilerLandingDateSpouse;
+
+  bool _showWorkFromHomeSpouse = false;
+  bool _includeFirstTimeFilerSpouse = false;
 
   @override
   void initState() {
     super.initState();
     _formData = widget.formData;
+    _syncUiFromFormData();
   }
 
   @override
@@ -75,6 +75,7 @@ class _T1Questionnaire1StepState extends State<T1Questionnaire1Step> {
     super.didUpdateWidget(oldWidget);
     if (oldWidget.formData != widget.formData) {
       _formData = widget.formData;
+      _syncUiFromFormData();
     }
   }
 
@@ -85,102 +86,234 @@ class _T1Questionnaire1StepState extends State<T1Questionnaire1Step> {
     widget.onFormDataChanged(_formData);
   }
 
+  void _syncUiFromFormData() {
+    _foreignPropertyRowIds
+      ..clear()
+      ..addAll(List<int>.generate(_formData.foreignProperties.length,
+          (index) => index));
+    _foreignPropertyRowCounter = _foreignPropertyRowIds.length;
+
+    _medicalExpenseRowIds
+      ..clear()
+      ..addAll(List<int>.generate(_formData.medicalExpenses.length,
+          (index) => index));
+    _medicalExpenseRowCounter = _medicalExpenseRowIds.length;
+
+    _charitableDonationRowIds
+      ..clear()
+      ..addAll(List<int>.generate(_formData.charitableDonations.length,
+          (index) => index));
+    _charitableDonationRowCounter = _charitableDonationRowIds.length;
+
+    _unionDueRowIds
+      ..clear()
+      ..addAll(List<int>.generate(_formData.unionDues.length,
+          (index) => index));
+    _unionDueRowCounter = _unionDueRowIds.length;
+
+    _daycareExpenseRowIds
+      ..clear()
+      ..addAll(List<int>.generate(_formData.daycareExpenses.length,
+          (index) => index));
+    _daycareExpenseRowCounter = _daycareExpenseRowIds.length;
+
+    _professionalDueRowIds
+      ..clear()
+      ..addAll(List<int>.generate(_formData.professionalDues.length,
+          (index) => index));
+    _professionalDueRowCounter = _professionalDueRowIds.length;
+
+    _childArtSportRowIds
+      ..clear()
+      ..addAll(List<int>.generate(_formData.childArtSportEntries.length,
+          (index) => index));
+    _childArtSportRowCounter = _childArtSportRowIds.length;
+
+    _provinceFilerRowIds
+      ..clear()
+      ..addAll(List<int>.generate(_formData.provinceFilerEntries.length,
+          (index) => index));
+    _provinceFilerRowCounter = _provinceFilerRowIds.length;
+
+    _firstTimeFilerLandingDate =
+        _formData.firstTimeFilerIndividual?.dateOfLanding;
+    _firstTimeFilerLandingDateSpouse =
+        _formData.firstTimeFilerSpouse?.dateOfLanding;
+
+    _showWorkFromHomeSpouse = _formData.workFromHomeSpouse != null;
+    _includeFirstTimeFilerSpouse =
+        _formData.firstTimeFilerSpouse != null;
+  }
+
   // Helpers for dynamic rows
   void _addForeignPropertyRow() {
-    setState(() {
-      _foreignPropertyRowIds.add(_foreignPropertyRowCounter++);
-    });
+    final updated = List<T1ForeignProperty>.from(_formData.foreignProperties)
+      ..add(const T1ForeignProperty());
+    _foreignPropertyRowIds.add(_foreignPropertyRowCounter++);
+    _updateFormData(_formData.copyWith(foreignProperties: updated));
   }
 
   void _removeForeignPropertyRow(int id) {
-    setState(() {
-      _foreignPropertyRowIds.remove(id);
-    });
+    final index = _foreignPropertyRowIds.indexOf(id);
+    if (index < 0) return;
+    final updated = List<T1ForeignProperty>.from(_formData.foreignProperties)
+      ..removeAt(index);
+    _foreignPropertyRowIds.removeAt(index);
+    _updateFormData(_formData.copyWith(foreignProperties: updated));
   }
 
   void _addMedicalExpenseRow() {
-    setState(() {
-      _medicalExpenseRowIds.add(_medicalExpenseRowCounter++);
-    });
+    final updated = List<T1MedicalExpense>.from(_formData.medicalExpenses)
+      ..add(const T1MedicalExpense());
+    _medicalExpenseRowIds.add(_medicalExpenseRowCounter++);
+    _updateFormData(_formData.copyWith(medicalExpenses: updated));
   }
 
   void _removeMedicalExpenseRow(int id) {
-    setState(() {
-      _medicalExpenseRowIds.remove(id);
-      _medicalExpenseDates.remove(id);
-    });
+    final index = _medicalExpenseRowIds.indexOf(id);
+    if (index < 0) return;
+    final updated = List<T1MedicalExpense>.from(_formData.medicalExpenses)
+      ..removeAt(index);
+    _medicalExpenseRowIds.removeAt(index);
+    _updateFormData(_formData.copyWith(medicalExpenses: updated));
   }
 
   void _addCharitableDonationRow() {
-    setState(() {
-      _charitableDonationRowIds.add(_charitableDonationRowCounter++);
-    });
+    final updated =
+        List<T1CharitableDonation>.from(_formData.charitableDonations)
+          ..add(const T1CharitableDonation());
+    if (_charitableDonationRowIds.isEmpty && updated.isNotEmpty) {
+      _charitableDonationRowIds.add(0);
+      _charitableDonationRowCounter = 1;
+    }
+    _charitableDonationRowIds.add(_charitableDonationRowCounter++);
+    _updateFormData(
+        _formData.copyWith(charitableDonations: updated));
   }
 
   void _removeCharitableDonationRow(int id) {
-    setState(() {
-      _charitableDonationRowIds.remove(id);
-    });
+    final index = _charitableDonationRowIds.indexOf(id);
+    if (index < 0) return;
+    final updated =
+        List<T1CharitableDonation>.from(_formData.charitableDonations)
+          ..removeAt(index);
+    _charitableDonationRowIds.removeAt(index);
+    _updateFormData(
+        _formData.copyWith(charitableDonations: updated));
   }
 
   void _addUnionDueRow() {
-    setState(() {
-      _unionDueRowIds.add(_unionDueRowCounter++);
-    });
+    final updated = List<T1UnionDue>.from(_formData.unionDues)
+      ..add(const T1UnionDue());
+    if (_unionDueRowIds.isEmpty && updated.isNotEmpty) {
+      _unionDueRowIds.add(0);
+      _unionDueRowCounter = 1;
+    }
+    _unionDueRowIds.add(_unionDueRowCounter++);
+    _updateFormData(_formData.copyWith(unionDues: updated));
   }
 
   void _removeUnionDueRow(int id) {
-    setState(() {
-      _unionDueRowIds.remove(id);
-    });
+    final index = _unionDueRowIds.indexOf(id);
+    if (index < 0) return;
+    final updated = List<T1UnionDue>.from(_formData.unionDues)
+      ..removeAt(index);
+    _unionDueRowIds.removeAt(index);
+    _updateFormData(_formData.copyWith(unionDues: updated));
   }
 
   void _addDaycareExpenseRow() {
-    setState(() {
-      _daycareExpenseRowIds.add(_daycareExpenseRowCounter++);
-    });
+    final updated =
+        List<T1DaycareExpense>.from(_formData.daycareExpenses)
+          ..add(const T1DaycareExpense());
+    if (_daycareExpenseRowIds.isEmpty && updated.isNotEmpty) {
+      _daycareExpenseRowIds.add(0);
+      _daycareExpenseRowCounter = 1;
+    }
+    _daycareExpenseRowIds.add(_daycareExpenseRowCounter++);
+    _updateFormData(_formData.copyWith(daycareExpenses: updated));
   }
 
   void _removeDaycareExpenseRow(int id) {
-    setState(() {
-      _daycareExpenseRowIds.remove(id);
-    });
+    final index = _daycareExpenseRowIds.indexOf(id);
+    if (index < 0) return;
+    final updated =
+        List<T1DaycareExpense>.from(_formData.daycareExpenses)
+          ..removeAt(index);
+    _daycareExpenseRowIds.removeAt(index);
+    _updateFormData(_formData.copyWith(daycareExpenses: updated));
   }
 
   void _addProfessionalDueRow() {
-    setState(() {
-      _professionalDueRowIds.add(_professionalDueRowCounter++);
-    });
+    final updated =
+        List<T1ProfessionalDue>.from(_formData.professionalDues)
+          ..add(const T1ProfessionalDue());
+    if (_professionalDueRowIds.isEmpty && updated.isNotEmpty) {
+      _professionalDueRowIds.add(0);
+      _professionalDueRowCounter = 1;
+    }
+    _professionalDueRowIds.add(_professionalDueRowCounter++);
+    _updateFormData(
+        _formData.copyWith(professionalDues: updated));
   }
 
   void _removeProfessionalDueRow(int id) {
-    setState(() {
-      _professionalDueRowIds.remove(id);
-    });
+    final index = _professionalDueRowIds.indexOf(id);
+    if (index < 0) return;
+    final updated =
+        List<T1ProfessionalDue>.from(_formData.professionalDues)
+          ..removeAt(index);
+    _professionalDueRowIds.removeAt(index);
+    _updateFormData(
+        _formData.copyWith(professionalDues: updated));
   }
 
   void _addChildArtSportRow() {
-    setState(() {
-      _childArtSportRowIds.add(_childArtSportRowCounter++);
-    });
+    final updated =
+        List<T1ChildArtSportEntry>.from(_formData.childArtSportEntries)
+          ..add(const T1ChildArtSportEntry());
+    if (_childArtSportRowIds.isEmpty && updated.isNotEmpty) {
+      _childArtSportRowIds.add(0);
+      _childArtSportRowCounter = 1;
+    }
+    _childArtSportRowIds.add(_childArtSportRowCounter++);
+    _updateFormData(
+        _formData.copyWith(childArtSportEntries: updated));
   }
 
   void _removeChildArtSportRow(int id) {
-    setState(() {
-      _childArtSportRowIds.remove(id);
-    });
+    final index = _childArtSportRowIds.indexOf(id);
+    if (index < 0) return;
+    final updated =
+        List<T1ChildArtSportEntry>.from(_formData.childArtSportEntries)
+          ..removeAt(index);
+    _childArtSportRowIds.removeAt(index);
+    _updateFormData(
+        _formData.copyWith(childArtSportEntries: updated));
   }
 
   void _addProvinceFilerRow() {
-    setState(() {
-      _provinceFilerRowIds.add(_provinceFilerRowCounter++);
-    });
+    final updated =
+        List<T1ProvinceFilerEntry>.from(_formData.provinceFilerEntries)
+          ..add(const T1ProvinceFilerEntry());
+    if (_provinceFilerRowIds.isEmpty && updated.isNotEmpty) {
+      _provinceFilerRowIds.add(0);
+      _provinceFilerRowCounter = 1;
+    }
+    _provinceFilerRowIds.add(_provinceFilerRowCounter++);
+    _updateFormData(
+        _formData.copyWith(provinceFilerEntries: updated));
   }
 
   void _removeProvinceFilerRow(int id) {
-    setState(() {
-      _provinceFilerRowIds.remove(id);
-    });
+    final index = _provinceFilerRowIds.indexOf(id);
+    if (index < 0) return;
+    final updated =
+        List<T1ProvinceFilerEntry>.from(_formData.provinceFilerEntries)
+          ..removeAt(index);
+    _provinceFilerRowIds.removeAt(index);
+    _updateFormData(
+        _formData.copyWith(provinceFilerEntries: updated));
   }
 
   @override
@@ -456,7 +589,10 @@ class _T1Questionnaire1StepState extends State<T1Questionnaire1Step> {
           ),
         ),
         const SizedBox(height: 8),
-        ..._foreignPropertyRowIds.map(_buildForeignPropertyRow),
+        if (_formData.foreignProperties.isEmpty)
+          _buildForeignPropertyRow(0)
+        else
+          ..._foreignPropertyRowIds.map(_buildForeignPropertyRow),
         const SizedBox(height: 12),
         OutlinedButton.icon(
           onPressed: _addForeignPropertyRow,
@@ -468,7 +604,13 @@ class _T1Questionnaire1StepState extends State<T1Questionnaire1Step> {
   }
 
   Widget _buildForeignPropertyRow(int id) {
-    final index = _foreignPropertyRowIds.indexOf(id);
+    final index = _foreignPropertyRowIds.isEmpty
+        ? 0
+        : _foreignPropertyRowIds.indexOf(id);
+    final props = _formData.foreignProperties;
+    final current = (index >= 0 && index < props.length)
+        ? props[index]
+        : const T1ForeignProperty();
     return Container(
       key: ValueKey('foreign_property_$id'),
       margin: const EdgeInsets.only(bottom: 12),
@@ -502,18 +644,91 @@ class _T1Questionnaire1StepState extends State<T1Questionnaire1Step> {
           const SizedBox(height: 12),
           _buildTextField(
             label: 'Investment Details',
-            onChanged: (value) {},
+            initialValue: current.investmentDetails,
+            onChanged: (value) {
+              final updated = List<T1ForeignProperty>.from(props);
+              if (index >= updated.length) {
+                updated.add(current.copyWith(investmentDetails: value));
+              } else {
+                updated[index] =
+                    current.copyWith(investmentDetails: value);
+              }
+              _updateFormData(
+                  _formData.copyWith(foreignProperties: updated));
+            },
           ),
           const SizedBox(height: 12),
           _buildTextField(
             label: 'Gross Income',
             keyboardType: TextInputType.number,
-            onChanged: (value) {},
+            initialValue: current.grossIncome == 0.0
+                ? ''
+                : current.grossIncome.toString(),
+            onChanged: (value) {
+              final parsed = double.tryParse(value) ?? 0.0;
+              final updated = List<T1ForeignProperty>.from(props);
+              updated[index] = current.copyWith(grossIncome: parsed);
+              _updateFormData(
+                  _formData.copyWith(foreignProperties: updated));
+            },
+          ),
+          const SizedBox(height: 12),
+          _buildTextField(
+            label: 'Gain/Loss on sale',
+            keyboardType: TextInputType.number,
+            initialValue: current.gainLossOnSale == 0.0
+                ? ''
+                : current.gainLossOnSale.toString(),
+            onChanged: (value) {
+              final parsed = double.tryParse(value) ?? 0.0;
+              final updated = List<T1ForeignProperty>.from(props);
+              updated[index] = current.copyWith(gainLossOnSale: parsed);
+              _updateFormData(
+                  _formData.copyWith(foreignProperties: updated));
+            },
+          ),
+          const SizedBox(height: 12),
+          _buildTextField(
+            label: 'Maximum Cost during the year',
+            keyboardType: TextInputType.number,
+            initialValue: current.maxCostDuringYear == 0.0
+                ? ''
+                : current.maxCostDuringYear.toString(),
+            onChanged: (value) {
+              final parsed = double.tryParse(value) ?? 0.0;
+              final updated = List<T1ForeignProperty>.from(props);
+              updated[index] =
+                  current.copyWith(maxCostDuringYear: parsed);
+              _updateFormData(
+                  _formData.copyWith(foreignProperties: updated));
+            },
+          ),
+          const SizedBox(height: 12),
+          _buildTextField(
+            label: 'Cost amount at the year end',
+            keyboardType: TextInputType.number,
+            initialValue: current.costAmountYearEnd == 0.0
+                ? ''
+                : current.costAmountYearEnd.toString(),
+            onChanged: (value) {
+              final parsed = double.tryParse(value) ?? 0.0;
+              final updated = List<T1ForeignProperty>.from(props);
+              updated[index] =
+                  current.copyWith(costAmountYearEnd: parsed);
+              _updateFormData(
+                  _formData.copyWith(foreignProperties: updated));
+            },
           ),
           const SizedBox(height: 12),
           _buildTextField(
             label: 'Country',
-            onChanged: (value) {},
+            initialValue: current.country,
+            onChanged: (value) {
+              final updated = List<T1ForeignProperty>.from(props);
+              updated[index] = current.copyWith(country: value);
+              _updateFormData(
+                  _formData.copyWith(foreignProperties: updated));
+            },
           ),
         ],
       ),
@@ -539,7 +754,10 @@ class _T1Questionnaire1StepState extends State<T1Questionnaire1Step> {
   Widget _buildMedicalExpensesTable() {
     return Column(
       children: [
-        ..._medicalExpenseRowIds.map(_buildMedicalExpenseRow),
+        if (_formData.medicalExpenses.isEmpty)
+          _buildMedicalExpenseRow(0)
+        else
+          ..._medicalExpenseRowIds.map(_buildMedicalExpenseRow),
         const SizedBox(height: 12),
         OutlinedButton.icon(
           onPressed: _addMedicalExpenseRow,
@@ -551,8 +769,14 @@ class _T1Questionnaire1StepState extends State<T1Questionnaire1Step> {
   }
 
   Widget _buildMedicalExpenseRow(int id) {
-    final index = _medicalExpenseRowIds.indexOf(id);
-    final date = _medicalExpenseDates[id];
+    final index = _medicalExpenseRowIds.isEmpty
+        ? 0
+        : _medicalExpenseRowIds.indexOf(id);
+    final expenses = _formData.medicalExpenses;
+    final current = (index >= 0 && index < expenses.length)
+        ? expenses[index]
+        : const T1MedicalExpense();
+    final date = current.paymentDate;
     return Container(
       key: ValueKey('medical_expense_$id'),
       margin: const EdgeInsets.only(bottom: 12),
@@ -588,21 +812,81 @@ class _T1Questionnaire1StepState extends State<T1Questionnaire1Step> {
             label: 'Payment Date',
             date: date,
             onChanged: (picked) {
-              setState(() {
-                _medicalExpenseDates[id] = picked;
-              });
+              final updated = List<T1MedicalExpense>.from(expenses);
+              if (index >= updated.length) {
+                updated.add(current.copyWith(paymentDate: picked));
+              } else {
+                updated[index] = current.copyWith(paymentDate: picked);
+              }
+              _updateFormData(
+                  _formData.copyWith(medicalExpenses: updated));
             },
           ),
           const SizedBox(height: 12),
           _buildTextField(
             label: 'Patient Name',
-            onChanged: (value) {},
+            initialValue: current.patientName,
+            onChanged: (value) {
+              final updated = List<T1MedicalExpense>.from(expenses);
+              updated[index] = current.copyWith(patientName: value);
+              _updateFormData(
+                  _formData.copyWith(medicalExpenses: updated));
+            },
           ),
           const SizedBox(height: 12),
           _buildTextField(
-            label: 'Amount Paid',
+            label: 'PAYMENT MADE TO',
+            initialValue: current.paymentMadeTo,
+            onChanged: (value) {
+              final updated = List<T1MedicalExpense>.from(expenses);
+              updated[index] = current.copyWith(paymentMadeTo: value);
+              _updateFormData(
+                  _formData.copyWith(medicalExpenses: updated));
+            },
+          ),
+          const SizedBox(height: 12),
+          _buildTextField(
+            label: 'DESCRIPTION OF EXPENSE',
+            initialValue: current.descriptionOfExpense,
+            onChanged: (value) {
+              final updated = List<T1MedicalExpense>.from(expenses);
+              updated[index] =
+                  current.copyWith(descriptionOfExpense: value);
+              _updateFormData(
+                  _formData.copyWith(medicalExpenses: updated));
+            },
+          ),
+          const SizedBox(height: 12),
+          _buildTextField(
+            label: 'INSURANCE COVERED',
             keyboardType: TextInputType.number,
-            onChanged: (value) {},
+            initialValue: current.insuranceCovered == 0.0
+                ? ''
+                : current.insuranceCovered.toString(),
+            onChanged: (value) {
+              final parsed = double.tryParse(value) ?? 0.0;
+              final updated = List<T1MedicalExpense>.from(expenses);
+              updated[index] =
+                  current.copyWith(insuranceCovered: parsed);
+              _updateFormData(
+                  _formData.copyWith(medicalExpenses: updated));
+            },
+          ),
+          const SizedBox(height: 12),
+          _buildTextField(
+            label: 'Amount Paid from Pocket',
+            keyboardType: TextInputType.number,
+            initialValue: current.amountPaidFromPocket == 0.0
+                ? ''
+                : current.amountPaidFromPocket.toString(),
+            onChanged: (value) {
+              final parsed = double.tryParse(value) ?? 0.0;
+              final updated = List<T1MedicalExpense>.from(expenses);
+              updated[index] =
+                  current.copyWith(amountPaidFromPocket: parsed);
+              _updateFormData(
+                  _formData.copyWith(medicalExpenses: updated));
+            },
           ),
         ],
       ),
@@ -628,7 +912,10 @@ class _T1Questionnaire1StepState extends State<T1Questionnaire1Step> {
   Widget _buildCharitableDonationsTable() {
     return Column(
       children: [
-        ..._charitableDonationRowIds.map(_buildCharitableDonationRow),
+        if (_formData.charitableDonations.isEmpty)
+          _buildCharitableDonationRow(0)
+        else
+          ..._charitableDonationRowIds.map(_buildCharitableDonationRow),
         const SizedBox(height: 12),
         OutlinedButton.icon(
           onPressed: _addCharitableDonationRow,
@@ -640,7 +927,13 @@ class _T1Questionnaire1StepState extends State<T1Questionnaire1Step> {
   }
 
   Widget _buildCharitableDonationRow(int id) {
-    final index = _charitableDonationRowIds.indexOf(id);
+    final index = _charitableDonationRowIds.isEmpty
+        ? 0
+        : _charitableDonationRowIds.indexOf(id);
+    final rows = _formData.charitableDonations;
+    final current = (index >= 0 && index < rows.length)
+        ? rows[index]
+        : const T1CharitableDonation();
     return Container(
       key: ValueKey('charitable_donation_$id'),
       margin: const EdgeInsets.only(bottom: 12),
@@ -674,13 +967,45 @@ class _T1Questionnaire1StepState extends State<T1Questionnaire1Step> {
           const SizedBox(height: 12),
           _buildTextField(
             label: 'Organization Name',
-            onChanged: (value) {},
+            initialValue: current.organizationName,
+            onChanged: (value) {
+              final updated = List<T1CharitableDonation>.from(rows);
+              final newRow = current.copyWith(organizationName: value);
+              if (index >= updated.length) {
+                updated.add(newRow);
+                if (_charitableDonationRowIds.isEmpty) {
+                  _charitableDonationRowIds.add(0);
+                  _charitableDonationRowCounter = 1;
+                }
+              } else {
+                updated[index] = newRow;
+              }
+              _updateFormData(
+                  _formData.copyWith(charitableDonations: updated));
+            },
           ),
           const SizedBox(height: 12),
           _buildTextField(
             label: 'Amount Paid',
             keyboardType: TextInputType.number,
-            onChanged: (value) {},
+            initialValue:
+                current.amount == 0.0 ? '' : current.amount.toString(),
+            onChanged: (value) {
+              final parsed = double.tryParse(value) ?? 0.0;
+              final updated = List<T1CharitableDonation>.from(rows);
+              final newRow = current.copyWith(amount: parsed);
+              if (index >= updated.length) {
+                updated.add(newRow);
+                if (_charitableDonationRowIds.isEmpty) {
+                  _charitableDonationRowIds.add(0);
+                  _charitableDonationRowCounter = 1;
+                }
+              } else {
+                updated[index] = newRow;
+              }
+              _updateFormData(
+                  _formData.copyWith(charitableDonations: updated));
+            },
           ),
         ],
       ),
@@ -882,8 +1207,12 @@ class _T1Questionnaire1StepState extends State<T1Questionnaire1Step> {
   }
 
   Widget _buildPropertySaleDetails({required bool isLongTerm}) {
-    final purchaseDate = isLongTerm ? _longTermPurchaseDate : _shortTermPurchaseDate;
-    final sellDate = isLongTerm ? _longTermSellDate : _shortTermSellDate;
+    final details = isLongTerm
+        ? (_formData.propertySaleLongTerm ?? const T1PropertySaleDetails())
+        : (_formData.propertySaleShortTerm ??
+            const T1PropertySaleDetails(isLongTerm: false));
+    final purchaseDate = details.purchaseDate;
+    final sellDate = details.sellDate;
 
     return Container(
       padding: const EdgeInsets.all(12),
@@ -898,20 +1227,29 @@ class _T1Questionnaire1StepState extends State<T1Questionnaire1Step> {
         children: [
           _buildTextField(
             label: 'Property Address',
-            onChanged: (value) {},
+            initialValue: details.propertyAddress,
+            onChanged: (value) {
+              final updatedDetails = details.copyWith(propertyAddress: value);
+              _updateFormData(_formData.copyWith(
+                propertySaleLongTerm:
+                    isLongTerm ? updatedDetails : _formData.propertySaleLongTerm,
+                propertySaleShortTerm:
+                    isLongTerm ? _formData.propertySaleShortTerm : updatedDetails,
+              ));
+            },
           ),
           const SizedBox(height: 12),
           _buildDateField(
             label: 'Purchase Date',
             date: purchaseDate,
             onChanged: (date) {
-              setState(() {
-                if (isLongTerm) {
-                  _longTermPurchaseDate = date;
-                } else {
-                  _shortTermPurchaseDate = date;
-                }
-              });
+              final updatedDetails = details.copyWith(purchaseDate: date);
+              _updateFormData(_formData.copyWith(
+                propertySaleLongTerm:
+                    isLongTerm ? updatedDetails : _formData.propertySaleLongTerm,
+                propertySaleShortTerm:
+                    isLongTerm ? _formData.propertySaleShortTerm : updatedDetails,
+              ));
             },
           ),
           const SizedBox(height: 12),
@@ -919,27 +1257,53 @@ class _T1Questionnaire1StepState extends State<T1Questionnaire1Step> {
             label: 'Sell Date',
             date: sellDate,
             onChanged: (date) {
-              setState(() {
-                if (isLongTerm) {
-                  _longTermSellDate = date;
-                } else {
-                  _shortTermSellDate = date;
-                }
-              });
+              final updatedDetails = details.copyWith(sellDate: date);
+              _updateFormData(_formData.copyWith(
+                propertySaleLongTerm:
+                    isLongTerm ? updatedDetails : _formData.propertySaleLongTerm,
+                propertySaleShortTerm:
+                    isLongTerm ? _formData.propertySaleShortTerm : updatedDetails,
+              ));
             },
           ),
           const SizedBox(height: 12),
           _buildTextField(
             label: 'Purchase & Sell Expenses',
             keyboardType: TextInputType.number,
-            onChanged: (value) {},
+            initialValue: details.purchaseSellExpenses == 0.0
+                ? ''
+                : details.purchaseSellExpenses.toString(),
+            onChanged: (value) {
+              final parsed = double.tryParse(value) ?? 0.0;
+              final updatedDetails =
+                  details.copyWith(purchaseSellExpenses: parsed);
+              _updateFormData(_formData.copyWith(
+                propertySaleLongTerm:
+                    isLongTerm ? updatedDetails : _formData.propertySaleLongTerm,
+                propertySaleShortTerm:
+                    isLongTerm ? _formData.propertySaleShortTerm : updatedDetails,
+              ));
+            },
           ),
           if (isLongTerm) ...[
             const SizedBox(height: 12),
             _buildTextField(
               label: 'Capital Gain Earned',
               keyboardType: TextInputType.number,
-              onChanged: (value) {},
+              initialValue: details.capitalGainEarned == 0.0
+                  ? ''
+                  : details.capitalGainEarned.toString(),
+              onChanged: (value) {
+                final parsed = double.tryParse(value) ?? 0.0;
+                final updatedDetails =
+                    details.copyWith(capitalGainEarned: parsed);
+                _updateFormData(_formData.copyWith(
+                  propertySaleLongTerm:
+                      isLongTerm ? updatedDetails : _formData.propertySaleLongTerm,
+                  propertySaleShortTerm:
+                      isLongTerm ? _formData.propertySaleShortTerm : updatedDetails,
+                ));
+              },
             ),
           ],
         ],
@@ -964,6 +1328,11 @@ class _T1Questionnaire1StepState extends State<T1Questionnaire1Step> {
   }
 
   Widget _buildWorkFromHomeDetails() {
+    final individual = _formData.workFromHomeIndividual ??
+        const T1WorkFromHomeExpense(personType: 'individual');
+    final spouse = _formData.workFromHomeSpouse ??
+        const T1WorkFromHomeExpense(personType: 'spouse');
+
     return Container(
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
@@ -974,30 +1343,338 @@ class _T1Questionnaire1StepState extends State<T1Questionnaire1Step> {
         border: Border.all(color: Theme.of(context).dividerColor),
       ),
       child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
+          Text(
+            'Individual',
+            style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                  fontWeight: FontWeight.w600,
+                ),
+          ),
+          const SizedBox(height: 12),
           _buildTextField(
             label: 'Total House Area (Sq.Ft.)',
             keyboardType: TextInputType.number,
-            onChanged: (value) {},
+            initialValue: individual.totalHouseArea == 0.0
+                ? ''
+                : individual.totalHouseArea.toString(),
+            onChanged: (value) {
+              final parsed = double.tryParse(value) ?? 0.0;
+              final updated = individual.copyWith(totalHouseArea: parsed);
+              _updateFormData(_formData.copyWith(
+                workFromHomeIndividual: updated,
+              ));
+            },
           ),
           const SizedBox(height: 12),
           _buildTextField(
-            label: 'Work Area (Sq.Ft.)',
+            label: 'Total Work Area (Sq.Ft.)',
             keyboardType: TextInputType.number,
-            onChanged: (value) {},
+            initialValue: individual.totalWorkArea == 0.0
+                ? ''
+                : individual.totalWorkArea.toString(),
+            onChanged: (value) {
+              final parsed = double.tryParse(value) ?? 0.0;
+              final updated = individual.copyWith(totalWorkArea: parsed);
+              _updateFormData(_formData.copyWith(
+                workFromHomeIndividual: updated,
+              ));
+            },
           ),
           const SizedBox(height: 12),
           _buildTextField(
-            label: 'Rent/Mortgage Expense',
+            label: 'Rent Expense',
             keyboardType: TextInputType.number,
-            onChanged: (value) {},
+            initialValue: individual.rentExpense == 0.0
+                ? ''
+                : individual.rentExpense.toString(),
+            onChanged: (value) {
+              final parsed = double.tryParse(value) ?? 0.0;
+              final updated = individual.copyWith(rentExpense: parsed);
+              _updateFormData(_formData.copyWith(
+                workFromHomeIndividual: updated,
+              ));
+            },
           ),
           const SizedBox(height: 12),
           _buildTextField(
-            label: 'Utilities Expense',
+            label: 'Mortgage Expense',
             keyboardType: TextInputType.number,
-            onChanged: (value) {},
+            initialValue: individual.mortgageExpense == 0.0
+                ? ''
+                : individual.mortgageExpense.toString(),
+            onChanged: (value) {
+              final parsed = double.tryParse(value) ?? 0.0;
+              final updated =
+                  individual.copyWith(mortgageExpense: parsed);
+              _updateFormData(_formData.copyWith(
+                workFromHomeIndividual: updated,
+              ));
+            },
           ),
+          const SizedBox(height: 12),
+          _buildTextField(
+            label: 'Wifi Expense',
+            keyboardType: TextInputType.number,
+            initialValue: individual.wifiExpense == 0.0
+                ? ''
+                : individual.wifiExpense.toString(),
+            onChanged: (value) {
+              final parsed = double.tryParse(value) ?? 0.0;
+              final updated = individual.copyWith(wifiExpense: parsed);
+              _updateFormData(_formData.copyWith(
+                workFromHomeIndividual: updated,
+              ));
+            },
+          ),
+          const SizedBox(height: 12),
+          _buildTextField(
+            label: 'Electricity Expense',
+            keyboardType: TextInputType.number,
+            initialValue: individual.electricityExpense == 0.0
+                ? ''
+                : individual.electricityExpense.toString(),
+            onChanged: (value) {
+              final parsed = double.tryParse(value) ?? 0.0;
+              final updated =
+                  individual.copyWith(electricityExpense: parsed);
+              _updateFormData(_formData.copyWith(
+                workFromHomeIndividual: updated,
+              ));
+            },
+          ),
+          const SizedBox(height: 12),
+          _buildTextField(
+            label: 'Water Expense',
+            keyboardType: TextInputType.number,
+            initialValue: individual.waterExpense == 0.0
+                ? ''
+                : individual.waterExpense.toString(),
+            onChanged: (value) {
+              final parsed = double.tryParse(value) ?? 0.0;
+              final updated =
+                  individual.copyWith(waterExpense: parsed);
+              _updateFormData(_formData.copyWith(
+                workFromHomeIndividual: updated,
+              ));
+            },
+          ),
+          const SizedBox(height: 12),
+          _buildTextField(
+            label: 'Heat Expense',
+            keyboardType: TextInputType.number,
+            initialValue: individual.heatExpense == 0.0
+                ? ''
+                : individual.heatExpense.toString(),
+            onChanged: (value) {
+              final parsed = double.tryParse(value) ?? 0.0;
+              final updated = individual.copyWith(heatExpense: parsed);
+              _updateFormData(_formData.copyWith(
+                workFromHomeIndividual: updated,
+              ));
+            },
+          ),
+          const SizedBox(height: 12),
+          _buildTextField(
+            label: 'Total Insurance Expense',
+            keyboardType: TextInputType.number,
+            initialValue: individual.totalInsuranceExpense == 0.0
+                ? ''
+                : individual.totalInsuranceExpense.toString(),
+            onChanged: (value) {
+              final parsed = double.tryParse(value) ?? 0.0;
+              final updated =
+                  individual.copyWith(totalInsuranceExpense: parsed);
+              _updateFormData(_formData.copyWith(
+                workFromHomeIndividual: updated,
+              ));
+            },
+          ),
+          const SizedBox(height: 16),
+          CheckboxListTile(
+            contentPadding: EdgeInsets.zero,
+            controlAffinity: ListTileControlAffinity.leading,
+            title: const Text('Spouse'),
+            value: _showWorkFromHomeSpouse,
+            onChanged: (val) {
+              setState(() {
+                _showWorkFromHomeSpouse = val ?? false;
+              });
+              if (val == true && _formData.workFromHomeSpouse == null) {
+                _updateFormData(_formData.copyWith(
+                  workFromHomeSpouse: const T1WorkFromHomeExpense(
+                    personType: 'spouse',
+                  ),
+                ));
+              }
+            },
+          ),
+          if (_showWorkFromHomeSpouse) ...[
+            const SizedBox(height: 8),
+            Container(
+              padding: const EdgeInsets.all(12),
+              decoration: BoxDecoration(
+                color: Theme.of(context).brightness == Brightness.dark
+                    ? Theme.of(context).colorScheme.surface.withOpacity(0.7)
+                    : Colors.white,
+                borderRadius: BorderRadius.circular(8),
+                border: Border.all(color: Theme.of(context).dividerColor),
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    'Spouse',
+                    style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                          fontWeight: FontWeight.w600,
+                        ),
+                  ),
+                  const SizedBox(height: 12),
+                  _buildTextField(
+                    label: 'Total House Area (Sq.Ft.)',
+                    keyboardType: TextInputType.number,
+                    initialValue: spouse.totalHouseArea == 0.0
+                        ? ''
+                        : spouse.totalHouseArea.toString(),
+                    onChanged: (value) {
+                      final parsed = double.tryParse(value) ?? 0.0;
+                      final updated =
+                          spouse.copyWith(totalHouseArea: parsed);
+                      _updateFormData(_formData.copyWith(
+                        workFromHomeSpouse: updated,
+                      ));
+                    },
+                  ),
+                  const SizedBox(height: 12),
+                  _buildTextField(
+                    label: 'Total Work Area (Sq.Ft.)',
+                    keyboardType: TextInputType.number,
+                    initialValue: spouse.totalWorkArea == 0.0
+                        ? ''
+                        : spouse.totalWorkArea.toString(),
+                    onChanged: (value) {
+                      final parsed = double.tryParse(value) ?? 0.0;
+                      final updated =
+                          spouse.copyWith(totalWorkArea: parsed);
+                      _updateFormData(_formData.copyWith(
+                        workFromHomeSpouse: updated,
+                      ));
+                    },
+                  ),
+                  const SizedBox(height: 12),
+                  _buildTextField(
+                    label: 'Rent Expense',
+                    keyboardType: TextInputType.number,
+                    initialValue: spouse.rentExpense == 0.0
+                        ? ''
+                        : spouse.rentExpense.toString(),
+                    onChanged: (value) {
+                      final parsed = double.tryParse(value) ?? 0.0;
+                      final updated = spouse.copyWith(rentExpense: parsed);
+                      _updateFormData(_formData.copyWith(
+                        workFromHomeSpouse: updated,
+                      ));
+                    },
+                  ),
+                  const SizedBox(height: 12),
+                  _buildTextField(
+                    label: 'Mortgage Expense',
+                    keyboardType: TextInputType.number,
+                    initialValue: spouse.mortgageExpense == 0.0
+                        ? ''
+                        : spouse.mortgageExpense.toString(),
+                    onChanged: (value) {
+                      final parsed = double.tryParse(value) ?? 0.0;
+                      final updated =
+                          spouse.copyWith(mortgageExpense: parsed);
+                      _updateFormData(_formData.copyWith(
+                        workFromHomeSpouse: updated,
+                      ));
+                    },
+                  ),
+                  const SizedBox(height: 12),
+                  _buildTextField(
+                    label: 'Wifi Expense',
+                    keyboardType: TextInputType.number,
+                    initialValue: spouse.wifiExpense == 0.0
+                        ? ''
+                        : spouse.wifiExpense.toString(),
+                    onChanged: (value) {
+                      final parsed = double.tryParse(value) ?? 0.0;
+                      final updated =
+                          spouse.copyWith(wifiExpense: parsed);
+                      _updateFormData(_formData.copyWith(
+                        workFromHomeSpouse: updated,
+                      ));
+                    },
+                  ),
+                  const SizedBox(height: 12),
+                  _buildTextField(
+                    label: 'Electricity Expense',
+                    keyboardType: TextInputType.number,
+                    initialValue: spouse.electricityExpense == 0.0
+                        ? ''
+                        : spouse.electricityExpense.toString(),
+                    onChanged: (value) {
+                      final parsed = double.tryParse(value) ?? 0.0;
+                      final updated = spouse.copyWith(
+                          electricityExpense: parsed);
+                      _updateFormData(_formData.copyWith(
+                        workFromHomeSpouse: updated,
+                      ));
+                    },
+                  ),
+                  const SizedBox(height: 12),
+                  _buildTextField(
+                    label: 'Water Expense',
+                    keyboardType: TextInputType.number,
+                    initialValue: spouse.waterExpense == 0.0
+                        ? ''
+                        : spouse.waterExpense.toString(),
+                    onChanged: (value) {
+                      final parsed = double.tryParse(value) ?? 0.0;
+                      final updated =
+                          spouse.copyWith(waterExpense: parsed);
+                      _updateFormData(_formData.copyWith(
+                        workFromHomeSpouse: updated,
+                      ));
+                    },
+                  ),
+                  const SizedBox(height: 12),
+                  _buildTextField(
+                    label: 'Heat Expense',
+                    keyboardType: TextInputType.number,
+                    initialValue: spouse.heatExpense == 0.0
+                        ? ''
+                        : spouse.heatExpense.toString(),
+                    onChanged: (value) {
+                      final parsed = double.tryParse(value) ?? 0.0;
+                      final updated = spouse.copyWith(heatExpense: parsed);
+                      _updateFormData(_formData.copyWith(
+                        workFromHomeSpouse: updated,
+                      ));
+                    },
+                  ),
+                  const SizedBox(height: 12),
+                  _buildTextField(
+                    label: 'Total Insurance Expense',
+                    keyboardType: TextInputType.number,
+                    initialValue: spouse.totalInsuranceExpense == 0.0
+                        ? ''
+                        : spouse.totalInsuranceExpense.toString(),
+                    onChanged: (value) {
+                      final parsed = double.tryParse(value) ?? 0.0;
+                      final updated = spouse.copyWith(
+                          totalInsuranceExpense: parsed);
+                      _updateFormData(_formData.copyWith(
+                        workFromHomeSpouse: updated,
+                      ));
+                    },
+                  ),
+                ],
+              ),
+            ),
+          ],
         ],
       ),
     );
@@ -1035,7 +1712,10 @@ class _T1Questionnaire1StepState extends State<T1Questionnaire1Step> {
   Widget _buildUnionDuesTable() {
     return Column(
       children: [
-        ..._unionDueRowIds.map(_buildUnionDueRow),
+        if (_formData.unionDues.isEmpty)
+          _buildUnionDueRow(0)
+        else
+          ..._unionDueRowIds.map(_buildUnionDueRow),
         const SizedBox(height: 12),
         OutlinedButton.icon(
           onPressed: _addUnionDueRow,
@@ -1047,7 +1727,13 @@ class _T1Questionnaire1StepState extends State<T1Questionnaire1Step> {
   }
 
   Widget _buildUnionDueRow(int id) {
-    final index = _unionDueRowIds.indexOf(id);
+    final index = _unionDueRowIds.isEmpty
+        ? 0
+        : _unionDueRowIds.indexOf(id);
+    final rows = _formData.unionDues;
+    final current = (index >= 0 && index < rows.length)
+        ? rows[index]
+        : const T1UnionDue();
     return Container(
       key: ValueKey('union_due_$id'),
       margin: const EdgeInsets.only(bottom: 12),
@@ -1081,13 +1767,43 @@ class _T1Questionnaire1StepState extends State<T1Questionnaire1Step> {
           const SizedBox(height: 12),
           _buildTextField(
             label: 'Institution Name',
-            onChanged: (value) {},
+            initialValue: current.institutionName,
+            onChanged: (value) {
+              final updated = List<T1UnionDue>.from(rows);
+              final newRow = current.copyWith(institutionName: value);
+              if (index >= updated.length) {
+                updated.add(newRow);
+                if (_unionDueRowIds.isEmpty) {
+                  _unionDueRowIds.add(0);
+                  _unionDueRowCounter = 1;
+                }
+              } else {
+                updated[index] = newRow;
+              }
+              _updateFormData(_formData.copyWith(unionDues: updated));
+            },
           ),
           const SizedBox(height: 12),
           _buildTextField(
             label: 'Amount',
             keyboardType: TextInputType.number,
-            onChanged: (value) {},
+            initialValue:
+                current.amount == 0.0 ? '' : current.amount.toString(),
+            onChanged: (value) {
+              final parsed = double.tryParse(value) ?? 0.0;
+              final updated = List<T1UnionDue>.from(rows);
+              final newRow = current.copyWith(amount: parsed);
+              if (index >= updated.length) {
+                updated.add(newRow);
+                if (_unionDueRowIds.isEmpty) {
+                  _unionDueRowIds.add(0);
+                  _unionDueRowCounter = 1;
+                }
+              } else {
+                updated[index] = newRow;
+              }
+              _updateFormData(_formData.copyWith(unionDues: updated));
+            },
           ),
         ],
       ),
@@ -1113,7 +1829,10 @@ class _T1Questionnaire1StepState extends State<T1Questionnaire1Step> {
   Widget _buildDaycareExpensesTable() {
     return Column(
       children: [
-        ..._daycareExpenseRowIds.map(_buildDaycareExpenseRow),
+        if (_formData.daycareExpenses.isEmpty)
+          _buildDaycareExpenseRow(0)
+        else
+          ..._daycareExpenseRowIds.map(_buildDaycareExpenseRow),
         const SizedBox(height: 12),
         OutlinedButton.icon(
           onPressed: _addDaycareExpenseRow,
@@ -1125,7 +1844,13 @@ class _T1Questionnaire1StepState extends State<T1Questionnaire1Step> {
   }
 
   Widget _buildDaycareExpenseRow(int id) {
-    final index = _daycareExpenseRowIds.indexOf(id);
+    final index = _daycareExpenseRowIds.isEmpty
+        ? 0
+        : _daycareExpenseRowIds.indexOf(id);
+    final rows = _formData.daycareExpenses;
+    final current = (index >= 0 && index < rows.length)
+        ? rows[index]
+        : const T1DaycareExpense();
     return Container(
       key: ValueKey('daycare_expense_$id'),
       margin: const EdgeInsets.only(bottom: 12),
@@ -1159,13 +1884,89 @@ class _T1Questionnaire1StepState extends State<T1Questionnaire1Step> {
           const SizedBox(height: 12),
           _buildTextField(
             label: 'Childcare Provider',
-            onChanged: (value) {},
+            initialValue: current.childcareProvider,
+            onChanged: (value) {
+              final updated = List<T1DaycareExpense>.from(rows);
+              final newRow = current.copyWith(childcareProvider: value);
+              if (index >= updated.length) {
+                updated.add(newRow);
+                if (_daycareExpenseRowIds.isEmpty) {
+                  _daycareExpenseRowIds.add(0);
+                  _daycareExpenseRowCounter = 1;
+                }
+              } else {
+                updated[index] = newRow;
+              }
+              _updateFormData(
+                  _formData.copyWith(daycareExpenses: updated));
+            },
           ),
           const SizedBox(height: 12),
           _buildTextField(
             label: 'Amount',
             keyboardType: TextInputType.number,
-            onChanged: (value) {},
+            initialValue:
+                current.amount == 0.0 ? '' : current.amount.toString(),
+            onChanged: (value) {
+              final parsed = double.tryParse(value) ?? 0.0;
+              final updated = List<T1DaycareExpense>.from(rows);
+              final newRow = current.copyWith(amount: parsed);
+              if (index >= updated.length) {
+                updated.add(newRow);
+                if (_daycareExpenseRowIds.isEmpty) {
+                  _daycareExpenseRowIds.add(0);
+                  _daycareExpenseRowCounter = 1;
+                }
+              } else {
+                updated[index] = newRow;
+              }
+              _updateFormData(
+                  _formData.copyWith(daycareExpenses: updated));
+            },
+          ),
+          const SizedBox(height: 12),
+          _buildTextField(
+            label: 'Identification Number/SIN',
+            initialValue: current.identificationNumberSin,
+            onChanged: (value) {
+              final updated = List<T1DaycareExpense>.from(rows);
+              final newRow =
+                  current.copyWith(identificationNumberSin: value);
+              if (index >= updated.length) {
+                updated.add(newRow);
+                if (_daycareExpenseRowIds.isEmpty) {
+                  _daycareExpenseRowIds.add(0);
+                  _daycareExpenseRowCounter = 1;
+                }
+              } else {
+                updated[index] = newRow;
+              }
+              _updateFormData(
+                  _formData.copyWith(daycareExpenses: updated));
+            },
+          ),
+          const SizedBox(height: 12),
+          _buildTextField(
+            label: 'Weeks',
+            keyboardType: TextInputType.number,
+            initialValue:
+                current.weeks == 0.0 ? '' : current.weeks.toString(),
+            onChanged: (value) {
+              final parsed = double.tryParse(value) ?? 0.0;
+              final updated = List<T1DaycareExpense>.from(rows);
+              final newRow = current.copyWith(weeks: parsed);
+              if (index >= updated.length) {
+                updated.add(newRow);
+                if (_daycareExpenseRowIds.isEmpty) {
+                  _daycareExpenseRowIds.add(0);
+                  _daycareExpenseRowCounter = 1;
+                }
+              } else {
+                updated[index] = newRow;
+              }
+              _updateFormData(
+                  _formData.copyWith(daycareExpenses: updated));
+            },
           ),
         ],
       ),
@@ -1199,7 +2000,15 @@ class _T1Questionnaire1StepState extends State<T1Questionnaire1Step> {
         border: Border.all(color: Theme.of(context).dividerColor),
       ),
       child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
+          Text(
+            'Individual',
+            style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                  fontWeight: FontWeight.w600,
+                ),
+          ),
+          const SizedBox(height: 12),
           _buildDateField(
             label: 'Date of Landing (Individual)',
             date: _firstTimeFilerLandingDate,
@@ -1207,14 +2016,198 @@ class _T1Questionnaire1StepState extends State<T1Questionnaire1Step> {
               setState(() {
                 _firstTimeFilerLandingDate = date;
               });
+              final current =
+                  _formData.firstTimeFilerIndividual ?? const T1FirstTimeFilerIncome();
+              final updated = current.copyWith(dateOfLanding: date);
+              _updateFormData(
+                  _formData.copyWith(firstTimeFilerIndividual: updated));
             },
           ),
           const SizedBox(height: 12),
           _buildTextField(
             label: 'Income Outside Canada (CAD)',
             keyboardType: TextInputType.number,
-            onChanged: (value) {},
+            initialValue: (_formData.firstTimeFilerIndividual?.
+                            incomeOutsideCanada ??
+                        0.0) ==
+                    0.0
+                ? ''
+                : _formData.firstTimeFilerIndividual!.incomeOutsideCanada
+                    .toString(),
+            onChanged: (value) {
+              final parsed = double.tryParse(value) ?? 0.0;
+              final current =
+                  _formData.firstTimeFilerIndividual ?? const T1FirstTimeFilerIncome();
+              final updated =
+                  current.copyWith(incomeOutsideCanada: parsed);
+              _updateFormData(
+                  _formData.copyWith(firstTimeFilerIndividual: updated));
+            },
           ),
+          const SizedBox(height: 12),
+          _buildTextField(
+            label: 'Back Home Income 2024 (in CAD)',
+            keyboardType: TextInputType.number,
+            initialValue: (_formData.firstTimeFilerIndividual?.
+                            backHomeIncome2024 ??
+                        0.0) ==
+                    0.0
+                ? ''
+                : _formData.firstTimeFilerIndividual!.backHomeIncome2024
+                    .toString(),
+            onChanged: (value) {
+              final parsed = double.tryParse(value) ?? 0.0;
+              final current =
+                  _formData.firstTimeFilerIndividual ?? const T1FirstTimeFilerIncome();
+              final updated =
+                  current.copyWith(backHomeIncome2024: parsed);
+              _updateFormData(
+                  _formData.copyWith(firstTimeFilerIndividual: updated));
+            },
+          ),
+          const SizedBox(height: 12),
+          _buildTextField(
+            label: 'Back Home Income 2023 (in CAD)',
+            keyboardType: TextInputType.number,
+            initialValue: (_formData.firstTimeFilerIndividual?.
+                            backHomeIncome2023 ??
+                        0.0) ==
+                    0.0
+                ? ''
+                : _formData.firstTimeFilerIndividual!.backHomeIncome2023
+                    .toString(),
+            onChanged: (value) {
+              final parsed = double.tryParse(value) ?? 0.0;
+              final current =
+                  _formData.firstTimeFilerIndividual ?? const T1FirstTimeFilerIncome();
+              final updated =
+                  current.copyWith(backHomeIncome2023: parsed);
+              _updateFormData(
+                  _formData.copyWith(firstTimeFilerIndividual: updated));
+            },
+          ),
+          const SizedBox(height: 16),
+          CheckboxListTile(
+            contentPadding: EdgeInsets.zero,
+            controlAffinity: ListTileControlAffinity.leading,
+            title: const Text('Spouse'),
+            value: _includeFirstTimeFilerSpouse,
+            onChanged: (val) {
+              setState(() {
+                _includeFirstTimeFilerSpouse = val ?? false;
+              });
+              if (val == true && _formData.firstTimeFilerSpouse == null) {
+                _updateFormData(_formData.copyWith(
+                  firstTimeFilerSpouse: const T1FirstTimeFilerIncome(),
+                ));
+              }
+            },
+          ),
+          if (_includeFirstTimeFilerSpouse) ...[
+            const SizedBox(height: 8),
+            Container(
+              padding: const EdgeInsets.all(12),
+              decoration: BoxDecoration(
+                color: Theme.of(context).brightness == Brightness.dark
+                    ? Theme.of(context).colorScheme.surface.withOpacity(0.7)
+                    : Colors.white,
+                borderRadius: BorderRadius.circular(8),
+                border: Border.all(color: Theme.of(context).dividerColor),
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    'Spouse',
+                    style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                          fontWeight: FontWeight.w600,
+                        ),
+                  ),
+                  const SizedBox(height: 12),
+                  _buildDateField(
+                    label: 'Date of Landing (Spouse)',
+                    date: _firstTimeFilerLandingDateSpouse,
+                    onChanged: (date) {
+                      setState(() {
+                        _firstTimeFilerLandingDateSpouse = date;
+                      });
+                      final current =
+                          _formData.firstTimeFilerSpouse ?? const T1FirstTimeFilerIncome();
+                      final updated = current.copyWith(dateOfLanding: date);
+                      _updateFormData(
+                          _formData.copyWith(firstTimeFilerSpouse: updated));
+                    },
+                  ),
+                  const SizedBox(height: 12),
+                  _buildTextField(
+                    label: 'Income Outside Canada (CAD)',
+                    keyboardType: TextInputType.number,
+                    initialValue: (_formData.firstTimeFilerSpouse?.
+                                    incomeOutsideCanada ??
+                                0.0) ==
+                            0.0
+                        ? ''
+                        : _formData.firstTimeFilerSpouse!.incomeOutsideCanada
+                            .toString(),
+                    onChanged: (value) {
+                      final parsed = double.tryParse(value) ?? 0.0;
+                      final current = _formData.firstTimeFilerSpouse ??
+                          const T1FirstTimeFilerIncome();
+                      final updated =
+                          current.copyWith(incomeOutsideCanada: parsed);
+                      _updateFormData(_formData.copyWith(
+                        firstTimeFilerSpouse: updated,
+                      ));
+                    },
+                  ),
+                  const SizedBox(height: 12),
+                  _buildTextField(
+                    label: 'Back Home Income 2024 (in CAD)',
+                    keyboardType: TextInputType.number,
+                    initialValue: (_formData.firstTimeFilerSpouse?.
+                                    backHomeIncome2024 ??
+                                0.0) ==
+                            0.0
+                        ? ''
+                        : _formData.firstTimeFilerSpouse!.backHomeIncome2024
+                            .toString(),
+                    onChanged: (value) {
+                      final parsed = double.tryParse(value) ?? 0.0;
+                      final current = _formData.firstTimeFilerSpouse ??
+                          const T1FirstTimeFilerIncome();
+                      final updated =
+                          current.copyWith(backHomeIncome2024: parsed);
+                      _updateFormData(_formData.copyWith(
+                        firstTimeFilerSpouse: updated,
+                      ));
+                    },
+                  ),
+                  const SizedBox(height: 12),
+                  _buildTextField(
+                    label: 'Back Home Income 2023 (in CAD)',
+                    keyboardType: TextInputType.number,
+                    initialValue: (_formData.firstTimeFilerSpouse?.
+                                    backHomeIncome2023 ??
+                                0.0) ==
+                            0.0
+                        ? ''
+                        : _formData.firstTimeFilerSpouse!.backHomeIncome2023
+                            .toString(),
+                    onChanged: (value) {
+                      final parsed = double.tryParse(value) ?? 0.0;
+                      final current = _formData.firstTimeFilerSpouse ??
+                          const T1FirstTimeFilerIncome();
+                      final updated =
+                          current.copyWith(backHomeIncome2023: parsed);
+                      _updateFormData(_formData.copyWith(
+                        firstTimeFilerSpouse: updated,
+                      ));
+                    },
+                  ),
+                ],
+              ),
+            ),
+          ],
         ],
       ),
     );
@@ -1262,7 +2255,10 @@ class _T1Questionnaire1StepState extends State<T1Questionnaire1Step> {
   Widget _buildProfessionalDuesTable() {
     return Column(
       children: [
-        ..._professionalDueRowIds.map(_buildProfessionalDueRow),
+        if (_formData.professionalDues.isEmpty)
+          _buildProfessionalDueRow(0)
+        else
+          ..._professionalDueRowIds.map(_buildProfessionalDueRow),
         const SizedBox(height: 12),
         OutlinedButton.icon(
           onPressed: _addProfessionalDueRow,
@@ -1274,7 +2270,13 @@ class _T1Questionnaire1StepState extends State<T1Questionnaire1Step> {
   }
 
   Widget _buildProfessionalDueRow(int id) {
-    final index = _professionalDueRowIds.indexOf(id);
+    final index = _professionalDueRowIds.isEmpty
+        ? 0
+        : _professionalDueRowIds.indexOf(id);
+    final rows = _formData.professionalDues;
+    final current = (index >= 0 && index < rows.length)
+        ? rows[index]
+        : const T1ProfessionalDue();
     return Container(
       key: ValueKey('professional_due_$id'),
       margin: const EdgeInsets.only(bottom: 12),
@@ -1308,18 +2310,65 @@ class _T1Questionnaire1StepState extends State<T1Questionnaire1Step> {
           const SizedBox(height: 12),
           _buildTextField(
             label: 'Name',
-            onChanged: (value) {},
+            initialValue: current.name,
+            onChanged: (value) {
+              final updated = List<T1ProfessionalDue>.from(rows);
+              final newRow = current.copyWith(name: value);
+              if (index >= updated.length) {
+                updated.add(newRow);
+                if (_professionalDueRowIds.isEmpty) {
+                  _professionalDueRowIds.add(0);
+                  _professionalDueRowCounter = 1;
+                }
+              } else {
+                updated[index] = newRow;
+              }
+              _updateFormData(
+                  _formData.copyWith(professionalDues: updated));
+            },
           ),
           const SizedBox(height: 12),
           _buildTextField(
             label: 'Organization',
-            onChanged: (value) {},
+            initialValue: current.organization,
+            onChanged: (value) {
+              final updated = List<T1ProfessionalDue>.from(rows);
+              final newRow = current.copyWith(organization: value);
+              if (index >= updated.length) {
+                updated.add(newRow);
+                if (_professionalDueRowIds.isEmpty) {
+                  _professionalDueRowIds.add(0);
+                  _professionalDueRowCounter = 1;
+                }
+              } else {
+                updated[index] = newRow;
+              }
+              _updateFormData(
+                  _formData.copyWith(professionalDues: updated));
+            },
           ),
           const SizedBox(height: 12),
           _buildTextField(
             label: 'Amount',
             keyboardType: TextInputType.number,
-            onChanged: (value) {},
+            initialValue:
+                current.amount == 0.0 ? '' : current.amount.toString(),
+            onChanged: (value) {
+              final parsed = double.tryParse(value) ?? 0.0;
+              final updated = List<T1ProfessionalDue>.from(rows);
+              final newRow = current.copyWith(amount: parsed);
+              if (index >= updated.length) {
+                updated.add(newRow);
+                if (_professionalDueRowIds.isEmpty) {
+                  _professionalDueRowIds.add(0);
+                  _professionalDueRowCounter = 1;
+                }
+              } else {
+                updated[index] = newRow;
+              }
+              _updateFormData(
+                  _formData.copyWith(professionalDues: updated));
+            },
           ),
         ],
       ),
@@ -1358,7 +2407,10 @@ class _T1Questionnaire1StepState extends State<T1Questionnaire1Step> {
   Widget _buildChildArtSportTable() {
     return Column(
       children: [
-        ..._childArtSportRowIds.map(_buildChildArtSportRow),
+        if (_formData.childArtSportEntries.isEmpty)
+          _buildChildArtSportRow(0)
+        else
+          ..._childArtSportRowIds.map(_buildChildArtSportRow),
         const SizedBox(height: 12),
         OutlinedButton.icon(
           onPressed: _addChildArtSportRow,
@@ -1370,7 +2422,13 @@ class _T1Questionnaire1StepState extends State<T1Questionnaire1Step> {
   }
 
   Widget _buildChildArtSportRow(int id) {
-    final index = _childArtSportRowIds.indexOf(id);
+    final index = _childArtSportRowIds.isEmpty
+        ? 0
+        : _childArtSportRowIds.indexOf(id);
+    final rows = _formData.childArtSportEntries;
+    final current = (index >= 0 && index < rows.length)
+        ? rows[index]
+        : const T1ChildArtSportEntry();
     return Container(
       key: ValueKey('child_art_sport_$id'),
       margin: const EdgeInsets.only(bottom: 12),
@@ -1404,18 +2462,71 @@ class _T1Questionnaire1StepState extends State<T1Questionnaire1Step> {
           const SizedBox(height: 12),
           _buildTextField(
             label: 'Institute Name',
-            onChanged: (value) {},
+            initialValue: current.instituteName,
+            onChanged: (value) {
+              final updated =
+                  List<T1ChildArtSportEntry>.from(rows);
+              final newRow = current.copyWith(instituteName: value);
+              if (index >= updated.length) {
+                updated.add(newRow);
+                if (_childArtSportRowIds.isEmpty) {
+                  _childArtSportRowIds.add(0);
+                  _childArtSportRowCounter = 1;
+                }
+              } else {
+                updated[index] = newRow;
+              }
+              _updateFormData(_formData.copyWith(
+                childArtSportEntries: updated,
+              ));
+            },
           ),
           const SizedBox(height: 12),
           _buildTextField(
             label: 'Description',
-            onChanged: (value) {},
+            initialValue: current.description,
+            onChanged: (value) {
+              final updated =
+                  List<T1ChildArtSportEntry>.from(rows);
+              final newRow = current.copyWith(description: value);
+              if (index >= updated.length) {
+                updated.add(newRow);
+                if (_childArtSportRowIds.isEmpty) {
+                  _childArtSportRowIds.add(0);
+                  _childArtSportRowCounter = 1;
+                }
+              } else {
+                updated[index] = newRow;
+              }
+              _updateFormData(_formData.copyWith(
+                childArtSportEntries: updated,
+              ));
+            },
           ),
           const SizedBox(height: 12),
           _buildTextField(
             label: 'Amount',
             keyboardType: TextInputType.number,
-            onChanged: (value) {},
+            initialValue:
+                current.amount == 0.0 ? '' : current.amount.toString(),
+            onChanged: (value) {
+              final parsed = double.tryParse(value) ?? 0.0;
+              final updated =
+                  List<T1ChildArtSportEntry>.from(rows);
+              final newRow = current.copyWith(amount: parsed);
+              if (index >= updated.length) {
+                updated.add(newRow);
+                if (_childArtSportRowIds.isEmpty) {
+                  _childArtSportRowIds.add(0);
+                  _childArtSportRowCounter = 1;
+                }
+              } else {
+                updated[index] = newRow;
+              }
+              _updateFormData(_formData.copyWith(
+                childArtSportEntries: updated,
+              ));
+            },
           ),
         ],
       ),
@@ -1441,7 +2552,10 @@ class _T1Questionnaire1StepState extends State<T1Questionnaire1Step> {
   Widget _buildProvinceFilerTable() {
     return Column(
       children: [
-        ..._provinceFilerRowIds.map(_buildProvinceFilerRow),
+        if (_formData.provinceFilerEntries.isEmpty)
+          _buildProvinceFilerRow(0)
+        else
+          ..._provinceFilerRowIds.map(_buildProvinceFilerRow),
         const SizedBox(height: 12),
         OutlinedButton.icon(
           onPressed: _addProvinceFilerRow,
@@ -1453,7 +2567,13 @@ class _T1Questionnaire1StepState extends State<T1Questionnaire1Step> {
   }
 
   Widget _buildProvinceFilerRow(int id) {
-    final index = _provinceFilerRowIds.indexOf(id);
+    final index = _provinceFilerRowIds.isEmpty
+        ? 0
+        : _provinceFilerRowIds.indexOf(id);
+    final rows = _formData.provinceFilerEntries;
+    final current = (index >= 0 && index < rows.length)
+        ? rows[index]
+        : const T1ProvinceFilerEntry();
     return Container(
       key: ValueKey('province_filer_$id'),
       margin: const EdgeInsets.only(bottom: 12),
@@ -1495,18 +2615,94 @@ class _T1Questionnaire1StepState extends State<T1Questionnaire1Step> {
           const SizedBox(height: 8),
           _buildTextField(
             label: 'Rent or Property Tax',
-            onChanged: (value) {},
+            initialValue: current.rentOrPropertyTax,
+            onChanged: (value) {
+              final updated =
+                  List<T1ProvinceFilerEntry>.from(rows);
+              final newRow = current.copyWith(rentOrPropertyTax: value);
+              if (index >= updated.length) {
+                updated.add(newRow);
+                if (_provinceFilerRowIds.isEmpty) {
+                  _provinceFilerRowIds.add(0);
+                  _provinceFilerRowCounter = 1;
+                }
+              } else {
+                updated[index] = newRow;
+              }
+              _updateFormData(_formData.copyWith(
+                provinceFilerEntries: updated,
+              ));
+            },
           ),
           const SizedBox(height: 12),
           _buildTextField(
             label: 'Property Address',
-            onChanged: (value) {},
+            initialValue: current.propertyAddress,
+            onChanged: (value) {
+              final updated =
+                  List<T1ProvinceFilerEntry>.from(rows);
+              final newRow = current.copyWith(propertyAddress: value);
+              if (index >= updated.length) {
+                updated.add(newRow);
+                if (_provinceFilerRowIds.isEmpty) {
+                  _provinceFilerRowIds.add(0);
+                  _provinceFilerRowCounter = 1;
+                }
+              } else {
+                updated[index] = newRow;
+              }
+              _updateFormData(_formData.copyWith(
+                provinceFilerEntries: updated,
+              ));
+            },
           ),
           const SizedBox(height: 12),
           _buildTextField(
-            label: 'Amount Paid',
+            label: 'Postal Code',
+            initialValue: current.postalCode,
+            onChanged: (value) {
+              final updated =
+                  List<T1ProvinceFilerEntry>.from(rows);
+              final newRow = current.copyWith(postalCode: value);
+              if (index >= updated.length) {
+                updated.add(newRow);
+                if (_provinceFilerRowIds.isEmpty) {
+                  _provinceFilerRowIds.add(0);
+                  _provinceFilerRowCounter = 1;
+                }
+              } else {
+                updated[index] = newRow;
+              }
+              _updateFormData(_formData.copyWith(
+                provinceFilerEntries: updated,
+              ));
+            },
+          ),
+          const SizedBox(height: 12),
+          _buildTextField(
+            label: 'No. Of Months Resides',
             keyboardType: TextInputType.number,
-            onChanged: (value) {},
+            initialValue: current.monthsResides == 0.0
+                ? ''
+                : current.monthsResides.toString(),
+            onChanged: (value) {
+              final parsed = double.tryParse(value) ?? 0.0;
+              final updated =
+                  List<T1ProvinceFilerEntry>.from(rows);
+              final newRow = current.copyWith(monthsResides: parsed);
+              if (index >= updated.length) {
+                updated.add(newRow);
+                if (_provinceFilerRowIds.isEmpty) {
+                  _provinceFilerRowIds.add(0);
+                  _provinceFilerRowCounter = 1;
+                }
+              } else {
+                updated[index] = newRow;
+              }
+              _updateFormData(_formData.copyWith(
+                provinceFilerEntries: updated,
+              ));
+            },
           ),
         ],
       ),
