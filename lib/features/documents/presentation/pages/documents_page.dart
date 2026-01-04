@@ -32,6 +32,10 @@ class _DocumentsPageState extends State<DocumentsPage> {
   /// Tracks the most recently uploaded file name for each document type.
   final Map<String, String?> _documentUploads = {};
 
+  /// Tracks which document types the user has explicitly marked as
+  /// unavailable on this page.
+  final Map<String, bool> _unavailableDocuments = {};
+
   /// Tracks which document types are currently uploading so we can show
   /// per-card loading indicators.
   final Set<String> _uploadingDocumentTypes = {};
@@ -87,6 +91,10 @@ class _DocumentsPageState extends State<DocumentsPage> {
         _uploadedFileNames
           ..clear()
           ..addAll(_documentUploads.values.whereType<String>());
+
+        _unavailableDocuments
+          ..clear()
+          ..addAll(active?.unavailableDocuments ?? const {});
       });
     } catch (_) {
       if (!mounted) return;
@@ -128,6 +136,9 @@ class _DocumentsPageState extends State<DocumentsPage> {
             _uploadedFileNames.remove(previousName);
           }
           _uploadedFileNames.add(name);
+
+          // Once a document is uploaded, clear any "unavailable" flag for it.
+          _unavailableDocuments.remove(documentType);
         } else {
           _uploadedFileNames.add(name);
         }
@@ -136,11 +147,16 @@ class _DocumentsPageState extends State<DocumentsPage> {
       // Persist upload state against the active form so submission can be gated.
       T1FormData? updatedForm;
       if (documentType != null && _activeT1Form != null) {
+        final updatedUnavailable = Map<String, bool>.from(
+          _activeT1Form!.unavailableDocuments,
+        )..remove(documentType);
+
         updatedForm = _activeT1Form!.copyWith(
           uploadedDocuments: {
             ..._activeT1Form!.uploadedDocuments,
             documentType: name,
           },
+          unavailableDocuments: updatedUnavailable,
         );
         await T1FormStorageService.instance.saveForm(updatedForm);
       }
@@ -252,6 +268,45 @@ class _DocumentsPageState extends State<DocumentsPage> {
     );
   }
 
+  Future<void> _setDocumentUnavailable(String documentType, bool isUnavailable) async {
+    final form = _activeT1Form;
+    if (form == null) return;
+
+    final updatedUnavailable = Map<String, bool>.from(form.unavailableDocuments);
+    final updatedUploads = Map<String, String>.from(form.uploadedDocuments);
+
+    if (isUnavailable) {
+      updatedUnavailable[documentType] = true;
+
+      // Clear any uploaded file for this document when marked unavailable.
+      final previousName = updatedUploads.remove(documentType);
+      if (previousName != null) {
+        _uploadedFileNames.remove(previousName);
+      }
+      _documentUploads[documentType] = null;
+    } else {
+      updatedUnavailable.remove(documentType);
+    }
+
+    final updatedForm = form.copyWith(
+      uploadedDocuments: updatedUploads,
+      unavailableDocuments: updatedUnavailable,
+    );
+
+    await T1FormStorageService.instance.saveForm(updatedForm);
+
+    if (!mounted) return;
+
+    setState(() {
+      _activeT1Form = updatedForm;
+      if (isUnavailable) {
+        _unavailableDocuments[documentType] = true;
+      } else {
+        _unavailableDocuments.remove(documentType);
+      }
+    });
+  }
+
   bool get _showSubmitForT1 =>
       _activeT1Form != null &&
       _activeT1Form!.status == 'draft' &&
@@ -265,8 +320,6 @@ class _DocumentsPageState extends State<DocumentsPage> {
   Future<void> _submitT1Form() async {
     final form = _activeT1Form;
     if (form == null) return;
-
-    if (!T1DocumentRequirements.areAllRequiredUploaded(form)) return;
 
     final submitted = form.copyWith(status: 'submitted', awaitingDocuments: false);
     await T1FormStorageService.instance.saveForm(submitted);
@@ -298,6 +351,46 @@ class _DocumentsPageState extends State<DocumentsPage> {
         ],
       ),
     );
+  }
+
+  Future<void> _onSubmitPressed() async {
+    final form = _activeT1Form;
+    if (form == null) return;
+
+    // Guard again in case state changed between build and tap.
+    if (!T1DocumentRequirements.areAllRequiredUploaded(form)) return;
+
+    final hasUnavailable = T1DocumentRequirements.hasAnyUnavailable(form);
+    if (!hasUnavailable) {
+      await _submitT1Form();
+      return;
+    }
+
+    if (!mounted) return;
+
+    final proceed = await showDialog<bool>(
+      context: context,
+      barrierDismissible: false,
+      builder: (context) => AlertDialog(
+        content: const Text(
+          'The Filing process may be slowed down due to insufficient documents',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(false),
+            child: const Text('Cancel'),
+          ),
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(true),
+            child: const Text('Proceed'),
+          ),
+        ],
+      ),
+    );
+
+    if (proceed == true) {
+      await _submitT1Form();
+    }
   }
 
   @override
@@ -391,7 +484,7 @@ class _DocumentsPageState extends State<DocumentsPage> {
               child: SizedBox(
                 height: AppDimensions.buttonHeightXl,
                 child: ElevatedButton(
-                  onPressed: _canSubmitT1 ? _submitT1Form : null,
+                  onPressed: _canSubmitT1 ? _onSubmitPressed : null,
                   style: ElevatedButton.styleFrom(
                     backgroundColor: AppColors.primary,
                     foregroundColor: Colors.white,
@@ -441,6 +534,7 @@ class _DocumentsPageState extends State<DocumentsPage> {
             final documentType = req.label;
             final uploadedName = _documentUploads[documentType];
             final isUploadingThis = _uploadingDocumentTypes.contains(documentType);
+            final isUnavailable = _unavailableDocuments[documentType] == true;
 
             return SizedBox(
               width: cardWidth,
@@ -487,7 +581,7 @@ class _DocumentsPageState extends State<DocumentsPage> {
                       mainAxisSize: MainAxisSize.min,
                       children: [
                         ElevatedButton.icon(
-                          onPressed: isUploadingThis
+                          onPressed: isUploadingThis || isUnavailable
                               ? null
                               : () => _showUploadOptions(documentType: documentType),
                           icon: isUploadingThis
@@ -510,6 +604,21 @@ class _DocumentsPageState extends State<DocumentsPage> {
                             ),
                             minimumSize: const Size(0, AppDimensions.buttonHeightSm),
                           ),
+                        ),
+                        const SizedBox(height: AppDimensions.spacing2xs),
+                        OutlinedButton(
+                          onPressed: () => _setDocumentUnavailable(
+                            documentType,
+                            !isUnavailable,
+                          ),
+                          style: OutlinedButton.styleFrom(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: AppDimensions.spacingSm,
+                              vertical: AppDimensions.spacing2xs,
+                            ),
+                            minimumSize: const Size(0, AppDimensions.buttonHeightSm),
+                          ),
+                          child: Text(isUnavailable ? 'Mark as Available' : 'Unavailable'),
                         ),
                       ],
                     ),

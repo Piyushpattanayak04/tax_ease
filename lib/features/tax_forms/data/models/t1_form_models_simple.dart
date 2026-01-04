@@ -1779,8 +1779,14 @@ class T1FormData {
   /// Used to gate submission when documents are required.
   final Map<String, String> uploadedDocuments;
 
-  /// Set to true when the user reaches the final step and must upload documents
-  /// before submission.
+  /// Tracks which required/visible documents the user has explicitly marked as
+  /// unavailable. Keys are document labels, values indicate an unavailable
+  /// status.
+  final Map<String, bool> unavailableDocuments;
+
+  /// Set to true when the user reaches the final step and must handle
+  /// documents (either upload them or mark them as unavailable) before
+  /// submission.
   final bool awaitingDocuments;
 
   T1FormData({
@@ -1833,9 +1839,10 @@ class T1FormData {
     this.isFilingForDeceased,
     this.deceasedReturnInfo,
     this.uploadedDocuments = const {},
+    this.unavailableDocuments = const {},
     this.awaitingDocuments = false,
-  }) : createdAt = createdAt ?? DateTime.now(),
-       updatedAt = updatedAt ?? DateTime.now();
+  })  : createdAt = createdAt ?? DateTime.now(),
+        updatedAt = updatedAt ?? DateTime.now();
 
   // Create const empty constructor with placeholder dates
   const T1FormData.empty()
@@ -1888,6 +1895,7 @@ class T1FormData {
         isFilingForDeceased = null,
         deceasedReturnInfo = null,
         uploadedDocuments = const {},
+        unavailableDocuments = const {},
         awaitingDocuments = false;
 
   factory T1FormData.fromJson(Map<String, dynamic> json) {
@@ -1895,6 +1903,13 @@ class T1FormData {
     final uploadedDocuments = Map<String, String>.fromEntries(
       uploadedRaw.entries.map(
         (e) => MapEntry(e.key.toString(), (e.value ?? '').toString()),
+      ),
+    );
+
+    final unavailableRaw = (json['unavailableDocuments'] as Map?) ?? const {};
+    final unavailableDocuments = Map<String, bool>.fromEntries(
+      unavailableRaw.entries.map(
+        (e) => MapEntry(e.key.toString(), e.value == true),
       ),
     );
 
@@ -2004,6 +2019,7 @@ class T1FormData {
             )
           : null,
       uploadedDocuments: uploadedDocuments,
+      unavailableDocuments: unavailableDocuments,
       awaitingDocuments: json['awaitingDocuments'] == true,
     );
   }
@@ -2015,7 +2031,7 @@ class T1FormData {
       'createdAt': createdAt?.toIso8601String(),
       'updatedAt': updatedAt?.toIso8601String(),
       'personalInfo': personalInfo.toJson(),
-'hasForeignProperty': hasForeignProperty,
+      'hasForeignProperty': hasForeignProperty,
       'foreignProperties': foreignProperties.map((e) => e.toJson()).toList(),
       'medicalExpenses': medicalExpenses.map((e) => e.toJson()).toList(),
       'hasMedicalExpenses': hasMedicalExpenses,
@@ -2029,29 +2045,29 @@ class T1FormData {
       'isSelfEmployed': isSelfEmployed,
       'selfEmployment': selfEmployment?.toJson(),
       'isFirstHomeBuyer': isFirstHomeBuyer,
-'soldPropertyLongTerm': soldPropertyLongTerm,
-'soldPropertyShortTerm': soldPropertyShortTerm,
+      'soldPropertyLongTerm': soldPropertyLongTerm,
+      'soldPropertyShortTerm': soldPropertyShortTerm,
       'propertySaleLongTerm': propertySaleLongTerm?.toJson(),
       'propertySaleShortTerm': propertySaleShortTerm?.toJson(),
       'hasWorkFromHomeExpense': hasWorkFromHomeExpense,
       'workFromHomeIndividual': workFromHomeIndividual?.toJson(),
       'workFromHomeSpouse': workFromHomeSpouse?.toJson(),
       'wasStudentLastYear': wasStudentLastYear,
-'isUnionMember': isUnionMember,
+      'isUnionMember': isUnionMember,
       'hasDaycareExpenses': hasDaycareExpenses,
       'daycareExpenses': daycareExpenses.map((e) => e.toJson()).toList(),
       'isFirstTimeFiler': isFirstTimeFiler,
       'firstTimeFilerIndividual': firstTimeFilerIndividual?.toJson(),
       'firstTimeFilerSpouse': firstTimeFilerSpouse?.toJson(),
       'hasOtherIncome': hasOtherIncome,
-'otherIncomeDescription': otherIncomeDescription,
+      'otherIncomeDescription': otherIncomeDescription,
       'hasProfessionalDues': hasProfessionalDues,
       'charitableDonations': charitableDonations.map((e) => e.toJson()).toList(),
       'unionDues': unionDues.map((e) => e.toJson()).toList(),
       'professionalDues': professionalDues.map((e) => e.toJson()).toList(),
       'childArtSportEntries': childArtSportEntries.map((e) => e.toJson()).toList(),
       'hasRrspFhsaInvestment': hasRrspFhsaInvestment,
-'hasChildArtSportCredit': hasChildArtSportCredit,
+      'hasChildArtSportCredit': hasChildArtSportCredit,
       'isProvinceFiler': isProvinceFiler,
       'provinceFilerEntries': provinceFilerEntries.map((e) => e.toJson()).toList(),
       'hasDisabilityTaxCredit': hasDisabilityTaxCredit,
@@ -2059,6 +2075,7 @@ class T1FormData {
       'isFilingForDeceased': isFilingForDeceased,
       'deceasedReturnInfo': deceasedReturnInfo?.toJson(),
       'uploadedDocuments': uploadedDocuments,
+      'unavailableDocuments': unavailableDocuments,
       'awaitingDocuments': awaitingDocuments,
     };
   }
@@ -2113,6 +2130,7 @@ class T1FormData {
     bool? isFilingForDeceased,
     T1DeceasedReturnInfo? deceasedReturnInfo,
     Map<String, String>? uploadedDocuments,
+    Map<String, bool>? unavailableDocuments,
     bool? awaitingDocuments,
   }) {
     return T1FormData(
@@ -2167,6 +2185,7 @@ class T1FormData {
       isFilingForDeceased: isFilingForDeceased ?? this.isFilingForDeceased,
       deceasedReturnInfo: deceasedReturnInfo ?? this.deceasedReturnInfo,
       uploadedDocuments: uploadedDocuments ?? this.uploadedDocuments,
+      unavailableDocuments: unavailableDocuments ?? this.unavailableDocuments,
       awaitingDocuments: awaitingDocuments ?? this.awaitingDocuments,
     );
   }

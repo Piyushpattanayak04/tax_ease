@@ -95,10 +95,23 @@ class T1DocumentRequirements {
     if (required.isEmpty) return true;
 
     final uploads = form.uploadedDocuments;
+    final unavailable = form.unavailableDocuments;
+
     return required.every((req) {
-      final name = uploads[req.label];
-      return name != null && name.trim().isNotEmpty;
+      final label = req.label;
+      final name = uploads[label];
+      final isUnavailable = unavailable[label] == true;
+
+      // A required document is considered satisfied if it is either uploaded
+      // with a non-empty filename or explicitly marked as unavailable.
+      return (name != null && name.trim().isNotEmpty) || isUnavailable;
     });
+  }
+
+  /// Returns true if the user has marked any document as unavailable.
+  static bool hasAnyUnavailable(T1FormData form) {
+    if (form.unavailableDocuments.isEmpty) return false;
+    return form.unavailableDocuments.values.any((v) => v == true);
   }
 
   static bool _hasCharitableDonations(T1FormData f) => f.hasCharitableDonations == true;
