@@ -1,6 +1,5 @@
-import 'dart:io';
-
 import 'package:dio/dio.dart';
+import 'package:flutter/foundation.dart';
 
 import '../../../../core/constants/api_endpoints.dart';
 import '../../../../core/theme/theme_controller.dart';
@@ -25,24 +24,43 @@ class FilesApi {
 
   /// Upload a file using multipart/form-data to POST /files/upload
   /// Returns the decoded response map on success (201)
+  ///
+  /// For mobile/desktop, pass a [filePath]. For web, pass [bytes] and an optional [fileName].
   static Future<Map<String, dynamic>> uploadFile({
-    required String filePath,
+    String? filePath,
+    List<int>? bytes,
     String fieldName = 'file',
+    String? fileName,
   }) async {
-    final file = File(filePath);
-    if (!await file.exists()) {
-      throw Exception('File does not exist at path: $filePath');
+    if (filePath == null && bytes == null) {
+      throw ArgumentError('Either filePath or bytes must be provided');
     }
 
-    final fileName = file.uri.pathSegments.isNotEmpty
-        ? file.uri.pathSegments.last
-        : 'upload.bin';
+    MultipartFile multipartFile;
+
+    if (kIsWeb) {
+      if (bytes == null) {
+        throw ArgumentError('bytes must be provided when running on the web');
+      }
+      final resolvedName = fileName ?? (filePath ?? 'upload.bin');
+      multipartFile = MultipartFile.fromBytes(
+        bytes,
+        filename: resolvedName,
+      );
+    } else {
+      if (filePath == null) {
+        throw ArgumentError('filePath must be provided on mobile/desktop');
+      }
+      // Derive a filename from the path if not explicitly provided.
+      final resolvedName = fileName ?? filePath.split(RegExp(r'[\\/]')).last;
+      multipartFile = await MultipartFile.fromFile(
+        filePath,
+        filename: resolvedName,
+      );
+    }
 
     final formData = FormData.fromMap({
-      fieldName: await MultipartFile.fromFile(
-        file.path,
-        filename: fileName,
-      ),
+      fieldName: multipartFile,
     });
 
     try {

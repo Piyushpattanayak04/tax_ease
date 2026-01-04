@@ -143,7 +143,13 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
                 delay: const Duration(milliseconds: 600),
                 child: Center(
                   child: TextButton(
-                    onPressed: () => context.go('/login'),
+                    onPressed: () {
+                      if (Navigator.of(context).canPop()) {
+                        Navigator.of(context).pop();
+                      } else {
+                        context.go('/login');
+                      }
+                    },
                     child: const Text(
                       'Back to Sign In',
                       style: TextStyle(

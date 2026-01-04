@@ -231,7 +231,7 @@ class _OnboardingPageState extends State<OnboardingPage> {
   }
 
   void _navigateToAuth() {
-    context.go('/signup');
+    context.push('/signup');
   }
 }
 

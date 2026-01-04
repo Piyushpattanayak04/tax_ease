@@ -37,7 +37,13 @@ class _LoginPageState extends State<LoginPage> {
       appBar: AppBar(
         leading: IconButton(
           icon: const Icon(Icons.arrow_back),
-          onPressed: () => context.go('/welcome'),
+          onPressed: () {
+            if (Navigator.of(context).canPop()) {
+              Navigator.of(context).pop();
+            } else {
+              context.go('/welcome');
+            }
+          },
         ),
         title: const Text('Sign In'),
       ),
@@ -148,7 +154,7 @@ class _LoginPageState extends State<LoginPage> {
                       Align(
                         alignment: Alignment.centerRight,
                         child: TextButton(
-                          onPressed: () => context.go('/forgot-password'),
+                          onPressed: () => context.push('/forgot-password'),
                           child: Text(
                             'Forgot Password?',
                             style: Theme.of(context).textTheme.bodyMedium?.copyWith(
@@ -269,7 +275,7 @@ class _LoginPageState extends State<LoginPage> {
                       children: [
                         WidgetSpan(
                           child: GestureDetector(
-                            onTap: () => context.go('/signup'),
+                            onTap: () => context.push('/signup'),
                             child: Text(
                               'Sign Up',
                               style: Theme.of(context).textTheme.bodyMedium?.copyWith(

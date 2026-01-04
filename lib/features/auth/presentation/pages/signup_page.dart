@@ -46,7 +46,13 @@ class _SignupPageState extends State<SignupPage> {
       appBar: AppBar(
         leading: IconButton(
           icon: const Icon(Icons.arrow_back),
-          onPressed: () => context.go('/welcome'),
+          onPressed: () {
+            if (Navigator.of(context).canPop()) {
+              Navigator.of(context).pop();
+            } else {
+              context.go('/welcome');
+            }
+          },
         ),
         title: const Text('Create Account'),
       ),
@@ -286,7 +292,7 @@ class _SignupPageState extends State<SignupPage> {
                                   children: [
                                     WidgetSpan(
                                       child: GestureDetector(
-                                        onTap: () => context.go('/terms-conditions'),
+                                        onTap: () => context.push('/terms-conditions'),
                                         child: Text(
                                           'Terms & Conditions',
                                           style: Theme.of(context).textTheme.bodyMedium?.copyWith(
@@ -300,7 +306,7 @@ class _SignupPageState extends State<SignupPage> {
                                     const TextSpan(text: ' and '),
                                     WidgetSpan(
                                       child: GestureDetector(
-                                        onTap: () => context.go('/privacy-policy'),
+                                        onTap: () => context.push('/privacy-policy'),
                                         child: Text(
                                           'Privacy Policy',
                                           style: Theme.of(context).textTheme.bodyMedium?.copyWith(
@@ -361,7 +367,13 @@ class _SignupPageState extends State<SignupPage> {
                       children: [
                         WidgetSpan(
                           child: GestureDetector(
-                            onTap: () => context.go('/login'),
+                            onTap: () {
+                              if (Navigator.of(context).canPop()) {
+                                Navigator.of(context).pop();
+                              } else {
+                                context.go('/login');
+                              }
+                            },
                             child: Text(
                               'Sign In',
                               style: Theme.of(context).textTheme.bodyMedium?.copyWith(

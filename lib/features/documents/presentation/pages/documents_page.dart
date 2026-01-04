@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:file_picker/file_picker.dart';
+import 'package:flutter/foundation.dart';
 import 'package:go_router/go_router.dart';
 import 'package:image_picker/image_picker.dart';
 import '../../../../core/constants/app_colors.dart';
@@ -105,8 +106,9 @@ class _DocumentsPageState extends State<DocumentsPage> {
     }
   }
 
-  Future<void> _uploadFilePath({
-    required String filePath,
+  Future<void> _uploadFile({
+    String? filePath,
+    List<int>? bytes,
     required String? documentType,
     String? fallbackName,
   }) async {
@@ -118,9 +120,14 @@ class _DocumentsPageState extends State<DocumentsPage> {
         }
       });
 
-      final resp = await FilesApi.uploadFile(filePath: filePath);
+      final resp = await FilesApi.uploadFile(
+        filePath: filePath,
+        bytes: bytes,
+        fileName: fallbackName,
+      );
 
-      final derivedName = (fallbackName ?? filePath.split(RegExp(r"[\\/]")).last);
+      final derivedName = (fallbackName ??
+          (filePath != null ? filePath.split(RegExp(r"[\\/]")).last : 'upload.bin'));
       final name = (resp['original_filename'] ?? derivedName).toString();
 
       if (!mounted) return;
@@ -192,11 +199,31 @@ class _DocumentsPageState extends State<DocumentsPage> {
       allowMultiple: false,
       allowedExtensions: const ['pdf', 'jpg', 'jpeg', 'png', 'doc', 'docx', 'xls', 'xlsx'],
       withReadStream: false,
-      withData: false,
+      // On web we need the in-memory bytes; on mobile/desktop we rely on the file path.
+      withData: kIsWeb,
     );
     if (result == null || result.files.isEmpty) return;
 
     final file = result.files.single;
+
+    if (kIsWeb) {
+      final bytes = file.bytes;
+      if (bytes == null) {
+        if (!mounted) return;
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Could not read the selected file.')),
+        );
+        return;
+      }
+
+      await _uploadFile(
+        bytes: bytes,
+        documentType: documentType,
+        fallbackName: file.name,
+      );
+      return;
+    }
+
     final path = file.path;
     if (path == null) {
       if (!mounted) return;
@@ -206,7 +233,7 @@ class _DocumentsPageState extends State<DocumentsPage> {
       return;
     }
 
-    await _uploadFilePath(
+    await _uploadFile(
       filePath: path,
       documentType: documentType,
       fallbackName: file.name,
@@ -221,12 +248,21 @@ class _DocumentsPageState extends State<DocumentsPage> {
     );
     if (captured == null) return;
 
-    // No cropping (direct capture -> confirm -> upload)
-    await _uploadFilePath(
-      filePath: captured.path,
-      documentType: documentType,
-      fallbackName: captured.name,
-    );
+    if (kIsWeb) {
+      final bytes = await captured.readAsBytes();
+      await _uploadFile(
+        bytes: bytes,
+        documentType: documentType,
+        fallbackName: captured.name,
+      );
+    } else {
+      // No cropping (direct capture -> confirm -> upload)
+      await _uploadFile(
+        filePath: captured.path,
+        documentType: documentType,
+        fallbackName: captured.name,
+      );
+    }
   }
 
   Future<void> _showUploadOptions({String? documentType}) async {

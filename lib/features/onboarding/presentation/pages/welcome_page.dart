@@ -194,7 +194,7 @@ class _WelcomePageState extends State<WelcomePage>
                         width: double.infinity,
                         height: 56,
                         child: ElevatedButton(
-                          onPressed: () => context.go('/onboarding'),
+                          onPressed: () => context.push('/onboarding'),
                           style: ElevatedButton.styleFrom(
                             backgroundColor: AppColors.white,
                             foregroundColor: AppColors.primary,
@@ -221,7 +221,7 @@ class _WelcomePageState extends State<WelcomePage>
                         width: double.infinity,
                         height: 56,
                         child: TextButton(
-                          onPressed: () => context.go('/login'),
+                          onPressed: () => context.push('/login'),
                           style: TextButton.styleFrom(
                             foregroundColor: AppColors.white,
                             shape: RoundedRectangleBorder(

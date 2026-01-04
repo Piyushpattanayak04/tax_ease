@@ -155,13 +155,13 @@ class ProfilePage extends StatelessWidget {
         'icon': Icons.help_outline,
         'title': 'Help & Support',
         'subtitle': 'Get help and contact support',
-        'onTap': () => context.go('/help-support'),
+        'onTap': () => context.push('/help-support'),
       },
       {
         'icon': Icons.description_outlined,
         'title': 'Terms & Conditions',
         'subtitle': 'Read our terms and data residency policy',
-        'onTap': () => context.go('/terms-conditions'),
+        'onTap': () => context.push('/terms-conditions'),
       },
       {
         'icon': Icons.logout,

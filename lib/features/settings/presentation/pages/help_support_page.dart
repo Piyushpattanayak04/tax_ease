@@ -11,7 +11,13 @@ class HelpSupportPage extends StatelessWidget {
         title: const Text('Help & Support'),
         leading: IconButton(
           icon: const Icon(Icons.arrow_back),
-          onPressed: () => context.go('/home'),
+          onPressed: () {
+            if (Navigator.of(context).canPop()) {
+              Navigator.of(context).pop();
+            } else {
+              context.go('/home');
+            }
+          },
         ),
       ),
       body: const Center(

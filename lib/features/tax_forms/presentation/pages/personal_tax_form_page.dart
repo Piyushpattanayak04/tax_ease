@@ -322,7 +322,13 @@ class _PersonalTaxFormPageState extends State<PersonalTaxFormPage>
           title: const Text('T1 Personal Tax Form'),
           leading: IconButton(
             icon: const Icon(Icons.arrow_back),
-            onPressed: () => context.go('/tax-forms/filled-forms'),
+            onPressed: () {
+              if (Navigator.of(context).canPop()) {
+                Navigator.of(context).pop();
+              } else {
+                context.go('/tax-forms/filled-forms');
+              }
+            },
           ),
         ),
         body: const Center(
@@ -338,7 +344,13 @@ class _PersonalTaxFormPageState extends State<PersonalTaxFormPage>
         elevation: 0,
         leading: IconButton(
           icon: const Icon(Icons.arrow_back),
-          onPressed: () => context.go('/tax-forms/filled-forms'),
+          onPressed: () {
+            if (Navigator.of(context).canPop()) {
+              Navigator.of(context).pop();
+            } else {
+              context.go('/tax-forms/filled-forms');
+            }
+          },
         ),
         actions: [
           if (_isSaving)

@@ -233,7 +233,13 @@ class _BusinessTaxFormPageState extends State<BusinessTaxFormPage> {
           title: const Text('On-Boarding Details'),
           leading: IconButton(
             icon: const Icon(Icons.arrow_back),
-            onPressed: () => context.go('/tax-forms/filled-forms'),
+            onPressed: () {
+              if (Navigator.of(context).canPop()) {
+                Navigator.of(context).pop();
+              } else {
+                context.go('/tax-forms/filled-forms');
+              }
+            },
           ),
         ),
         body: const Center(child: CircularProgressIndicator()),
@@ -247,7 +253,13 @@ class _BusinessTaxFormPageState extends State<BusinessTaxFormPage> {
         elevation: 0,
         leading: IconButton(
           icon: const Icon(Icons.arrow_back),
-          onPressed: () => context.go('/tax-forms/filled-forms'),
+          onPressed: () {
+            if (Navigator.of(context).canPop()) {
+              Navigator.of(context).pop();
+            } else {
+              context.go('/tax-forms/filled-forms');
+            }
+          },
         ),
         actions: [
           if (_isSaving)

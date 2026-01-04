@@ -93,7 +93,7 @@ icon: const Icon(Icons.notifications_outlined),
           ),
           IconButton(
             icon: const Icon(Icons.settings_outlined),
-            onPressed: () => context.go('/settings'),
+            onPressed: () => context.push('/settings'),
           ),
         ],
       ),
@@ -540,9 +540,9 @@ icon: const Icon(Icons.notifications_outlined),
         final formType = progressData['formType'] as String;
         
         if (formType == 'T1') {
-          context.go('/tax-forms/personal?formId=$formId');
+          context.push('/tax-forms/personal?formId=$formId');
         } else if (formType == 'T2') {
-          context.go('/tax-forms/business?formId=$formId');
+          context.push('/tax-forms/business?formId=$formId');
         } else {
           context.go('/tax-forms/filled-forms');
         }
@@ -580,9 +580,9 @@ icon: const Icon(Icons.notifications_outlined),
         
         if (mounted) {
           if (mostRecent['type'] == 'T1') {
-            context.go('/tax-forms/personal?formId=${mostRecent['id']}');
+            context.push('/tax-forms/personal?formId=${mostRecent['id']}');
           } else {
-            context.go('/tax-forms/business?formId=${mostRecent['id']}');
+            context.push('/tax-forms/business?formId=${mostRecent['id']}');
           }
         }
       } else {
@@ -606,29 +606,29 @@ icon: const Icon(Icons.notifications_outlined),
         // Navigate to the most recent draft
         final mostRecentDraft = draftForms.reduce((a, b) => 
           (a.updatedAt ?? DateTime(0)).isAfter(b.updatedAt ?? DateTime(0)) ? a : b);
-        if (mounted) context.go('/tax-forms/personal?formId=${mostRecentDraft.id}');
+        if (mounted) context.push('/tax-forms/personal?formId=${mostRecentDraft.id}');
       } else {
         // Create a new form
         final newForm = T1FormStorageService.instance.createNewForm();
-        if (mounted) context.go('/tax-forms/personal?formId=${newForm.id}');
+        if (mounted) context.push('/tax-forms/personal?formId=${newForm.id}');
       }
     } catch (e) {
       // Fallback to creating a new form
       final newForm = T1FormStorageService.instance.createNewForm();
-      if (mounted) context.go('/tax-forms/personal?formId=${newForm.id}');
+      if (mounted) context.push('/tax-forms/personal?formId=${newForm.id}');
     }
   }
 
   Future<void> _handleT1NewFiling() async {
     // Always create a new T1 form
     final newForm = T1FormStorageService.instance.createNewForm();
-    if (mounted) context.go('/tax-forms/personal?formId=${newForm.id}');
+    if (mounted) context.push('/tax-forms/personal?formId=${newForm.id}');
   }
 
   Future<void> _handleT2NewFiling() async {
     // Always create a new T2 form
     final newForm = T2FormStorageService.instance.createNewForm();
-    if (mounted) context.go('/tax-forms/business?formId=${newForm.id}');
+    if (mounted) context.push('/tax-forms/business?formId=${newForm.id}');
   }
   
   Future<Map<String, dynamic>> _getProgressStatus() async {
@@ -888,7 +888,7 @@ icon: const Icon(Icons.notifications_outlined),
           icon: Icons.track_changes_outlined,
           title: 'Track Status',
           subtitle: 'Check filing status',
-          onTap: () => context.go('/filing-status'),
+          onTap: () => context.push('/filing-status'),
         ),
       ),
     ]);
