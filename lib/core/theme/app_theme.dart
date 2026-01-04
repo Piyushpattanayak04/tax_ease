@@ -151,9 +151,13 @@ class AppTheme {
   static ThemeData get darkTheme => ThemeData(
         useMaterial3: true,
         brightness: Brightness.dark,
-        
+
         // Diamond Accounts Color Scheme - Dark Theme
         colorScheme: AppColors.darkColorScheme,
+
+        // Global scaffold/canvas background
+        scaffoldBackgroundColor: AppColors.backgroundDark,
+        canvasColor: AppColors.backgroundDark,
 
         // Typography
         textTheme: AppTypography.buildTextTheme(Brightness.dark),

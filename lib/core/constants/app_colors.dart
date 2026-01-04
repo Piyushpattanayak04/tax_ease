@@ -29,7 +29,7 @@ class AppColors {
   static const Color onPrimaryDark = Color(0xFFFFFFFF); // On Primary Color
   static const Color secondaryDark = Color(0xFF1E50A0); // Secondary Color (main brand blue)
   static const Color onSecondaryDark = Color(0xFFFFFFFF); // On Secondary Color
-  static const Color backgroundDark = Color(0xFF0D1A2E); // Background Color - deep dark blue
+  static const Color backgroundDark = Color(0xFF000000); // Background Color - pure black
   static const Color onBackgroundDark = Color(0xFFE0E0E0); // On Background Color - soft white
   static const Color surfaceDark = Color(0xFF1A2B47); // Surface Color - slightly lighter than background
   static const Color onSurfaceDark = Color(0xFFFFFFFF); // On Surface Color
