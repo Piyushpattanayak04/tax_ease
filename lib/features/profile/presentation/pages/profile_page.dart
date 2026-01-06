@@ -22,7 +22,7 @@ class ProfilePage extends StatelessWidget {
         automaticallyImplyLeading: false,
       ),
       body: ResponsiveContainer(
-        centerContent: false,
+        centerContent: true,
         padding: EdgeInsets.all(Responsive.responsive(
           context: context,
           mobile: AppDimensions.screenPadding,
@@ -145,7 +145,7 @@ class ProfilePage extends StatelessWidget {
         'icon': Icons.person_outline,
         'title': 'Edit Profile',
         'subtitle': 'Update your personal information',
-        'onTap': () {},
+        'onTap': () => context.push('/profile/edit'),
       },
       {
         'icon': Icons.security_outlined,
@@ -254,18 +254,25 @@ class ProfilePage extends StatelessWidget {
 
   Future<void> _performSignOut(BuildContext context) async {
     try {
-      // Clear all forms data and auth state first
+      // Best-effort backend logout: POST /auth/logout
+      try {
+        if (ThemeController.authToken != null) {
+          await AuthApi.logout();
+        }
+      } catch (_) {
+        // Ignore logout errors; still clear local state.
+      }
+
+      // Clear all forms data and auth state
       await T1FormStorageService.instance.clearAllFormsData();
       await T2FormStorageService.instance.clearAllFormsData();
-      await ThemeController.setLoggedIn(false);
-      await ThemeController.setUserName('User');
-      
-      // Navigate to welcome page immediately
+      await ThemeController.clearAuth();
+
+      // Navigate to welcome page
       if (context.mounted) {
         context.go('/welcome');
       }
     } catch (e) {
-      // Show error message if something goes wrong
       if (context.mounted) {
         AppToast.error(context, 'Error signing out. Please try again.');
       }

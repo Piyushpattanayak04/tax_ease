@@ -412,8 +412,11 @@ class _SignupPageState extends State<SignupPage> {
     });
 
     try {
+      final email = _emailController.text.trim();
+
+      // Create account
       await AuthApi.register(
-        email: _emailController.text.trim(),
+        email: email,
         firstName: _firstNameController.text.trim(),
         lastName: _lastNameController.text.trim(),
         password: _passwordController.text,
@@ -424,10 +427,16 @@ class _SignupPageState extends State<SignupPage> {
       // Optionally persist user's preferred filing type (app-specific)
       await ThemeController.setFilingType(_selectedFilingType!);
 
+      // Request OTP for email verification
+      await AuthApi.requestOtp(
+        email: email,
+        purpose: 'email_verification',
+      );
+
       if (!mounted) return;
       AppToast.success(context, 'Registration successful! Verify your email.');
 
-      context.go('/otp-verification?email=${_emailController.text.trim()}&signup=true');
+      context.go('/otp-verification?email=$email&signup=true');
     } catch (e) {
       if (!mounted) return;
       AppToast.error(

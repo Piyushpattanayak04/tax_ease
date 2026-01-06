@@ -83,172 +83,171 @@ class _WelcomePageState extends State<WelcomePage>
           color: AppColors.brandNavy,
         ),
         child: SafeArea(
-          child: Padding(
-            padding: const EdgeInsets.all(AppDimensions.screenPadding),
-            child: Column(
-              children: [
-                Expanded(
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      // App Logo with smooth scale animation
-                      ScaleTransition(
-                        scale: CurvedAnimation(
-                          parent: _scaleController,
-                          curve: Curves.elasticOut,
-                        ),
-                        child: Container(
-                          width: 120,
-                          height: 120,
-                          decoration: BoxDecoration(
-                            color: AppColors.white,
-                            borderRadius: BorderRadius.circular(30),
-                            boxShadow: [
-                              BoxShadow(
-                                color: AppColors.shadowDark,
-                                blurRadius: 20,
-                                offset: const Offset(0, 10),
-                              ),
-                            ],
-                          ),
-                          child: const Icon(
-                            Icons.receipt_long_rounded,
-                            size: 60,
-                            color: AppColors.primary,
-                          ),
-                        ),
-                      ),
-                      
-                      const SizedBox(height: 40),
-                      
-                      // App Name with fade animation
-                      FadeTransition(
-                        opacity: _fadeController,
-                        child: Text(
-                          'TaxEase',
-                          style: Theme.of(context).textTheme.headlineLarge?.copyWith(
-                            color: AppColors.white,
-                            fontWeight: FontWeight.bold,
-                          ),
-                          textAlign: TextAlign.center,
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                        ),
-                      ),
-                      
-                      const SizedBox(height: 16),
-                      
-                      // App Tagline
-                      SmoothAnimations.slideUp(
-                        delay: const Duration(milliseconds: 800),
-                        child: Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: 16),
-                          child: Text(
-                            'Simplify your tax filing process\nwith secure and efficient solutions',
-                            style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                              color: AppColors.white.withValues(alpha: 0.9),
-                              fontWeight: FontWeight.w400,
+          child: Center(
+            child: ConstrainedBox(
+              constraints: BoxConstraints(
+                maxWidth: MediaQuery.of(context).size.width > 600
+                    ? 480
+                    : double.infinity,
+              ),
+              child: Padding(
+                padding: const EdgeInsets.all(AppDimensions.screenPadding),
+                child: Column(
+                  children: [
+                    Expanded(
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          // App Logo with smooth scale animation
+                          ScaleTransition(
+                            scale: CurvedAnimation(
+                              parent: _scaleController,
+                              curve: Curves.elasticOut,
                             ),
-                            textAlign: TextAlign.center,
-                            maxLines: 3,
-                            overflow: TextOverflow.ellipsis,
-                          ),
-                        ),
-                      ),
-                      
-                      const SizedBox(height: 48),
-                      
-                      // Features list
-                      SmoothAnimations.slideUp(
-                        delay: const Duration(milliseconds: 1000),
-                        child: Column(
-                          children: [
-                            _buildFeatureItem(
-                              icon: Icons.security_rounded,
-                              text: 'Secure document upload',
-                            ),
-                            const SizedBox(height: 12),
-                            _buildFeatureItem(
-                              icon: Icons.track_changes_rounded,
-                              text: 'Real-time status tracking',
-                            ),
-                            const SizedBox(height: 12),
-                            _buildFeatureItem(
-                              icon: Icons.download_rounded,
-                              text: 'Downloadable tax summaries',
-                            ),
-                          ],
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-                
-                // Bottom buttons
-                SmoothAnimations.slideUp(
-                  delay: const Duration(milliseconds: 1200),
-                  child: Column(
-                    children: [
-                      // Get Started Button
-                      SizedBox(
-                        width: double.infinity,
-                        height: 56,
-                        child: ElevatedButton(
-                          onPressed: () => context.push('/onboarding'),
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: AppColors.white,
-                            foregroundColor: AppColors.primary,
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(28),
-                            ),
-                          ),
-                          child: Text(
-                            'Get Started',
-                            style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                              color: AppColors.primary,
-                              fontWeight: FontWeight.w600,
-                            ),
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
-                          ),
-                        ),
-                      ),
-                      
-                      const SizedBox(height: 16),
-                      
-                      // Already have account button
-                      SizedBox(
-                        width: double.infinity,
-                        height: 56,
-                        child: TextButton(
-                          onPressed: () => context.push('/login'),
-                          style: TextButton.styleFrom(
-                            foregroundColor: AppColors.white,
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(28),
-                              side: const BorderSide(
+                            child: Container(
+                              width: 120,
+                              height: 120,
+                              decoration: BoxDecoration(
                                 color: AppColors.white,
-                                width: 1.5,
+                                borderRadius: BorderRadius.circular(30),
+                                boxShadow: [
+                                  BoxShadow(
+                                    color: AppColors.shadowDark,
+                                    blurRadius: 20,
+                                    offset: const Offset(0, 10),
+                                  ),
+                                ],
+                              ),
+                              child: const Icon(
+                                Icons.receipt_long_rounded,
+                                size: 60,
+                                color: AppColors.primary,
                               ),
                             ),
                           ),
-                          child: Text(
-                            'I already have an account',
-                            style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                              color: AppColors.white,
-                              fontWeight: FontWeight.w500,
+                          const SizedBox(height: 40),
+                          // App Name with fade animation
+                          FadeTransition(
+                            opacity: _fadeController,
+                            child: Text(
+                              'TaxEase',
+                              style: Theme.of(context).textTheme.headlineLarge?.copyWith(
+                                    color: AppColors.white,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                              textAlign: TextAlign.center,
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
                             ),
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
                           ),
-                        ),
+                          const SizedBox(height: 16),
+                          // App Tagline
+                          SmoothAnimations.slideUp(
+                            delay: const Duration(milliseconds: 800),
+                            child: Padding(
+                              padding: const EdgeInsets.symmetric(horizontal: 16),
+                              child: Text(
+                                'Simplify your tax filing process\nwith secure and efficient solutions',
+                                style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                                      color: AppColors.white.withValues(alpha: 0.9),
+                                      fontWeight: FontWeight.w400,
+                                    ),
+                                textAlign: TextAlign.center,
+                                maxLines: 3,
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                            ),
+                          ),
+                          const SizedBox(height: 48),
+                          // Features list
+                          SmoothAnimations.slideUp(
+                            delay: const Duration(milliseconds: 1000),
+                            child: Column(
+                              children: [
+                                _buildFeatureItem(
+                                  icon: Icons.security_rounded,
+                                  text: 'Secure document upload',
+                                ),
+                                const SizedBox(height: 12),
+                                _buildFeatureItem(
+                                  icon: Icons.track_changes_rounded,
+                                  text: 'Real-time status tracking',
+                                ),
+                                const SizedBox(height: 12),
+                                _buildFeatureItem(
+                                  icon: Icons.download_rounded,
+                                  text: 'Downloadable tax summaries',
+                                ),
+                              ],
+                            ),
+                          ),
+                        ],
                       ),
-                      
-                      const SizedBox(height: 24),
-                    ],
-                  ),
+                    ),
+                    // Bottom buttons
+                    SmoothAnimations.slideUp(
+                      delay: const Duration(milliseconds: 1200),
+                      child: Column(
+                        children: [
+                          // Get Started Button
+                          SizedBox(
+                            width: double.infinity,
+                            height: 56,
+                            child: ElevatedButton(
+                              onPressed: () => context.push('/onboarding'),
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: AppColors.white,
+                                foregroundColor: AppColors.primary,
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(28),
+                                ),
+                              ),
+                              child: Text(
+                                'Get Started',
+                                style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                                      color: AppColors.primary,
+                                      fontWeight: FontWeight.w600,
+                                    ),
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                            ),
+                          ),
+                          const SizedBox(height: 16),
+                          // Already have account button
+                          SizedBox(
+                            width: double.infinity,
+                            height: 56,
+                            child: TextButton(
+                              onPressed: () => context.push('/login'),
+                              style: TextButton.styleFrom(
+                                foregroundColor: AppColors.white,
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(28),
+                                  side: const BorderSide(
+                                    color: AppColors.white,
+                                    width: 1.5,
+                                  ),
+                                ),
+                              ),
+                              child: Text(
+                                'I already have an account',
+                                style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                                      color: AppColors.white,
+                                      fontWeight: FontWeight.w500,
+                                    ),
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                            ),
+                          ),
+                          const SizedBox(height: 24),
+                        ],
+                      ),
+                    ),
+                  ],
                 ),
-              ],
+              ),
             ),
           ),
         ),

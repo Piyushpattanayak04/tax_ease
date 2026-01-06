@@ -2,10 +2,12 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import '../../../../core/constants/app_colors.dart';
+import '../../../../core/theme/theme_controller.dart';
 import '../../../../core/constants/app_dimensions.dart';
 import '../../../../core/widgets/app_toast.dart';
 import '../../data/models/t1_form_models_simple.dart';
 import '../../data/services/t1_form_storage_service.dart';
+import '../../data/services/t1_remote_service.dart';
 import '../../../documents/data/t1_document_requirements.dart';
 import '../widgets/t1_personal_info_step.dart';
 import '../widgets/t1_questionnaire_1_step.dart';
@@ -76,15 +78,30 @@ class _PersonalTaxFormPageState extends State<PersonalTaxFormPage>
     T1FormData? savedData;
     
     if (widget.formId != null) {
-      // Load specific form by ID
+      // Load specific form by ID from local storage first
       savedData = await T1FormStorageService.instance.getFormById(widget.formId!);
+
+      // If not found locally, attempt to load from backend
+      if (savedData == null && ThemeController.authToken != null) {
+        try {
+          final remote = await T1RemoteService.instance.fetchForm(filingId: widget.formId!);
+          savedData = remote.copyWith(id: widget.formId!);
+          await T1FormStorageService.instance.saveForm(savedData!);
+        } catch (_) {
+          // Ignore remote failures here; we'll treat as no existing form
+        }
+      }
     }
     
     if (savedData == null) {
-      // Create a new form if no existing form found
-      savedData = T1FormStorageService.instance.createNewForm();
-      // Save the new form immediately
-      await T1FormStorageService.instance.saveForm(savedData);
+      // Create a new local form if no existing form found
+      savedData = T1FormData(
+        id: widget.formId ?? '',
+        status: 'draft',
+        createdAt: DateTime.now(),
+        updatedAt: DateTime.now(),
+      );
+      await T1FormStorageService.instance.saveForm(savedData!);
     }
     
     setState(() {
@@ -103,6 +120,14 @@ class _PersonalTaxFormPageState extends State<PersonalTaxFormPage>
     
     try {
       final success = await T1FormStorageService.instance.saveForm(_formData);
+
+      // Also persist to backend if we have a filing id
+      if (_formData.id.isNotEmpty) {
+        await T1RemoteService.instance.saveAnswers(
+          filingId: _formData.id,
+          form: _formData,
+        );
+      }
       
       if (success && mounted) {
         AppToast.success(context, 'Form saved successfully');
@@ -112,9 +137,11 @@ class _PersonalTaxFormPageState extends State<PersonalTaxFormPage>
         AppToast.error(context, 'Error saving form: $e');
       }
     } finally {
-      setState(() {
-        _isSaving = false;
-      });
+      if (mounted) {
+        setState(() {
+          _isSaving = false;
+        });
+      }
     }
   }
 
@@ -223,9 +250,48 @@ class _PersonalTaxFormPageState extends State<PersonalTaxFormPage>
   }
 
   Future<void> _submitForm() async {
-    // Update form status to submitted
-    _formData = _formData.copyWith(status: 'submitted', awaitingDocuments: false);
-    await _saveFormData();
+    if (_formData.id.isEmpty) {
+      if (mounted) {
+        AppToast.error(context, 'Missing filing id. Please start a new filing from "Your Forms".');
+      }
+      return;
+    }
+
+    // Validate required fields before submitting
+    final validationError = _validateRequiredFields();
+    if (validationError != null) {
+      if (mounted) {
+        AppToast.error(context, validationError);
+        // Jump back to first step to help user fix issues
+        _pageController.jumpToPage(0);
+        setState(() {
+          _currentStep = 0;
+        });
+        _updateProgress();
+      }
+      return;
+    }
+
+    try {
+      // Persist latest answers then submit remotely
+      await T1RemoteService.instance.saveAnswers(
+        filingId: _formData.id,
+        form: _formData,
+      );
+      await T1RemoteService.instance.submit(filingId: _formData.id);
+
+      // Update local status to submitted
+      _formData = _formData.copyWith(status: 'submitted', awaitingDocuments: false);
+      await T1FormStorageService.instance.saveForm(_formData);
+    } catch (e) {
+      if (mounted) {
+        AppToast.error(
+          context,
+          'Error submitting form. Please try again.',
+        );
+      }
+      return;
+    }
     
     if (mounted) {
       // Show success dialog
@@ -233,21 +299,20 @@ class _PersonalTaxFormPageState extends State<PersonalTaxFormPage>
         context: context,
         barrierDismissible: false,
         builder: (context) => AlertDialog(
-          icon: Icon(
+          icon: const Icon(
             Icons.check_circle,
             color: AppColors.success,
             size: 64,
           ),
           title: const Text('Form Submitted Successfully!'),
           content: const Text(
-            'Your T1 Personal Tax form has been saved and is now under review. '
-            'You can continue to edit the form until the filing deadline.',
+            'Your T1 Personal Tax form has been submitted and is now under review.',
           ),
           actions: [
             TextButton(
               onPressed: () {
                 Navigator.of(context).pop(); // Close dialog
-                context.go('/tax-forms/filled-forms?refresh=true'); // Navigate with refresh parameter
+                context.go('/tax-forms/filled-forms?refresh=true');
               },
               child: const Text('OK'),
             ),
@@ -280,11 +345,79 @@ class _PersonalTaxFormPageState extends State<PersonalTaxFormPage>
     });
   }
 
+  /// Ensure required personal info and all 20 questionnaire flags are answered.
+  String? _validateRequiredFields() {
+    final p = _formData.personalInfo;
+
+    bool _isEmpty(String s) => s.trim().isEmpty;
+
+    // Personal info mandatory fields
+    if (_isEmpty(p.firstName) ||
+        _isEmpty(p.lastName) ||
+        _isEmpty(p.sin) ||
+        p.dateOfBirth == null ||
+        _isEmpty(p.address) ||
+        _isEmpty(p.phoneNumber) ||
+        _isEmpty(p.email) ||
+        p.isCanadianCitizen == null ||
+        p.maritalStatus.trim().isEmpty) {
+      return 'Please complete all required personal information fields (marked with *).';
+    }
+
+    // Spouse info required if married/common-law
+    if (p.maritalStatus == 'married' || p.maritalStatus == 'common-law') {
+      final s = p.spouseInfo;
+      if (s == null ||
+          _isEmpty(s.firstName) ||
+          _isEmpty(s.lastName) ||
+          _isEmpty(s.sin) ||
+          s.dateOfBirth == null) {
+        return 'Please complete all required spouse information fields.';
+      }
+    }
+
+    final f = _formData;
+    final bools = <bool?>[
+      f.hasForeignProperty,
+      f.hasMedicalExpenses,
+      f.hasCharitableDonations,
+      f.hasMovingExpenses,
+      f.isSelfEmployed,
+      f.isFirstHomeBuyer,
+      f.soldPropertyLongTerm,
+      f.soldPropertyShortTerm,
+      f.hasWorkFromHomeExpense,
+      f.wasStudentLastYear,
+      f.isUnionMember,
+      f.hasDaycareExpenses,
+      f.isFirstTimeFiler,
+      f.hasOtherIncome,
+      f.hasProfessionalDues,
+      f.hasRrspFhsaInvestment,
+      f.hasChildArtSportCredit,
+      f.isProvinceFiler,
+      f.hasDisabilityTaxCredit,
+      f.isFilingForDeceased,
+    ];
+
+    if (bools.any((b) => b == null)) {
+      return 'Please answer all 20 questionnaire questions (Yes or No).';
+    }
+
+    return null;
+  }
+
   Future<void> _performAutoSave() async {
     if (!mounted) return;
     
     try {
       await T1FormStorageService.instance.saveForm(_formData);
+      if (_formData.id.isNotEmpty) {
+        await T1RemoteService.instance.saveAnswers(
+          filingId: _formData.id,
+          form: _formData,
+        );
+      }
       // Silent auto-save, no user notification
     } catch (e) {
       // Only log error, don't show user notification for auto-save failures
@@ -342,104 +475,116 @@ class _PersonalTaxFormPageState extends State<PersonalTaxFormPage>
             ),
         ],
       ),
-      body: Column(
-        children: [
-          // Progress Bar
-          Container(
-            color: Theme.of(context).cardColor,
-            padding: const EdgeInsets.all(AppDimensions.spacingMd),
-            child: Column(
-              children: [
-                T1FormProgressBar(
-                  currentStep: _currentStep,
-                  totalSteps: _stepTitles.length,
-                  controller: _progressController,
-                ),
-                const SizedBox(height: 8),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: List.generate(_stepTitles.length, (index) {
-                    final isActive = index == _currentStep;
-                    return Flexible(
-                      child: Text(
-                        _stepTitles[index],
-                        style: TextStyle(
-                          fontSize: 11,
-                          fontWeight: isActive ? FontWeight.w600 : FontWeight.w400,
-                          color: isActive ? AppColors.primary : AppColors.grey500,
+      body: LayoutBuilder(
+        builder: (context, constraints) {
+          final horizontalPadding = constraints.maxWidth >= 1024
+              ? AppDimensions.spacingXl
+              : AppDimensions.screenPadding;
+          final maxContentWidth = constraints.maxWidth >= 1024 ? 900.0 : double.infinity;
+
+          return Center(
+            child: ConstrainedBox(
+              constraints: BoxConstraints(maxWidth: maxContentWidth),
+              child: Column(
+                children: [
+                  // Progress Bar
+                  Container(
+                    color: Theme.of(context).cardColor,
+                    padding: const EdgeInsets.all(AppDimensions.spacingMd),
+                    child: Column(
+                      children: [
+                        T1FormProgressBar(
+                          currentStep: _currentStep,
+                          totalSteps: _stepTitles.length,
+                          controller: _progressController,
                         ),
-                        textAlign: TextAlign.center,
+                        const SizedBox(height: 8),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: List.generate(_stepTitles.length, (index) {
+                            final isActive = index == _currentStep;
+                            return Flexible(
+                              child: Text(
+                                _stepTitles[index],
+                                style: TextStyle(
+                                  fontSize: 11,
+                                  fontWeight: isActive ? FontWeight.w600 : FontWeight.w400,
+                                  color: isActive ? AppColors.primary : AppColors.grey500,
+                                ),
+                                textAlign: TextAlign.center,
+                              ),
+                            );
+                          }),
+                        ),
+                      ],
+                    ),
+                  ),
+                  // Form Content
+                  Expanded(
+                    child: Padding(
+                      padding: EdgeInsets.symmetric(horizontal: horizontalPadding),
+                      child: PageView(
+                        controller: _pageController,
+                        onPageChanged: (index) {
+                          setState(() {
+                            _currentStep = index;
+                          });
+                          _updateProgress();
+                        },
+                        children: List.generate(_stepTitles.length, (index) {
+                          // Step 0: Personal Information
+                          if (index == 0) {
+                            return T1PersonalInfoStep(
+                              personalInfo: _formData.personalInfo,
+                              onPersonalInfoChanged: (personalInfo) {
+                                _updateFormData(_formData.copyWith(personalInfo: personalInfo));
+                              },
+                              onNext: _nextStep,
+                            );
+                          }
+                          // Step 1: Questionnaire (basic questions)
+                          if (index == 1) {
+                            return T1Questionnaire1Step(
+                              formData: _formData,
+                              onFormDataChanged: _updateFormData,
+                              onPrevious: _previousStep,
+                              onNext: _nextStep,
+                              finalActionLabel: _requiresDocuments ? 'Upload Documents' : 'Submit Form',
+                            );
+                          }
+                          // Subsequent steps: detailed sections
+                          final detailIndex = index - 2;
+                          if (detailIndex < 0 || detailIndex >= _detailSteps.length) {
+                            return const SizedBox.shrink();
+                          }
+                          final detailType = _detailSteps[detailIndex];
+                          final isLastStep = index == _stepTitles.length - 1;
+                          final String primaryLabel = isLastStep
+                              ? (_requiresDocuments ? 'Upload Documents' : 'Submit Form')
+                              : 'Next: ${_stepTitles[index + 1]}';
+                          final String previousTitle = _stepTitles[index - 1];
+                          return T1Questionnaire2Step(
+                            stepType: detailType,
+                            formData: _formData,
+                            onFormDataChanged: _updateFormData,
+                            onPrevious: _previousStep,
+                            onPrimary: isLastStep
+                                ? () {
+                                    _handleFinalAction();
+                                  }
+                                : _nextStep,
+                            primaryButtonLabel: primaryLabel,
+                            previousStepTitle: previousTitle,
+                          );
+                        }),
                       ),
-                    );
-                  }),
-                ),
-              ],
+                    ),
+                  ),
+                ],
+              ),
             ),
-          ),
-          // Form Content
-          Expanded(
-            child: PageView(
-              controller: _pageController,
-              onPageChanged: (index) {
-                setState(() {
-                  _currentStep = index;
-                });
-                _updateProgress();
-              },
-              children: List.generate(_stepTitles.length, (index) {
-                // Step 0: Personal Information
-                if (index == 0) {
-                  return T1PersonalInfoStep(
-                    personalInfo: _formData.personalInfo,
-                    onPersonalInfoChanged: (personalInfo) {
-                      _updateFormData(_formData.copyWith(personalInfo: personalInfo));
-                    },
-                    onNext: _nextStep,
-                  );
-                }
-
-                // Step 1: Questionnaire (basic questions)
-                if (index == 1) {
-                  return T1Questionnaire1Step(
-                    formData: _formData,
-                    onFormDataChanged: _updateFormData,
-                    onPrevious: _previousStep,
-                    onNext: _nextStep,
-                    finalActionLabel: _requiresDocuments ? 'Upload Documents' : 'Submit Form',
-                  );
-                }
-
-                // Subsequent steps: detailed sections (Uber, Rental, General Business, Moving)
-                final detailIndex = index - 2;
-                if (detailIndex < 0 || detailIndex >= _detailSteps.length) {
-                  // Fallback to an empty container if something goes out of sync
-                  return const SizedBox.shrink();
-                }
-
-                final detailType = _detailSteps[detailIndex];
-                final isLastStep = index == _stepTitles.length - 1;
-                final String primaryLabel = isLastStep
-                    ? (_requiresDocuments ? 'Upload Documents' : 'Submit Form')
-                    : 'Next: ${_stepTitles[index + 1]}';
-                final String previousTitle = _stepTitles[index - 1];
-
-                return T1Questionnaire2Step(
-                  stepType: detailType,
-                  formData: _formData,
-                  onFormDataChanged: _updateFormData,
-                  onPrevious: _previousStep,
-                  onPrimary: isLastStep
-                      ? () {
-                          _handleFinalAction();
-                        }
-                      : _nextStep,
-                  primaryButtonLabel: primaryLabel,
-                  previousStepTitle: previousTitle,
-                );
-              }),
-            ),
-          ),
-        ],
+          );
+        },
       ),
     );
   }

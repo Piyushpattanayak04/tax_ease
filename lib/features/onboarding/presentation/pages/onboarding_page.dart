@@ -54,173 +54,183 @@ class _OnboardingPageState extends State<OnboardingPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       body: SafeArea(
-        child: Column(
-          children: [
-            // Skip button
-            Align(
-              alignment: Alignment.centerRight,
-              child: Padding(
-                padding: const EdgeInsets.all(AppDimensions.spacingMd),
-                child: TextButton(
-                  onPressed: () => _navigateToAuth(),
-                  child: Text(
-                    'Skip',
-                    style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                      color: AppColors.grey600,
-                      fontWeight: FontWeight.w500,
-                    ),
-                  ),
+        child: LayoutBuilder(
+          builder: (context, constraints) {
+            final horizontalPadding = constraints.maxWidth >= 1024
+                ? AppDimensions.spacingXl
+                : AppDimensions.screenPadding;
+
+            return Center(
+              child: ConstrainedBox(
+                constraints: BoxConstraints(
+                  maxWidth: constraints.maxWidth >= 1024 ? 900 : double.infinity,
                 ),
-              ),
-            ),
-
-            // Page view content
-            Expanded(
-              child: PageView.builder(
-                controller: _pageController,
-                onPageChanged: (index) {
-                  setState(() {
-                    _currentPage = index;
-                  });
-                },
-                itemCount: _items.length,
-                itemBuilder: (context, index) {
-                  return Padding(
-                    padding: const EdgeInsets.all(AppDimensions.screenPadding),
-                    child: SmoothAnimations.fadeIn(
-                      duration: const Duration(milliseconds: 600),
-                      child: _buildOnboardingItem(_items[index]),
-                    ),
-                  );
-                },
-              ),
-            ),
-
-            // Bottom section with indicator and buttons
-            Padding(
-              padding: const EdgeInsets.all(AppDimensions.screenPadding),
-              child: Column(
-                children: [
-                  // Page indicator
-                  SmoothPageIndicator(
-                    controller: _pageController,
-                    count: _items.length,
-                    effect: WormEffect(
-                      dotColor: AppColors.grey300,
-                      activeDotColor: AppColors.primary,
-                      dotHeight: 8,
-                      dotWidth: 8,
-                      spacing: 16,
-                    ),
+                child: Padding(
+                  padding: EdgeInsets.symmetric(
+                    horizontal: horizontalPadding,
+                    vertical: AppDimensions.screenPadding,
                   ),
-
-                  const SizedBox(height: 40),
-
-                  // Buttons
-                  Row(
+                  child: Column(
                     children: [
-                      if (_currentPage > 0)
-                        Expanded(
+                      // Skip button
+                      Align(
+                        alignment: Alignment.centerRight,
+                        child: Padding(
+                          padding: const EdgeInsets.all(AppDimensions.spacingMd),
                           child: TextButton(
-                            onPressed: () {
-                              _pageController.previousPage(
-                                duration: const Duration(milliseconds: 300),
-                                curve: Curves.easeInOut,
-                              );
-                            },
-                            style: TextButton.styleFrom(
-                              padding: const EdgeInsets.symmetric(vertical: 16),
-                            ),
+                            onPressed: () => _navigateToAuth(),
                             child: Text(
-                              'Previous',
+                              'Skip',
                               style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                                color: AppColors.grey600,
-                                fontWeight: FontWeight.w500,
-                              ),
-                            ),
-                          ),
-                        ),
-                      
-                      if (_currentPage > 0) const SizedBox(width: 16),
-
-                      Expanded(
-                        flex: _currentPage == 0 ? 1 : 2,
-                        child: ElevatedButton(
-                          onPressed: _currentPage == _items.length - 1
-                              ? _navigateToAuth
-                              : () {
-                                  _pageController.nextPage(
-                                    duration: const Duration(milliseconds: 300),
-                                    curve: Curves.easeInOut,
-                                  );
-                                },
-                          style: ElevatedButton.styleFrom(
-                            padding: const EdgeInsets.symmetric(vertical: 16),
-                          ),
-                          child: Text(
-                            _currentPage == _items.length - 1 ? 'Get Started' : 'Next',
-                            style: const TextStyle(
-                              fontSize: 16,
-                              fontWeight: FontWeight.w600,
+                                    color: AppColors.grey600,
+                                    fontWeight: FontWeight.w500,
+                                  ),
                             ),
                           ),
                         ),
                       ),
+                      // Page view content
+                      Expanded(
+                        child: PageView.builder(
+                          controller: _pageController,
+                          onPageChanged: (index) {
+                            setState(() {
+                              _currentPage = index;
+                            });
+                          },
+                          itemCount: _items.length,
+                          itemBuilder: (context, index) {
+                            return SmoothAnimations.fadeIn(
+                              duration: const Duration(milliseconds: 600),
+                              child: _buildOnboardingItem(_items[index]),
+                            );
+                          },
+                        ),
+                      ),
+                      // Bottom section with indicator and buttons
+                      Padding(
+                        padding: const EdgeInsets.only(top: AppDimensions.screenPadding),
+                        child: Column(
+                          children: [
+                            // Page indicator
+                            SmoothPageIndicator(
+                              controller: _pageController,
+                              count: _items.length,
+                              effect: WormEffect(
+                                dotColor: AppColors.grey300,
+                                activeDotColor: AppColors.primary,
+                                dotHeight: 8,
+                                dotWidth: 8,
+                                spacing: 16,
+                              ),
+                            ),
+                            const SizedBox(height: 40),
+                            // Buttons
+                            Row(
+                              children: [
+                                if (_currentPage > 0)
+                                  Expanded(
+                                    child: TextButton(
+                                      onPressed: () {
+                                        _pageController.previousPage(
+                                          duration: const Duration(milliseconds: 300),
+                                          curve: Curves.easeInOut,
+                                        );
+                                      },
+                                      style: TextButton.styleFrom(
+                                        padding: const EdgeInsets.symmetric(vertical: 16),
+                                      ),
+                                      child: Text(
+                                        'Previous',
+                                        style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                                              color: AppColors.grey600,
+                                              fontWeight: FontWeight.w500,
+                                            ),
+                                      ),
+                                    ),
+                                  ),
+                                if (_currentPage > 0) const SizedBox(width: 16),
+                                Expanded(
+                                  flex: _currentPage == 0 ? 1 : 2,
+                                  child: ElevatedButton(
+                                    onPressed: _currentPage == _items.length - 1
+                                        ? _navigateToAuth
+                                        : () {
+                                            _pageController.nextPage(
+                                              duration: const Duration(milliseconds: 300),
+                                              curve: Curves.easeInOut,
+                                            );
+                                          },
+                                    style: ElevatedButton.styleFrom(
+                                      padding: const EdgeInsets.symmetric(vertical: 16),
+                                    ),
+                                    child: const Text(
+                                      'Next',
+                                      style: TextStyle(
+                                        fontSize: 16,
+                                        fontWeight: FontWeight.w600,
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                            const SizedBox(height: 16),
+                          ],
+                        ),
+                      ),
                     ],
                   ),
-
-                  const SizedBox(height: 16),
-                ],
+                ),
               ),
-            ),
-          ],
+            );
+          },
         ),
       ),
     );
   }
 
   Widget _buildOnboardingItem(OnboardingItem item) {
+    final width = MediaQuery.of(context).size.width;
+    final double imageSize = width.clamp(260.0, 420.0) * 0.6;
+
     return Column(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
-        // SVG Illustration
+        // SVG Illustration with responsive sizing
         SizedBox(
-          width: 280,
-          height: 280,
+          width: imageSize,
+          height: imageSize,
           child: SvgPicture.asset(
             item.svgAsset,
             fit: BoxFit.contain,
           ),
         ),
-
         const SizedBox(height: 40),
-
         // Title
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: 16),
           child: Text(
             item.title,
             style: Theme.of(context).textTheme.headlineMedium?.copyWith(
-              color: AppColors.grey800,
-              fontWeight: FontWeight.bold,
-            ),
+                  color: AppColors.grey800,
+                  fontWeight: FontWeight.bold,
+                ),
             textAlign: TextAlign.center,
             maxLines: 2,
             overflow: TextOverflow.ellipsis,
           ),
         ),
-
         const SizedBox(height: 16),
-
         // Description
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: 16),
           child: Text(
             item.description,
             style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-              color: AppColors.grey600,
-              height: 1.5,
-            ),
+                  color: AppColors.grey600,
+                  height: 1.5,
+                ),
             textAlign: TextAlign.center,
             maxLines: 4,
             overflow: TextOverflow.ellipsis,

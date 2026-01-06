@@ -6,6 +6,7 @@ import '../../features/auth/presentation/pages/login_page.dart';
 import '../../features/auth/presentation/pages/signup_page.dart';
 import '../../features/auth/presentation/pages/forgot_password_page.dart';
 import '../../features/auth/presentation/pages/otp_verification_page.dart';
+import '../../features/auth/presentation/pages/reset_password_page.dart';
 import '../../features/onboarding/presentation/pages/onboarding_page.dart';
 import '../../features/onboarding/presentation/pages/welcome_page.dart';
 import '../../features/dashboard/presentation/pages/dashboard_page.dart';
@@ -19,6 +20,7 @@ import '../../features/filing/presentation/pages/filing_status_page.dart';
 import '../../features/filing/presentation/pages/filing_summary_page.dart';
 import '../../features/notifications/presentation/pages/notifications_page.dart';
 import '../../features/profile/presentation/pages/profile_page.dart';
+import '../../features/profile/presentation/pages/edit_profile_page.dart';
 import '../../features/settings/presentation/pages/help_support_page.dart';
 import '../../features/settings/presentation/pages/about_page.dart';
 import '../../features/settings/presentation/pages/privacy_policy_page.dart';
@@ -88,6 +90,14 @@ class AppRouter {
         pageBuilder: (context, state) => _page(const ForgotPasswordPage()),
       ),
       GoRoute(
+        path: '/reset-password',
+        name: 'reset-password',
+        pageBuilder: (context, state) {
+          final email = state.uri.queryParameters['email'] ?? '';
+          return _page(ResetPasswordPage(email: email));
+        },
+      ),
+      GoRoute(
         path: '/otp-verification',
         name: 'otp-verification',
         pageBuilder: (context, state) {
@@ -134,12 +144,18 @@ class AppRouter {
             pageBuilder: (context, state) => _page(const DocumentsPage()),
           ),
 
-          // Profile
-          GoRoute(
-            path: '/profile',
-            name: 'profile',
-            pageBuilder: (context, state) => _page(const ProfilePage()),
-          ),
+      // Profile
+      GoRoute(
+        path: '/profile',
+        name: 'profile',
+        pageBuilder: (context, state) => _page(const ProfilePage()),
+      ),
+      // Profile edit (full screen)
+      GoRoute(
+        path: '/profile/edit',
+        name: 'edit-profile',
+        pageBuilder: (context, state) => _page(const EditProfilePage()),
+      ),
         ],
       ),
 
@@ -261,6 +277,7 @@ class Routes {
   static const String login = '/login';
   static const String signup = '/signup';
   static const String forgotPassword = '/forgot-password';
+  static const String resetPassword = '/reset-password';
   static const String otpVerification = '/otp-verification';
   static const String home = '/home';
   static const String filledForms = '/tax-forms/filled-forms';
@@ -270,7 +287,7 @@ class Routes {
   static const String documents = '/documents';
   static const String uploadDocuments = '/documents/upload';
   static const String profile = '/profile';
-  static const String filingStatus = '/filing-status';
+  static const String editProfile = '/profile/edit';
   static const String filingSummary = '/filing-summary';
   static const String helpSupport = '/help-support';
   static const String about = '/about';

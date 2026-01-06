@@ -3,6 +3,8 @@ import 'package:go_router/go_router.dart';
 import '../../../../core/constants/app_colors.dart';
 import '../../../../core/constants/app_dimensions.dart';
 import '../../../../shared/animations/smooth_animations.dart';
+import '../../../../core/widgets/app_toast.dart';
+import '../../data/auth_api.dart';
 
 class ForgotPasswordPage extends StatefulWidget {
   const ForgotPasswordPage({super.key});
@@ -99,15 +101,15 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
                           hintText: 'Enter your email',
                           prefixIcon: Icon(Icons.email_outlined),
                         ),
-                        validator: (value) {
-                          if (value == null || value.isEmpty) {
-                            return 'Please enter your email';
-                          }
-                          if (!RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}\$').hasMatch(value)) {
-                            return 'Please enter a valid email';
-                          }
-                          return null;
-                        },
+                          validator: (value) {
+                            if (value == null || value.isEmpty) {
+                              return 'Please enter your email';
+                            }
+                            if (!RegExp(r'^[\w\.-]+@([\w-]+\.)+[\w-]{2,4}$').hasMatch(value)) {
+                              return 'Please enter a valid email';
+                            }
+                            return null;
+                          },
                       ),
 
                       const SizedBox(height: 32),
@@ -173,38 +175,32 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
       _isLoading = true;
     });
 
-    // Simulate API call
-    await Future.delayed(const Duration(seconds: 2));
+    try {
+      final email = _emailController.text.trim();
 
-    if (mounted) {
-      setState(() {
-        _isLoading = false;
-      });
+      // Call backend: POST /auth/password/reset-request
+      await AuthApi.requestPasswordReset(email: email);
 
-      // Show success dialog
-      showDialog(
-        context: context,
-        builder: (context) => AlertDialog(
-          icon: const Icon(
-            Icons.check_circle_outline,
-            color: AppColors.success,
-            size: 48,
-          ),
-          title: const Text('Reset Link Sent'),
-          content: Text(
-            'We\'ve sent a password reset link to ${_emailController.text}. Please check your email and follow the instructions.',
-          ),
-          actions: [
-            TextButton(
-              onPressed: () {
-                Navigator.of(context).pop();
-                context.go('/login');
-              },
-              child: const Text('OK'),
-            ),
-          ],
-        ),
+      if (!mounted) return;
+      AppToast.success(
+        context,
+        'We\'ve sent a password reset code to $email.',
       );
+
+      // Navigate to reset-password page with email as query param
+      context.push('/reset-password?email=$email');
+    } catch (e) {
+      if (!mounted) return;
+      AppToast.error(
+        context,
+        e.toString().replaceFirst('Exception: ', ''),
+      );
+    } finally {
+      if (mounted) {
+        setState(() {
+          _isLoading = false;
+        });
+      }
     }
   }
 }

@@ -430,7 +430,7 @@ class _DocumentsPageState extends State<DocumentsPage> {
         automaticallyImplyLeading: false,
       ),
       body: ResponsiveContainer(
-        centerContent: false,
+        centerContent: true,
         padding: EdgeInsets.all(Responsive.responsive(
           context: context,
           mobile: AppDimensions.screenPadding,

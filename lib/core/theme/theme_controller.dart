@@ -23,6 +23,10 @@ class ThemeController {
   static String? _authToken;
   static String? get authToken => _authToken;
   
+  /// Persisted refresh token (optional)
+  static String? _refreshToken;
+  static String? get refreshToken => _refreshToken;
+  
   /// Initialize auth state from SharedPreferences
   static Future<void> initialize() async {
     final prefs = await SharedPreferences.getInstance();
@@ -30,6 +34,7 @@ class ThemeController {
     userName.value = prefs.getString('user_name') ?? 'User';
     filingType.value = prefs.getString('filing_type');
     _authToken = prefs.getString('auth_token');
+    _refreshToken = prefs.getString('refresh_token');
   }
   
   /// Set login state
@@ -64,17 +69,29 @@ class ThemeController {
     _authToken = token;
   }
 
-  /// Clear all persisted auth info
+  /// Persist refresh token safely
+  static Future<void> setRefreshToken(String? token) async {
+    final prefs = await SharedPreferences.getInstance();
+    if (token == null) {
+      await prefs.remove('refresh_token');
+    } else {
+      await prefs.setString('refresh_token', token);
+    }
+    _refreshToken = token;
+  }
+
   static Future<void> clearAuth() async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.remove('is_logged_in');
     await prefs.remove('user_name');
     await prefs.remove('filing_type');
     await prefs.remove('auth_token');
+    await prefs.remove('refresh_token');
     isLoggedIn.value = false;
     userName.value = 'User';
     filingType.value = null;
     _authToken = null;
+    _refreshToken = null;
   }
 
   /// Toggle between light and dark theme. If system, it will switch to dark first.

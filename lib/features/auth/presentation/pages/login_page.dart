@@ -334,6 +334,11 @@ class _LoginPageState extends State<LoginPage> {
         await ThemeController.setAuthToken(result.token);
       }
 
+      // Persist refresh token if provided
+      if (result.refreshToken != null && result.refreshToken!.isNotEmpty) {
+        await ThemeController.setRefreshToken(result.refreshToken);
+      }
+
       // Update basic app state
       await ThemeController.setLoggedIn(true);
       await ThemeController.setUserName(result.displayName ?? email.split('@').first);

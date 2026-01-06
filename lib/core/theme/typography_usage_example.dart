@@ -152,7 +152,7 @@ class TypographyUsageExample extends StatelessWidget {
           const SizedBox(height: 4),
           Container(
             height: 1,
-            color: Colors.grey.withOpacity(0.2),
+            color: Colors.grey.withValues(alpha: 0.2),
           ),
         ],
       ),

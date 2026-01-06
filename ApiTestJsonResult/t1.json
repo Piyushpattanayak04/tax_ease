@@ -1,0 +1,402 @@
+{
+  "answers": {
+    // ===== Personal Info =====
+    "personalInfo.firstName": "John",
+    "personalInfo.middleName": "Alexander",
+    "personalInfo.lastName": "Doe",
+    "personalInfo.sin": "123456789",
+    "personalInfo.dateOfBirth": "1990-05-15",
+    "personalInfo.address": "123 Main Street, Toronto, ON M1M1M1",
+    "personalInfo.phoneNumber": "+1-416-555-1234",
+    "personalInfo.email": "john.doe@example.com",
+    "personalInfo.isCanadianCitizen": true,
+    "personalInfo.maritalStatus": "married",
+
+    // Spouse info (shown for married/common-law)
+    "personalInfo.spouseInfo.firstName": "Jane",
+    "personalInfo.spouseInfo.middleName": "Elizabeth",
+    "personalInfo.spouseInfo.lastName": "Doe",
+    "personalInfo.spouseInfo.sin": "987654321",
+    "personalInfo.spouseInfo.dateOfBirth": "1991-08-20",
+
+    // Children[] (repeatable) – example with 2 children
+    "personalInfo.children[0].firstName": "Emily",
+    "personalInfo.children[0].middleName": "Rose",
+    "personalInfo.children[0].lastName": "Doe",
+    "personalInfo.children[0].sin": "111222333",
+    "personalInfo.children[0].dateOfBirth": "2018-02-10",
+
+    "personalInfo.children[1].firstName": "Michael",
+    "personalInfo.children[1].middleName": "James",
+    "personalInfo.children[1].lastName": "Doe",
+    "personalInfo.children[1].sin": "444555666",
+    "personalInfo.children[1].dateOfBirth": "2020-11-05",
+
+    // ===== Questionnaire Q1: Foreign Property =====
+    "hasForeignProperty": true,
+
+    // foreignProperties[] subform – 1 row
+    "foreignProperties[0].investmentDetails": "Shares in ABC Corp (US)",
+    "foreignProperties[0].grossIncome": 1500.75,
+    "foreignProperties[0].gainLossOnSale": 350.10,
+    "foreignProperties[0].maxCostDuringYear": 120000.00,
+    "foreignProperties[0].costAmountYearEnd": 115000.00,
+    "foreignProperties[0].country": "United States",
+
+    // ===== Q2: Medical Expenses =====
+    "hasMedicalExpenses": true,
+
+    // medicalExpenses[] – 2 rows
+    "medicalExpenses[0].paymentDate": "2024-03-15",
+    "medicalExpenses[0].patientName": "John Doe",
+    "medicalExpenses[0].paymentMadeTo": "Downtown Clinic",
+    "medicalExpenses[0].descriptionOfExpense": "Physiotherapy sessions",
+    "medicalExpenses[0].insuranceCovered": 200.0,
+    "medicalExpenses[0].amountPaidFromPocket": 600.0,
+
+    "medicalExpenses[1].paymentDate": "2024-06-01",
+    "medicalExpenses[1].patientName": "Jane Doe",
+    "medicalExpenses[1].paymentMadeTo": "City Dental",
+    "medicalExpenses[1].descriptionOfExpense": "Dental surgery",
+    "medicalExpenses[1].insuranceCovered": 500.0,
+    "medicalExpenses[1].amountPaidFromPocket": 1200.0,
+
+    // ===== Q3: Charitable Donations =====
+    "hasCharitableDonations": true,
+
+    "charitableDonations[0].organizationName": "Red Cross Canada",
+    "charitableDonations[0].amount": 300.0,
+
+    "charitableDonations[1].organizationName": "Local Food Bank",
+    "charitableDonations[1].amount": 150.0,
+
+    // ===== Q4/Q5: Moving Expenses (simplified trigger flag) =====
+    "hasMovingExpenses": true,
+
+    // Legacy single movingExpense (if still used anywhere)
+    "movingExpense.individual": "John Doe",
+    "movingExpense.oldAddress": "456 Old Street, Ottawa, ON K2K2K2",
+    "movingExpense.newAddress": "123 Main Street, Toronto, ON M1M1M1",
+    "movingExpense.distanceFromOldToNew": "450 km",
+    "movingExpense.distanceFromNewToOffice": "12 km",
+    "movingExpense.airTicketCost": 0.0,
+    "movingExpense.moversAndPackers": 1800.0,
+    "movingExpense.mealsAndOtherCost": 350.0,
+    "movingExpense.anyOtherCost": 200.0,
+    "movingExpense.dateOfTravel": "2024-07-10",
+    "movingExpense.dateOfJoining": "2024-07-22",
+    "movingExpense.companyName": "Tech Solutions Inc.",
+    "movingExpense.newEmployerAddress": "500 Bay Street, Toronto, ON M5G2C9",
+    "movingExpense.grossIncomeAfterMoving": 90000.0,
+
+    // New per-person moving expense flags and subforms
+    "movingExpenseForIndividual": true,
+    "movingExpenseForSpouse": true,
+
+    "movingExpenseIndividual.individual": "John Doe",
+    "movingExpenseIndividual.oldAddress": "456 Old Street, Ottawa, ON K2K2K2",
+    "movingExpenseIndividual.newAddress": "123 Main Street, Toronto, ON M1M1M1",
+    "movingExpenseIndividual.distanceFromOldToNew": "450 km",
+    "movingExpenseIndividual.distanceFromNewToOffice": "12 km",
+    "movingExpenseIndividual.airTicketCost": 0.0,
+    "movingExpenseIndividual.moversAndPackers": 1800.0,
+    "movingExpenseIndividual.mealsAndOtherCost": 300.0,
+    "movingExpenseIndividual.anyOtherCost": 150.0,
+    "movingExpenseIndividual.dateOfTravel": "2024-07-10",
+    "movingExpenseIndividual.dateOfJoining": "2024-07-22",
+    "movingExpenseIndividual.companyName": "Tech Solutions Inc.",
+    "movingExpenseIndividual.newEmployerAddress": "500 Bay Street, Toronto, ON M5G2C9",
+    "movingExpenseIndividual.grossIncomeAfterMoving": 90000.0,
+
+    "movingExpenseSpouse.individual": "Jane Doe",
+    "movingExpenseSpouse.oldAddress": "456 Old Street, Ottawa, ON K2K2K2",
+    "movingExpenseSpouse.newAddress": "123 Main Street, Toronto, ON M1M1M1",
+    "movingExpenseSpouse.distanceFromOldToNew": "450 km",
+    "movingExpenseSpouse.distanceFromNewToOffice": "10 km",
+    "movingExpenseSpouse.airTicketCost": 0.0,
+    "movingExpenseSpouse.moversAndPackers": 0.0,
+    "movingExpenseSpouse.mealsAndOtherCost": 200.0,
+    "movingExpenseSpouse.anyOtherCost": 100.0,
+    "movingExpenseSpouse.dateOfTravel": "2024-07-10",
+    "movingExpenseSpouse.dateOfJoining": "2024-07-29",
+    "movingExpenseSpouse.companyName": "HealthCare Corp",
+    "movingExpenseSpouse.newEmployerAddress": "250 King Street, Toronto, ON M5V1E5",
+    "movingExpenseSpouse.grossIncomeAfterMoving": 75000.0,
+
+    // ===== Self Employment + Business Types (Uber/General/Rental) =====
+    "isSelfEmployed": true,
+
+    // Self-employment wrapper
+    "selfEmployment.businessTypes[0]": "uber",
+    "selfEmployment.businessTypes[1]": "general",
+    "selfEmployment.businessTypes[2]": "rental",
+
+    // Uber business subform (triggered by businessTypes contains 'uber')
+    "selfEmployment.uberBusiness.uberSkipStatement": "Uber 2024 Annual Statement #1234",
+    "selfEmployment.uberBusiness.businessHstNumber": "123456789RT0001",
+    "selfEmployment.uberBusiness.hstAccessCode": "ABCD1234",
+    "selfEmployment.uberBusiness.hstFillingPeriod": "Annual 2024",
+    "selfEmployment.uberBusiness.income": 35000.0,
+    "selfEmployment.uberBusiness.totalKmForUberSkip": 12000.0,
+    "selfEmployment.uberBusiness.totalOfficialKmDriven": 13000.0,
+    "selfEmployment.uberBusiness.totalKmDrivenEntireYear": 20000.0,
+    "selfEmployment.uberBusiness.businessNumberVehicleRegistration": 567890.0,
+    "selfEmployment.uberBusiness.meals": 800.0,
+    "selfEmployment.uberBusiness.telephone": 600.0,
+    "selfEmployment.uberBusiness.parkingFees": 450.0,
+    "selfEmployment.uberBusiness.cleaningExpenses": 300.0,
+    "selfEmployment.uberBusiness.safetyInspection": 150.0,
+    "selfEmployment.uberBusiness.winterTireChange": 400.0,
+    "selfEmployment.uberBusiness.oilChangeAndMaintenance": 500.0,
+    "selfEmployment.uberBusiness.depreciation": 1800.0,
+    "selfEmployment.uberBusiness.insuranceOnVehicle": 1200.0,
+    "selfEmployment.uberBusiness.gas": 2800.0,
+    "selfEmployment.uberBusiness.financingCostInterest": 900.0,
+    "selfEmployment.uberBusiness.leaseCost": 0.0,
+    "selfEmployment.uberBusiness.otherExpense": 250.0,
+
+    // General business subform (businessTypes contains 'general')
+    "selfEmployment.generalBusiness.clientName": "ABC Consulting Client",
+    "selfEmployment.generalBusiness.businessName": "JD Consulting Services",
+    "selfEmployment.generalBusiness.salesCommissionsFees": 45000.0,
+    "selfEmployment.generalBusiness.minusHstCollected": 6000.0,
+    "selfEmployment.generalBusiness.grossIncome": 39000.0,
+    "selfEmployment.generalBusiness.openingInventory": 0.0,
+    "selfEmployment.generalBusiness.purchasesDuringYear": 2000.0,
+    "selfEmployment.generalBusiness.subcontracts": 5000.0,
+    "selfEmployment.generalBusiness.directWageCosts": 8000.0,
+    "selfEmployment.generalBusiness.otherCosts": 1500.0,
+    "selfEmployment.generalBusiness.purchaseReturns": 0.0,
+    "selfEmployment.generalBusiness.advertising": 1200.0,
+    "selfEmployment.generalBusiness.mealsEntertainment": 700.0,
+    "selfEmployment.generalBusiness.badDebts": 300.0,
+    "selfEmployment.generalBusiness.insurance": 600.0,
+    "selfEmployment.generalBusiness.interest": 400.0,
+    "selfEmployment.generalBusiness.feesLicensesDues": 350.0,
+    "selfEmployment.generalBusiness.officeExpenses": 900.0,
+    "selfEmployment.generalBusiness.supplies": 750.0,
+    "selfEmployment.generalBusiness.legalAccountingFees": 1000.0,
+    "selfEmployment.generalBusiness.managementAdministration": 500.0,
+    "selfEmployment.generalBusiness.officeRent": 12000.0,
+    "selfEmployment.generalBusiness.maintenanceRepairs": 300.0,
+    "selfEmployment.generalBusiness.salariesWagesBenefits": 15000.0,
+    "selfEmployment.generalBusiness.propertyTax": 0.0,
+    "selfEmployment.generalBusiness.travel": 2000.0,
+    "selfEmployment.generalBusiness.telephoneUtilities": 1600.0,
+    "selfEmployment.generalBusiness.fuelCosts": 800.0,
+    "selfEmployment.generalBusiness.deliveryFreightExpress": 400.0,
+    "selfEmployment.generalBusiness.otherExpense1": 250.0,
+    "selfEmployment.generalBusiness.otherExpense2": 0.0,
+    "selfEmployment.generalBusiness.otherExpense3": 0.0,
+    "selfEmployment.generalBusiness.areaOfHomeForBusiness": "150 sq ft",
+    "selfEmployment.generalBusiness.totalAreaOfHome": "1200 sq ft",
+    "selfEmployment.generalBusiness.heat": 500.0,
+    "selfEmployment.generalBusiness.electricity": 700.0,
+    "selfEmployment.generalBusiness.houseInsurance": 650.0,
+    "selfEmployment.generalBusiness.homeMaintenance": 400.0,
+    "selfEmployment.generalBusiness.mortgageInterest": 8000.0,
+    "selfEmployment.generalBusiness.propertyTaxes": 3500.0,
+    "selfEmployment.generalBusiness.houseRent": 0.0,
+    "selfEmployment.generalBusiness.homeOtherExpense1": 200.0,
+    "selfEmployment.generalBusiness.homeOtherExpense2": 100.0,
+    "selfEmployment.generalBusiness.kmDrivenForBusiness": 8000.0,
+    "selfEmployment.generalBusiness.totalKmDrivenInYear": 15000.0,
+    "selfEmployment.generalBusiness.vehicleFuel": 2200.0,
+    "selfEmployment.generalBusiness.vehicleInsurance": 1100.0,
+    "selfEmployment.generalBusiness.licenseRegistration": 220.0,
+    "selfEmployment.generalBusiness.vehicleMaintenance": 900.0,
+    "selfEmployment.generalBusiness.businessParking": 300.0,
+    "selfEmployment.generalBusiness.vehicleOtherExpense": 150.0,
+    "selfEmployment.generalBusiness.leasingFinancePayments": 0.0,
+
+    // Rental income subform (businessTypes contains 'rental')
+    "selfEmployment.rentalIncome.propertyAddress": "789 Rental Ave, Mississauga, ON L5L5L5",
+    "selfEmployment.rentalIncome.coOwnerPartner1": "John Doe",
+    "selfEmployment.rentalIncome.coOwnerPartner2": "Jane Doe",
+    "selfEmployment.rentalIncome.coOwnerPartner3": "",
+    "selfEmployment.rentalIncome.numberOfUnits": 2,
+    "selfEmployment.rentalIncome.grossRentalIncome": 36000.0,
+    "selfEmployment.rentalIncome.anyGovtIncomeRelatingToRental": 0.0,
+    "selfEmployment.rentalIncome.personalUsePortion": "0%",
+    "selfEmployment.rentalIncome.houseInsurance": 1200.0,
+    "selfEmployment.rentalIncome.mortgageInterest": 9000.0,
+    "selfEmployment.rentalIncome.propertyTaxes": 4500.0,
+    "selfEmployment.rentalIncome.utilities": 2000.0,
+    "selfEmployment.rentalIncome.managementAdminFees": 1800.0,
+    "selfEmployment.rentalIncome.repairAndMaintenance": 1200.0,
+    "selfEmployment.rentalIncome.cleaningExpense": 400.0,
+    "selfEmployment.rentalIncome.motorVehicleExpenses": 600.0,
+    "selfEmployment.rentalIncome.legalProfessionalFees": 800.0,
+    "selfEmployment.rentalIncome.advertisingPromotion": 300.0,
+    "selfEmployment.rentalIncome.otherExpense": 250.0,
+    "selfEmployment.rentalIncome.purchasePrice": 550000.0,
+    "selfEmployment.rentalIncome.purchaseDate": "2020-09-15",
+    "selfEmployment.rentalIncome.additionDeletionAmount": 0.0,
+
+    // ===== First Home Buyer / Property Sale (Q7/Q8) =====
+    "isFirstHomeBuyer": true,
+
+    "soldPropertyLongTerm": true,
+    "propertySaleLongTerm.isLongTerm": true,
+    "propertySaleLongTerm.propertyAddress": "321 Old Home Rd, Ottawa, ON K1K1K1",
+    "propertySaleLongTerm.purchaseDate": "2015-04-01",
+    "propertySaleLongTerm.sellDate": "2024-05-15",
+    "propertySaleLongTerm.purchaseSellExpenses": 15000.0,
+    "propertySaleLongTerm.capitalGainEarned": 80000.0,
+
+    "soldPropertyShortTerm": true,
+    "propertySaleShortTerm.isLongTerm": false,
+    "propertySaleShortTerm.propertyAddress": "654 Flip St, Brampton, ON L6T1T1",
+    "propertySaleShortTerm.purchaseDate": "2024-01-10",
+    "propertySaleShortTerm.sellDate": "2024-10-01",
+    "propertySaleShortTerm.purchaseSellExpenses": 12000.0,
+    "propertySaleShortTerm.capitalGainEarned": 15000.0,
+
+    // ===== Q9: Work From Home =====
+    "hasWorkFromHomeExpense": true,
+
+    "workFromHomeIndividual.personType": "individual",
+    "workFromHomeIndividual.totalHouseArea": 1200.0,
+    "workFromHomeIndividual.totalWorkArea": 150.0,
+    "workFromHomeIndividual.rentExpense": 0.0,
+    "workFromHomeIndividual.mortgageExpense": 12000.0,
+    "workFromHomeIndividual.wifiExpense": 900.0,
+    "workFromHomeIndividual.electricityExpense": 700.0,
+    "workFromHomeIndividual.waterExpense": 300.0,
+    "workFromHomeIndividual.heatExpense": 600.0,
+    "workFromHomeIndividual.totalInsuranceExpense": 800.0,
+
+    "workFromHomeSpouse.personType": "spouse",
+    "workFromHomeSpouse.totalHouseArea": 1200.0,
+    "workFromHomeSpouse.totalWorkArea": 120.0,
+    "workFromHomeSpouse.rentExpense": 0.0,
+    "workFromHomeSpouse.mortgageExpense": 0.0,
+    "workFromHomeSpouse.wifiExpense": 0.0,
+    "workFromHomeSpouse.electricityExpense": 0.0,
+    "workFromHomeSpouse.waterExpense": 0.0,
+    "workFromHomeSpouse.heatExpense": 0.0,
+    "workFromHomeSpouse.totalInsuranceExpense": 0.0,
+
+    // ===== Q10: Student =====
+    "wasStudentLastYear": true,
+
+    // ===== Q11: Union Member =====
+    "isUnionMember": true,
+
+    "unionDues[0].institutionName": "National Workers Union",
+    "unionDues[0].amount": 450.0,
+
+    "unionDues[1].institutionName": "Tech Professionals Association",
+    "unionDues[1].amount": 300.0,
+
+    // ===== Q12: Daycare Expenses =====
+    "hasDaycareExpenses": true,
+
+    "daycareExpenses[0].childcareProvider": "Happy Kids Daycare",
+    "daycareExpenses[0].amount": 5200.0,
+    "daycareExpenses[0].identificationNumberSin": "555666777",
+    "daycareExpenses[0].weeks": 40.0,
+
+    // ===== Q13: First Time Filer =====
+    "isFirstTimeFiler": true,
+
+    "firstTimeFilerIndividual.dateOfLanding": "2023-08-01",
+    "firstTimeFilerIndividual.incomeOutsideCanada": 30000.0,
+    "firstTimeFilerIndividual.backHomeIncome2024": 0.0,
+    "firstTimeFilerIndividual.backHomeIncome2023": 10000.0,
+
+    "firstTimeFilerSpouse.dateOfLanding": "2023-08-01",
+    "firstTimeFilerSpouse.incomeOutsideCanada": 25000.0,
+    "firstTimeFilerSpouse.backHomeIncome2024": 0.0,
+    "firstTimeFilerSpouse.backHomeIncome2023": 8000.0,
+
+    // ===== Q14: Other Income =====
+    "hasOtherIncome": true,
+    "otherIncomeDescription": "Freelance graphic design income without T-slips: approx. $4,500 CAD.",
+
+    // ===== Q15: Professional Dues =====
+    "hasProfessionalDues": true,
+
+    "professionalDues[0].name": "Professional Engineer License",
+    "professionalDues[0].organization": "Professional Engineers Ontario",
+    "professionalDues[0].amount": 380.0,
+
+    "professionalDues[1].name": "Cloud Certification Exam Fee",
+    "professionalDues[1].organization": "Cloud Provider Inc.",
+    "professionalDues[1].amount": 250.0,
+
+    // ===== Q16: RRSP/FHSA Investment =====
+    "hasRrspFhsaInvestment": true,
+
+    // ===== Q17: Child Art & Sport Credits =====
+    "hasChildArtSportCredit": true,
+
+    "childArtSportEntries[0].instituteName": "Downtown Soccer Club",
+    "childArtSportEntries[0].description": "Youth soccer program for Emily",
+    "childArtSportEntries[0].amount": 400.0,
+
+    "childArtSportEntries[1].instituteName": "City Arts Academy",
+    "childArtSportEntries[1].description": "Piano lessons for Michael",
+    "childArtSportEntries[1].amount": 350.0,
+
+    // ===== Q18: Province Filer (ON/AB/QC) =====
+    "isProvinceFiler": true,
+
+    "provinceFilerEntries[0].rentOrPropertyTax": "Rent",
+    "provinceFilerEntries[0].propertyAddress": "123 Main Street, Toronto, ON M1M1M1",
+    "provinceFilerEntries[0].postalCode": "M1M1M1",
+    "provinceFilerEntries[0].monthsResides": 12.0,
+
+    // ===== Q19: Disability Tax Credit =====
+    "hasDisabilityTaxCredit": true,
+
+    "disabilityClaimMembers[0].firstName": "John",
+    "disabilityClaimMembers[0].lastName": "Doe",
+    "disabilityClaimMembers[0].relation": "Self",
+    "disabilityClaimMembers[0].approvedYear": "2020",
+
+    "disabilityClaimMembers[1].firstName": "Emily",
+    "disabilityClaimMembers[1].lastName": "Doe",
+    "disabilityClaimMembers[1].relation": "Daughter",
+    "disabilityClaimMembers[1].approvedYear": "2022",
+
+    // ===== Q20: Deceased Return =====
+    "isFilingForDeceased": true,
+
+    "deceasedReturnInfo.deceasedFullName": "Robert Smith",
+    "deceasedReturnInfo.dateOfDeath": "2024-04-10",
+    "deceasedReturnInfo.deceasedSin": "222333444",
+    "deceasedReturnInfo.deceasedMailingAddress": "900 Legacy Lane, Toronto, ON M2M2M2",
+    "deceasedReturnInfo.legalRepresentativeName": "John Doe",
+    "deceasedReturnInfo.legalRepresentativeContactNumber": "+1-416-555-9999",
+    "deceasedReturnInfo.legalRepresentativeAddress": "123 Main Street, Toronto, ON M1M1M1",
+
+    // ===== Document flags (optional, but can help testing) =====
+    "uploadedDocuments.Disability Approval form": "disability_approval_robert.pdf",
+    "uploadedDocuments.Clearance Certificate": "clearance_certificate_robert.pdf",
+    "uploadedDocuments.Charitable Donation Receipts": "charity_receipts_2024.pdf",
+    "uploadedDocuments.Moving Expense": "moving_expenses_2024.xlsx",
+    "uploadedDocuments.Statement of Adjustment issued by lawyer": "statement_of_adjustment.pdf",
+    "uploadedDocuments.T2202 Form": "t2202_john_2024.pdf",
+    "uploadedDocuments.Union Dues Receipt": "union_dues_2024.pdf",
+    "uploadedDocuments.Day Care Expense Receipts": "daycare_receipts_2024.pdf",
+    "uploadedDocuments.Professional Fees Receipt": "professional_fees_2024.pdf",
+    "uploadedDocuments.RRSP/FHSA T-slips": "rrsp_slips_2024.pdf",
+    "uploadedDocuments.Receipt for Child's Sport/Fitness & Art": "child_sport_art_receipts.pdf",
+
+    "unavailableDocuments.Disability Approval form": false,
+    "unavailableDocuments.Clearance Certificate": false,
+    "unavailableDocuments.Charitable Donation Receipts": false,
+    "unavailableDocuments.Moving Expense": false,
+    "unavailableDocuments.Statement of Adjustment issued by lawyer": false,
+    "unavailableDocuments.T2202 Form": false,
+    "unavailableDocuments.Union Dues Receipt": false,
+    "unavailableDocuments.Day Care Expense Receipts": false,
+    "unavailableDocuments.Professional Fees Receipt": false,
+    "unavailableDocuments.RRSP/FHSA T-slips": false,
+    "unavailableDocuments.Receipt for Child's Sport/Fitness & Art": false,
+
+    // Mark that user has reached document-handling step
+    "awaitingDocuments": false
+  }
+}

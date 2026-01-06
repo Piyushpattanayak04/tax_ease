@@ -188,6 +188,116 @@ class AuthApi {
     }
   }
 
+  /// Logout (blacklist current token)
+  static Future<void> logout() async {
+    try {
+      await _dio().post(ApiEndpoints.LOGOUT);
+    } on DioException catch (e) {
+      // Best-effort: don't block UI on logout failure.
+      // You can log _extractErrorMessage(e) if needed.
+    }
+  }
+
+  /// Refresh access token using the refresh token.
+  /// If [refreshToken] is null, it will try ThemeController.refreshToken.
+  static Future<AuthResult> refresh({String? refreshToken}) async {
+    final tokenToUse = refreshToken ?? ThemeController.refreshToken;
+    if (tokenToUse == null || tokenToUse.isEmpty) {
+      throw Exception('No refresh token available');
+    }
+
+    try {
+      // Use a fresh Dio with refresh token as bearer
+      final dio = Dio(
+        BaseOptions(
+          baseUrl: ApiEndpoints.BASE_URL,
+          connectTimeout: const Duration(seconds: 15),
+          receiveTimeout: const Duration(seconds: 20),
+          headers: {
+            'Content-Type': 'application/json',
+            'ngrok-skip-browser-warning': 'true',
+            'Authorization': 'Bearer $tokenToUse',
+          },
+        ),
+      );
+
+      final res = await dio.post(ApiEndpoints.REFRESH);
+      final data = res.data;
+      return _parseAuthResult(data);
+    } on DioException catch (e) {
+      throw Exception(_extractErrorMessage(e));
+    }
+  }
+
+  /// Request password reset OTP: POST /auth/password/reset-request
+  static Future<void> requestPasswordReset({required String email}) async {
+    try {
+      await _dio().post(
+        ApiEndpoints.PASSWORD_RESET_REQUEST,
+        data: {'email': email},
+      );
+    } on DioException catch (e) {
+      throw Exception(_extractErrorMessage(e));
+    }
+  }
+
+  /// Confirm password reset with OTP: POST /auth/password/reset-confirm
+  static Future<void> confirmPasswordReset({
+    required String email,
+    required String code,
+    required String newPassword,
+  }) async {
+    try {
+      await _dio().post(
+        ApiEndpoints.PASSWORD_RESET_CONFIRM,
+        data: {
+          'email': email,
+          'code': code,
+          'new_password': newPassword,
+        },
+      );
+    } on DioException catch (e) {
+      throw Exception(_extractErrorMessage(e));
+    }
+  }
+
+  /// Update current user profile: PATCH /users/me
+  static Future<UserProfile> updateCurrentUser({
+    String? firstName,
+    String? lastName,
+    String? phone,
+  }) async {
+    try {
+      final body = <String, dynamic>{};
+      if (firstName != null) body['first_name'] = firstName;
+      if (lastName != null) body['last_name'] = lastName;
+      if (phone != null) body['phone'] = phone;
+
+      final res = await _dio().patch(
+        ApiEndpoints.ME,
+        data: body,
+      );
+      final data = res.data;
+
+      if (data is Map<String, dynamic>) {
+        return UserProfile.fromJson(data);
+      }
+      if (data is Map) {
+        return UserProfile.fromJson(Map<String, dynamic>.from(data));
+      }
+      if (data is String) {
+        try {
+          final parsed = json.decode(data) as Map<String, dynamic>;
+          return UserProfile.fromJson(parsed);
+        } catch (_) {}
+      }
+
+      throw Exception('Unexpected response format');
+    } on DioException catch (e) {
+      throw Exception(_extractErrorMessage(e));
+    }
+  }
+
   static AuthResult _parseAuthResult(dynamic data) {
     // Docs:
     // { "access_token": "...", "refresh_token": "...", "token_type": "Bearer", "expires_in": 0 }

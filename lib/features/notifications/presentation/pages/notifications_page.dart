@@ -40,34 +40,47 @@ class _NotificationsList extends StatelessWidget {
         final subtitleStyle = (isSmall ? AppTextStyles.bodyXSmall : AppTextStyles.bodySmall)
             .copyWith(color: AppColors.grey600);
 
-        return ListView(
-          padding: const EdgeInsets.all(16),
-          children: [
-            // Header / tip
-            Row(
+        final horizontalPadding = constraints.maxWidth >= 1024 ? 48.0 : 16.0;
+        final maxContentWidth = constraints.maxWidth >= 1024 ? 800.0 : double.infinity;
+
+        return Center(
+          child: ConstrainedBox(
+            constraints: BoxConstraints(maxWidth: maxContentWidth),
+            child: ListView(
+              padding: EdgeInsets.all(horizontalPadding),
               children: [
-                const Icon(Icons.mark_chat_unread_outlined, size: 24, color: AppColors.grey600),
-                const SizedBox(width: 8),
-                Expanded(
-                  child: Text(
-                    'Your latest communications and requests will appear here.',
-                    style: subtitleStyle,
-                  ),
+                // Header / tip
+                Row(
+                  children: [
+                    const Icon(
+                      Icons.mark_chat_unread_outlined,
+                      size: 24,
+                      color: AppColors.grey600,
+                    ),
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child: Text(
+                        'Your latest communications and requests will appear here.',
+                        style: subtitleStyle,
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 16),
+
+                // Demo notification (unread)
+                _NotificationCard(
+                  title: 'Payment Request Sent',
+                  message:
+                      'Please review and complete the payment to continue processing your return.',
+                  time: '2h ago',
+                  unread: true,
+                  titleStyle: titleStyle,
+                  subtitleStyle: subtitleStyle,
                 ),
               ],
             ),
-            const SizedBox(height: 16),
-
-            // Demo notification (unread)
-            _NotificationCard(
-              title: 'Payment Request Sent',
-              message: 'Please review and complete the payment to continue processing your return.',
-              time: '2h ago',
-              unread: true,
-              titleStyle: titleStyle,
-              subtitleStyle: subtitleStyle,
-            ),
-          ],
+          ),
         );
       },
     );

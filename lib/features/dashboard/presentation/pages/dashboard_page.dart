@@ -82,8 +82,6 @@ class _DashboardPageState extends State<DashboardPage> with AutomaticKeepAliveCl
                   : Icons.dark_mode_outlined,
             ),
             onPressed: () {
-              // Toggle theme using the controller
-              // If currently system, assume light based on platform brightness
               ThemeController.toggle();
             },
           ),
@@ -93,69 +91,76 @@ class _DashboardPageState extends State<DashboardPage> with AutomaticKeepAliveCl
           ),
         ],
       ),
-      body: SingleChildScrollView(
-        controller: _scrollController,
-        physics: const BouncingScrollPhysics(
-          parent: AlwaysScrollableScrollPhysics(),
-        ),
-        padding: const EdgeInsets.all(AppDimensions.screenPadding),
-        child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                // Welcome section
-                SmoothAnimations.slideUp(
-                  key: _welcomeKey,
-                  child: _buildWelcomeSection(),
+      body: LayoutBuilder(
+        builder: (context, constraints) {
+          final horizontalPadding = constraints.maxWidth >= 1024
+              ? AppDimensions.spacingXl
+              : AppDimensions.screenPadding;
+
+          return Center(
+            child: ConstrainedBox(
+              constraints: BoxConstraints(
+                maxWidth: constraints.maxWidth >= 1024 ? 1000 : double.infinity,
+              ),
+              child: SingleChildScrollView(
+                controller: _scrollController,
+                physics: const BouncingScrollPhysics(
+                  parent: AlwaysScrollableScrollPhysics(),
                 ),
-
-                const SizedBox(height: 24),
-
-                // Progress tracker (separate neutral card)
-                SmoothAnimations.slideUp(
-                  delay: const Duration(milliseconds: 150),
-                  child: _buildProgressCard(),
+                padding: EdgeInsets.symmetric(
+                  horizontal: horizontalPadding,
+                  vertical: AppDimensions.screenPadding,
                 ),
-
-                const SizedBox(height: 24),
-
-                // Quick stats
-                SmoothAnimations.slideUp(
-                  key: _quickStatsKey,
-                  delay: const Duration(milliseconds: 300),
-                  child: _buildQuickStats(),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    // Welcome section
+                    SmoothAnimations.slideUp(
+                      key: _welcomeKey,
+                      child: _buildWelcomeSection(),
+                    ),
+                    const SizedBox(height: 24),
+                    // Progress tracker (separate neutral card)
+                    SmoothAnimations.slideUp(
+                      delay: const Duration(milliseconds: 150),
+                      child: _buildProgressCard(),
+                    ),
+                    const SizedBox(height: 24),
+                    // Quick stats
+                    SmoothAnimations.slideUp(
+                      key: _quickStatsKey,
+                      delay: const Duration(milliseconds: 300),
+                      child: _buildQuickStats(),
+                    ),
+                    const SizedBox(height: 24),
+                    // Quick actions
+                    SmoothAnimations.slideUp(
+                      key: _quickActionsKey,
+                      delay: const Duration(milliseconds: 400),
+                      child: _buildQuickActions(),
+                    ),
+                    const SizedBox(height: 24),
+                    // Recent activity
+                    SmoothAnimations.slideUp(
+                      key: _recentActivityKey,
+                      delay: const Duration(milliseconds: 600),
+                      child: _buildRecentActivity(),
+                    ),
+                    const SizedBox(height: 24),
+                    // Tax deadlines
+                    SmoothAnimations.slideUp(
+                      key: _taxDeadlinesKey,
+                      delay: const Duration(milliseconds: 800),
+                      child: _buildTaxDeadlines(),
+                    ),
+                    // Extra bottom padding to account for bottom nav
+                    const SizedBox(height: 100),
+                  ],
                 ),
-
-                const SizedBox(height: 24),
-
-                // Quick actions
-                SmoothAnimations.slideUp(
-                  key: _quickActionsKey,
-                  delay: const Duration(milliseconds: 400),
-                  child: _buildQuickActions(),
-                ),
-
-                const SizedBox(height: 24),
-
-                // Recent activity
-                SmoothAnimations.slideUp(
-                  key: _recentActivityKey,
-                  delay: const Duration(milliseconds: 600),
-                  child: _buildRecentActivity(),
-                ),
-
-                const SizedBox(height: 24),
-
-                // Tax deadlines
-                SmoothAnimations.slideUp(
-                  key: _taxDeadlinesKey,
-                  delay: const Duration(milliseconds: 800),
-                  child: _buildTaxDeadlines(),
-                ),
-                
-                // Extra bottom padding to account for bottom nav
-                const SizedBox(height: 100),
-              ],
+              ),
             ),
+          );
+        },
       ),
     );
   }

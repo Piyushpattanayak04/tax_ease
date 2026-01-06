@@ -377,7 +377,45 @@ class _T1PersonalInfoStepState extends State<T1PersonalInfoStep> {
           SizedBox(
             width: double.infinity,
             child: ElevatedButton(
-              onPressed: widget.onNext,
+              onPressed: () {
+                // Basic required-field check before moving to questionnaire
+                final p = _personalInfo;
+                bool _isEmpty(String s) => s.trim().isEmpty;
+                if (_isEmpty(p.firstName) ||
+                    _isEmpty(p.lastName) ||
+                    _isEmpty(p.sin) ||
+                    _dateOfBirth == null ||
+                    _isEmpty(p.address) ||
+                    _isEmpty(p.phoneNumber) ||
+                    _isEmpty(p.email) ||
+                    p.isCanadianCitizen == null ||
+                    p.maritalStatus.trim().isEmpty) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                      content: Text('Please complete all required personal information fields.'),
+                    ),
+                  );
+                  return;
+                }
+
+                if (p.maritalStatus == 'married' || p.maritalStatus == 'common-law') {
+                  final s = p.spouseInfo;
+                  if (s == null ||
+                      _isEmpty(s.firstName) ||
+                      _isEmpty(s.lastName) ||
+                      _isEmpty(s.sin) ||
+                      _spouseDateOfBirth == null) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(
+                        content: Text('Please complete all required spouse information fields.'),
+                      ),
+                    );
+                    return;
+                  }
+                }
+
+                widget.onNext();
+              },
               child: const Text('Next: Questionnaire'),
             ),
           ),

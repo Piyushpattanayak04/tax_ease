@@ -11,6 +11,7 @@ import '../../data/models/t1_form_models_simple.dart';
 import '../../data/models/t2_form_models.dart';
 import '../../data/services/t1_form_storage_service.dart';
 import '../../data/services/t2_form_storage_service.dart';
+import '../../data/services/t1_remote_service.dart';
 
 // Combined form data for unified display
 class CombinedFormData {
@@ -227,11 +228,31 @@ class _YourFormsPageState extends State<YourFormsPage> with WidgetsBindingObserv
     final filingType = ThemeController.filingType.value;
     
     if (filingType == 'T1') {
-      // T1 Personal - always create a new form
-      final newForm = T1FormStorageService.instance.createNewForm();
-      if (mounted) context.push('/tax-forms/personal?formId=${newForm.id}');
+      // T1 Personal - create a new remote filing then local form linked to it
+      try {
+        final filingYear = DateTime.now().year;
+        final filingId = await T1RemoteService.instance.createFiling(filingYear: filingYear);
+
+        final newForm = T1FormData(
+          id: filingId,
+          status: 'draft',
+          createdAt: DateTime.now(),
+          updatedAt: DateTime.now(),
+        );
+        await T1FormStorageService.instance.saveForm(newForm);
+
+        if (mounted) {
+          context.push('/tax-forms/personal?formId=$filingId');
+        }
+      } catch (e) {
+        if (!mounted) return;
+        AppToast.error(
+          context,
+          'Could not start new filing. Please try again.',
+        );
+      }
     } else if (filingType == 'T2') {
-      // T2 Business - always create a new form
+      // T2 Business - always create a new local form (backend wiring can be added similarly)
       final newForm = T2FormStorageService.instance.createNewForm();
       if (mounted) context.push('/tax-forms/business?formId=${newForm.id}');
     } else {
@@ -269,9 +290,29 @@ class _YourFormsPageState extends State<YourFormsPage> with WidgetsBindingObserv
   }
 
   Future<void> _navigateToT1Form() async {
-    // Always create a new T1 form
-    final newForm = T1FormStorageService.instance.createNewForm();
-    if (mounted) context.push('/tax-forms/personal?formId=${newForm.id}');
+    // Create a new T1 form backed by a remote filing
+    try {
+      final filingYear = DateTime.now().year;
+      final filingId = await T1RemoteService.instance.createFiling(filingYear: filingYear);
+
+      final newForm = T1FormData(
+        id: filingId,
+        status: 'draft',
+        createdAt: DateTime.now(),
+        updatedAt: DateTime.now(),
+      );
+      await T1FormStorageService.instance.saveForm(newForm);
+
+      if (mounted) {
+        context.push('/tax-forms/personal?formId=$filingId');
+      }
+    } catch (e) {
+      if (!mounted) return;
+      AppToast.error(
+        context,
+        'Could not start new filing. Please try again.',
+      );
+    }
   }
 
   Future<void> _navigateToT2Form() async {
