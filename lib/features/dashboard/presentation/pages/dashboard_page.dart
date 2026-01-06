@@ -88,12 +88,8 @@ class _DashboardPageState extends State<DashboardPage> with AutomaticKeepAliveCl
             },
           ),
           IconButton(
-icon: const Icon(Icons.notifications_outlined),
+            icon: const Icon(Icons.notifications_outlined),
             onPressed: () => context.push('/notifications'),
-          ),
-          IconButton(
-            icon: const Icon(Icons.settings_outlined),
-            onPressed: () => context.push('/settings'),
           ),
         ],
       ),

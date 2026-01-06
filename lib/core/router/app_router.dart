@@ -19,7 +19,6 @@ import '../../features/filing/presentation/pages/filing_status_page.dart';
 import '../../features/filing/presentation/pages/filing_summary_page.dart';
 import '../../features/notifications/presentation/pages/notifications_page.dart';
 import '../../features/profile/presentation/pages/profile_page.dart';
-import '../../features/settings/presentation/pages/settings_page.dart';
 import '../../features/settings/presentation/pages/help_support_page.dart';
 import '../../features/settings/presentation/pages/about_page.dart';
 import '../../features/settings/presentation/pages/privacy_policy_page.dart';
@@ -203,11 +202,6 @@ class AppRouter {
 
       // Settings Routes (full screen)
       GoRoute(
-        path: '/settings',
-        name: 'settings',
-        pageBuilder: (context, state) => _page(const SettingsPage()),
-      ),
-      GoRoute(
         path: '/help-support',
         name: 'help-support',
         pageBuilder: (context, state) => _page(const HelpSupportPage()),
@@ -278,7 +272,6 @@ class Routes {
   static const String profile = '/profile';
   static const String filingStatus = '/filing-status';
   static const String filingSummary = '/filing-summary';
-  static const String settings = '/settings';
   static const String helpSupport = '/help-support';
   static const String about = '/about';
   static const String privacyPolicy = '/privacy-policy';
