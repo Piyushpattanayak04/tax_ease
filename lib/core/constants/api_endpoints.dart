@@ -1,5 +1,5 @@
 // ignore_for_file: constant_identifier_names
-
+//
 class ApiEndpoints {
   // OpenAPI base
   static const String BASE_URL = 'https://908333d8e394.ngrok-free.app/api/v1';
