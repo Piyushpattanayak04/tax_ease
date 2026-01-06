@@ -80,7 +80,7 @@ class _WelcomePageState extends State<WelcomePage>
     return Scaffold(
       body: Container(
         decoration: const BoxDecoration(
-          gradient: AppColors.primaryGradient,
+          color: AppColors.brandNavy,
         ),
         child: SafeArea(
           child: Padding(

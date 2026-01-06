@@ -165,153 +165,111 @@ class _DashboardPageState extends State<DashboardPage> with AutomaticKeepAliveCl
       width: double.infinity,
       padding: const EdgeInsets.all(AppDimensions.spacingXl),
       decoration: BoxDecoration(
-        gradient: AppColors.primaryGradient,
+        color: AppColors.brandNavy,
         borderRadius: BorderRadius.circular(AppDimensions.radius2xl),
         boxShadow: [
           BoxShadow(
-            color: AppColors.primary.withValues(alpha: 0.3),
-            blurRadius: 20,
-            offset: const Offset(0, 8),
-            spreadRadius: 0,
-          ),
-          BoxShadow(
-            color: AppColors.accentLight.withValues(alpha: 0.1),
-            blurRadius: 40,
-            offset: const Offset(0, 20),
-            spreadRadius: -5,
+            color: AppColors.shadowMedium,
+            blurRadius: 24,
+            offset: const Offset(0, 12),
           ),
         ],
       ),
-      child: Stack(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Subtle decorative shapes using brand colors
-          Positioned(
-            top: -25,
-            right: -25,
-            child: _decorShape(
-              size: 100,
-              color: AppColors.accentLight.withValues(alpha: 0.12),
-              shape: BoxShape.circle,
-            ),
-          ),
-          Positioned(
-            bottom: -20,
-            left: -15,
-            child: _decorShape(
-              size: 80,
-              color: AppColors.primaryLight.withValues(alpha: 0.08),
-              shape: BoxShape.circle,
-            ),
-          ),
-
-          // Main content
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Expanded(
-                    child: ValueListenableBuilder<String>(
-                      valueListenable: ThemeController.userName,
-                    builder: (context, name, _) {
-                      final firstName = _firstName(name);
-                      return Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            'Hello ${firstName.isEmpty ? 'there!' : firstName}',
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
-                            style: Theme.of(context).textTheme.headlineMedium?.copyWith(
-                              color: AppColors.white,
-                              fontWeight: FontWeight.w700,
-                              letterSpacing: -0.5,
-                              height: 1.1,
-                            ),
-                          ),
-                          const SizedBox(height: 2),
-                          Text(
-                            'Let\'s make tax filing ease',
-                            style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                              color: AppColors.white.withValues(alpha: 0.75),
-                              fontWeight: FontWeight.w400,
-                            ),
-                          ),
-                        ],
-                      );
-                    },
-                    ),
-                  ),
-                  const SizedBox(width: 16),
-                  // Elegant avatar with brand colors
-                  ValueListenableBuilder<String>(
-                    valueListenable: ThemeController.userName,
-                    builder: (context, name, _) {
-                      final initials = _userInitials(name);
-                      return Container(
-                        width: 60,
-                        height: 60,
-                        decoration: BoxDecoration(
-                          gradient: LinearGradient(
-                            begin: Alignment.topLeft,
-                            end: Alignment.bottomRight,
-                            colors: [
-                              AppColors.white.withValues(alpha: 0.25),
-                              AppColors.white.withValues(alpha: 0.15),
-                            ],
-                          ),
-                          borderRadius: BorderRadius.circular(18),
-                          border: Border.all(
-                            color: AppColors.white.withValues(alpha: 0.2),
-                            width: 1.5,
-                          ),
+              Expanded(
+                child: ValueListenableBuilder<String>(
+                  valueListenable: ThemeController.userName,
+                  builder: (context, name, _) {
+                    final firstName = _firstName(name);
+                    return Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          'Hello ${firstName.isEmpty ? 'there!' : firstName}',
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: Theme.of(context).textTheme.headlineMedium?.copyWith(
+                                color: AppColors.white,
+                                fontWeight: FontWeight.w700,
+                                letterSpacing: -0.3,
+                                height: 1.1,
+                              ),
                         ),
-                        child: Center(
-                          child: Text(
-                            initials,
-                            style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                        const SizedBox(height: 4),
+                        Text(
+                          'Let\'s make tax filing ease',
+                          style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                                color: AppColors.white.withValues(alpha: 0.75),
+                                fontWeight: FontWeight.w400,
+                              ),
+                        ),
+                      ],
+                    );
+                  },
+                ),
+              ),
+              const SizedBox(width: 16),
+              // Avatar with subtle navy border, no gradient
+              ValueListenableBuilder<String>(
+                valueListenable: ThemeController.userName,
+                builder: (context, name, _) {
+                  final initials = _userInitials(name);
+                  return Container(
+                    width: 56,
+                    height: 56,
+                    decoration: BoxDecoration(
+                      color: AppColors.brandNavy,
+                      borderRadius: BorderRadius.circular(18),
+                      border: Border.all(
+                        color: AppColors.white.withValues(alpha: 0.24),
+                        width: 1.5,
+                      ),
+                    ),
+                    child: Center(
+                      child: Text(
+                        initials,
+                        style: Theme.of(context).textTheme.titleLarge?.copyWith(
                               color: AppColors.white,
                               fontWeight: FontWeight.w700,
                               letterSpacing: 1,
                             ),
-                          ),
-                        ),
-                      );
-                    },
-                  ),
-                ],
+                      ),
+                    ),
+                  );
+                },
               ),
-
-              const SizedBox(height: 20),
-
-              // Premium stats row
-              Row(
-                children: [
-                  Expanded(
-                    child: _buildMiniStat(
-                      icon: Icons.event_available_rounded,
-                      label: 'Due Date',
-                      value: 'Apr 30',
-                    ),
-                  ),
-                  const SizedBox(width: 12),
-                  Container(
-                    width: 1,
-                    height: 30,
-                    color: AppColors.white.withValues(alpha: 0.2),
-                  ),
-                  const SizedBox(width: 12),
-                  Expanded(
-                    child: _buildMiniStat(
-                      icon: Icons.schedule_rounded,
-                      label: 'Time Left',
-                      value: _daysLeftToNextApril30() == 0
-                          ? 'Due today'
-                          : '${_daysLeftToNextApril30()} days',
-                    ),
-                  ),
-                ],
+            ],
+          ),
+          const SizedBox(height: 20),
+          Row(
+            children: [
+              Expanded(
+                child: _buildMiniStat(
+                  icon: Icons.event_available_rounded,
+                  label: 'Due Date',
+                  value: 'Apr 30',
+                ),
+              ),
+              const SizedBox(width: 12),
+              Container(
+                width: 1,
+                height: 30,
+                color: AppColors.white.withValues(alpha: 0.16),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: _buildMiniStat(
+                  icon: Icons.schedule_rounded,
+                  label: 'Time Left',
+                  value: _daysLeftToNextApril30() == 0
+                      ? 'Due today'
+                      : '${_daysLeftToNextApril30()} days',
+                ),
               ),
             ],
           ),
@@ -452,12 +410,12 @@ class _DashboardPageState extends State<DashboardPage> with AutomaticKeepAliveCl
                   child: progress == 0.0
                       ? Container(
                           decoration: BoxDecoration(
-                            color: AppColors.primary.withValues(alpha: 0.1),
+                            color: AppColors.brandTeal.withValues(alpha: 0.12),
                             borderRadius: BorderRadius.circular(20),
                           ),
                           child: Icon(
                             Icons.play_arrow,
-                            color: AppColors.primary,
+                            color: AppColors.brandTeal,
                             size: 20,
                           ),
                         )
@@ -467,7 +425,7 @@ class _DashboardPageState extends State<DashboardPage> with AutomaticKeepAliveCl
                               value: progress,
                               backgroundColor: Theme.of(context).dividerColor,
                               valueColor: AlwaysStoppedAnimation<Color>(
-                                isComplete ? AppColors.success : AppColors.primary,
+                                isComplete ? AppColors.success : AppColors.brandTeal,
                               ),
                               strokeWidth: 3,
                             ),
@@ -481,9 +439,9 @@ class _DashboardPageState extends State<DashboardPage> with AutomaticKeepAliveCl
                                   : Text(
                                       '${(progress * 100).toInt()}%',
                                       style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                                        color: Theme.of(context).textTheme.bodySmall?.color,
-                                        fontWeight: FontWeight.w600,
-                                      ),
+                                            color: Theme.of(context).textTheme.bodySmall?.color,
+                                            fontWeight: FontWeight.w600,
+                                          ),
                                     ),
                             ),
                           ],
@@ -681,7 +639,7 @@ class _DashboardPageState extends State<DashboardPage> with AutomaticKeepAliveCl
                     title: 'Forms Filed',
                     value: '$submittedCount',
                     subtitle: 'This year',
-                    color: AppColors.success,
+                    color: AppColors.brandTeal,
                   ),
                 ),
                 const SizedBox(width: 16),
@@ -713,13 +671,13 @@ class _DashboardPageState extends State<DashboardPage> with AutomaticKeepAliveCl
       padding: const EdgeInsets.all(AppDimensions.spacingMd),
       decoration: BoxDecoration(
         color: Theme.of(context).cardColor,
-        borderRadius: BorderRadius.circular(AppDimensions.radiusLg),
+        borderRadius: BorderRadius.circular(AppDimensions.radius2xl),
         border: Border.all(color: Theme.of(context).dividerColor),
         boxShadow: [
           BoxShadow(
             color: AppColors.shadowLight,
-            blurRadius: 4,
-            offset: const Offset(0, 2),
+            blurRadius: 10,
+            offset: const Offset(0, 4),
           ),
         ],
       ),
@@ -913,8 +871,8 @@ class _DashboardPageState extends State<DashboardPage> with AutomaticKeepAliveCl
           boxShadow: [
             BoxShadow(
               color: AppColors.shadowLight,
-              blurRadius: 4,
-              offset: const Offset(0, 2),
+              blurRadius: 8,
+              offset: const Offset(0, 3),
             ),
           ],
         ),
@@ -1048,9 +1006,9 @@ class _DashboardPageState extends State<DashboardPage> with AutomaticKeepAliveCl
           width: double.infinity,
           padding: const EdgeInsets.all(AppDimensions.spacingMd),
           decoration: BoxDecoration(
-            color: AppColors.warning.withValues(alpha: 0.1),
+            color: Theme.of(context).cardColor,
             borderRadius: BorderRadius.circular(AppDimensions.radiusLg),
-            border: Border.all(color: AppColors.warning.withValues(alpha: 0.3)),
+            border: Border.all(color: Theme.of(context).dividerColor),
           ),
           child: Row(
             children: [

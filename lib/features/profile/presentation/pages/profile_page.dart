@@ -68,20 +68,27 @@ class ProfilePage extends StatelessWidget {
           padding: const EdgeInsets.all(AppDimensions.spacingLg),
           decoration: BoxDecoration(
             color: Theme.of(context).cardColor,
-            borderRadius: BorderRadius.circular(AppDimensions.radiusLg),
+            borderRadius: BorderRadius.circular(AppDimensions.radius2xl),
             border: Border.all(color: Theme.of(context).dividerColor),
+            boxShadow: [
+              BoxShadow(
+                color: AppColors.shadowLight,
+                blurRadius: 12,
+                offset: const Offset(0, 6),
+              ),
+            ],
           ),
           child: Column(
             children: [
               CircleAvatar(
                 radius: 40,
-                backgroundColor: AppColors.primary.withValues(alpha: 0.1),
+                backgroundColor: AppColors.brandNavy.withValues(alpha: 0.1),
                 child: Text(
                   initials,
-                  style: TextStyle(
+                  style: const TextStyle(
                     fontSize: 24,
                     fontWeight: FontWeight.bold,
-                    color: AppColors.primary,
+                    color: AppColors.brandNavy,
                   ),
                 ),
               ),
@@ -195,7 +202,7 @@ class ProfilePage extends StatelessWidget {
           return ListTile(
             leading: Icon(
               option['icon'] as IconData,
-              color: isDestructive ? AppColors.error : AppColors.grey600,
+              color: isDestructive ? AppColors.error : AppColors.grey500,
             ),
             title: Text(
               option['title'] as String,

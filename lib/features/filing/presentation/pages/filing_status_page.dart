@@ -219,14 +219,7 @@ class _HeaderCard extends StatelessWidget {
     return Container(
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(16),
-        gradient: const LinearGradient(
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-          colors: [
-            AppColors.brandLightBlue,
-            AppColors.brandPrimaryBlue,
-          ],
-        ),
+        color: AppColors.brandNavy,
         boxShadow: const [
           BoxShadow(color: AppColors.shadowMedium, blurRadius: 12, offset: Offset(0, 8)),
         ],
@@ -340,7 +333,7 @@ class _TimelineTile extends StatelessWidget {
   final bool isCurrent;
   final bool isLast;
 
-  Color get _dotColor => isDone || isCurrent ? AppColors.brandPrimaryBlue : AppColors.grey400;
+  Color get _dotColor => isDone || isCurrent ? AppColors.brandTeal : AppColors.grey400;
   Color get _titleColor => isDone || isCurrent ? AppColors.grey900 : AppColors.grey600;
 
   @override
@@ -351,7 +344,7 @@ class _TimelineTile extends StatelessWidget {
         Column(
           children: [
             _Dot(state: isDone ? _DotState.done : (isCurrent ? _DotState.current : _DotState.pending), color: _dotColor, index: index),
-            if (!isLast) _Connector(color: isDone ? AppColors.brandPrimaryBlue : AppColors.grey300),
+            if (!isLast) _Connector(color: isDone ? AppColors.brandTeal : AppColors.grey300),
           ],
         ),
         const SizedBox(width: 12),

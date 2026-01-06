@@ -94,8 +94,8 @@ class _NotificationCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final Color borderColor = unread
-        ? AppColors.brandPrimaryBlue
-        : AppColors.brandLightBlue;
+        ? AppColors.brandTeal
+        : AppColors.grey300;
     final double borderWidth = unread ? 1.5 : 1.0;
 
     return Container(
