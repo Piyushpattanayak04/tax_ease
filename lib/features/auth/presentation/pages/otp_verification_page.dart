@@ -5,6 +5,7 @@ import 'package:go_router/go_router.dart';
 import '../../../../core/constants/app_colors.dart';
 import '../../../../core/constants/app_dimensions.dart';
 import '../../../../shared/animations/smooth_animations.dart';
+import '../../../../core/widgets/app_toast.dart';
 import '../../data/auth_api.dart';
 
 class OtpVerificationPage extends StatefulWidget {
@@ -248,12 +249,7 @@ class _OtpVerificationPageState extends State<OtpVerificationPage> {
   Future<void> _handleVerifyOtp() async {
     final otpCode = _getOtpCode();
     if (otpCode.length != 6) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Please enter the complete OTP code'),
-          behavior: SnackBarBehavior.floating,
-        ),
-      );
+      AppToast.error(context, 'Please enter the complete OTP code');
       return;
     }
 
@@ -269,24 +265,20 @@ class _OtpVerificationPageState extends State<OtpVerificationPage> {
       );
 
       if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(widget.isSignup ? 'Account verified successfully! Please sign in.' : 'Email verified successfully!'),
-          backgroundColor: AppColors.success,
-          behavior: SnackBarBehavior.floating,
-        ),
+      AppToast.success(
+        context,
+        widget.isSignup
+            ? 'Account verified successfully! Please sign in.'
+            : 'Email verified successfully!',
       );
 
       // After verification, navigate to login to authenticate
       context.go('/login');
     } catch (e) {
       if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(e.toString().replaceFirst('Exception: ', '')),
-          backgroundColor: AppColors.error,
-          behavior: SnackBarBehavior.floating,
-        ),
+      AppToast.error(
+        context,
+        e.toString().replaceFirst('Exception: ', ''),
       );
     } finally {
       if (mounted) {
@@ -314,20 +306,12 @@ class _OtpVerificationPageState extends State<OtpVerificationPage> {
       });
       _startResendTimer();
 
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Verification code sent successfully!'),
-          behavior: SnackBarBehavior.floating,
-        ),
-      );
+      AppToast.info(context, 'Verification code sent successfully!');
     } catch (e) {
       if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(e.toString().replaceFirst('Exception: ', '')),
-          backgroundColor: AppColors.error,
-          behavior: SnackBarBehavior.floating,
-        ),
+      AppToast.error(
+        context,
+        e.toString().replaceFirst('Exception: ', ''),
       );
     } finally {
       if (mounted) {

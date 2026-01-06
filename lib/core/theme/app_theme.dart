@@ -22,18 +22,18 @@ class AppTheme {
       // Typography – Inter across the app
       textTheme: AppTypography.buildTextTheme(Brightness.light),
 
-      // App bar theme – solid navy header, no gradients
+      // App bar theme – match scaffold background for a clean, subtle top bar
       appBarTheme: AppBarTheme(
         elevation: 0,
         centerTitle: true,
-        backgroundColor: AppColors.primaryLight,
-        foregroundColor: AppColors.onPrimaryLight,
+        backgroundColor: AppColors.backgroundLight,
+        foregroundColor: AppColors.textPrimary,
         titleTextStyle: AppTypography
             .buildTextTheme(Brightness.light)
             .titleLarge
             ?.copyWith(
               fontWeight: FontWeight.w600,
-              color: AppColors.onPrimaryLight,
+              color: AppColors.textPrimary,
             ),
         systemOverlayStyle: const SystemUiOverlayStyle(
           statusBarColor: Colors.transparent,
@@ -188,13 +188,13 @@ class AppTheme {
         elevation: 0,
         centerTitle: true,
         backgroundColor: AppColors.backgroundDark,
-        foregroundColor: colorScheme.onBackground,
+        foregroundColor: colorScheme.onSurface,
         titleTextStyle: AppTypography
             .buildTextTheme(Brightness.dark)
             .titleLarge
             ?.copyWith(
               fontWeight: FontWeight.w600,
-              color: colorScheme.onBackground,
+              color: colorScheme.onSurface,
             ),
         systemOverlayStyle: const SystemUiOverlayStyle(
           statusBarColor: Colors.transparent,

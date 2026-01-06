@@ -6,6 +6,7 @@ import '../../../../core/utils/smooth_scroll_physics.dart';
 import '../../../../core/utils/responsive.dart';
 import '../../../../core/theme/theme_controller.dart';
 import '../../../../shared/animations/smooth_animations.dart';
+import '../../../../core/widgets/app_toast.dart';
 import '../../data/auth_api.dart';
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -320,13 +321,7 @@ class _LoginPageState extends State<LoginPage> {
         await ThemeController.setFilingType('T1');
 
         if (!mounted) return;
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: const Text('Demo login successful!'),
-            backgroundColor: AppColors.success,
-            behavior: SnackBarBehavior.floating,
-          ),
-        );
+        AppToast.success(context, 'Demo login successful!');
         context.go('/home');
         return;
       }
@@ -347,22 +342,13 @@ class _LoginPageState extends State<LoginPage> {
       }
 
       if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: const Text('Login successful!'),
-          backgroundColor: AppColors.success,
-          behavior: SnackBarBehavior.floating,
-        ),
-      );
+      AppToast.success(context, 'Login successful!');
       context.go('/home');
     } catch (e) {
       if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(e.toString().replaceFirst('Exception: ', '')),
-          backgroundColor: AppColors.error,
-          behavior: SnackBarBehavior.floating,
-        ),
+      AppToast.error(
+        context,
+        e.toString().replaceFirst('Exception: ', ''),
       );
     } finally {
       if (mounted) {
@@ -375,11 +361,6 @@ class _LoginPageState extends State<LoginPage> {
 
   void _handleGoogleSignIn() {
     // Placeholder for Google Sign-In
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        content: Text('Google Sign-In feature coming soon!'),
-        behavior: SnackBarBehavior.floating,
-      ),
-    );
+    AppToast.info(context, 'Google Sign-In feature coming soon!');
   }
 }

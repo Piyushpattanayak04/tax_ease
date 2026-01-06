@@ -6,6 +6,7 @@ import '../../../../core/utils/smooth_scroll_physics.dart';
 import '../../../../core/utils/responsive.dart';
 import '../../../../shared/animations/smooth_animations.dart';
 import '../../../../core/theme/theme_controller.dart';
+import '../../../../core/widgets/app_toast.dart';
 import '../../data/models/t1_form_models_simple.dart';
 import '../../data/models/t2_form_models.dart';
 import '../../data/services/t1_form_storage_service.dart';
@@ -181,25 +182,13 @@ class _YourFormsPageState extends State<YourFormsPage> with WidgetsBindingObserv
           _allForms = _allForms.where((f) => f.id != form.id || f.formType != form.formType).toList();
         });
 
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('${form.formType} draft deleted'),
-          ),
-        );
+        AppToast.success(context, '${form.formType} draft deleted');
       } else {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Failed to delete form. Please try again.'),
-          ),
-        );
+        AppToast.error(context, 'Failed to delete form. Please try again.');
       }
     } catch (e) {
       if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('Error deleting form: $e'),
-        ),
-      );
+      AppToast.error(context, 'Error deleting form: $e');
     }
   }
 

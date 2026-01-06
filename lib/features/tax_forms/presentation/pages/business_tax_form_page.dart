@@ -4,6 +4,7 @@ import 'package:flutter/services.dart';
 import 'package:go_router/go_router.dart';
 import '../../../../core/constants/app_colors.dart';
 import '../../../../core/constants/app_dimensions.dart';
+import '../../../../core/widgets/app_toast.dart';
 import '../../data/models/t2_form_models.dart';
 import '../../data/services/t2_form_storage_service.dart';
 
@@ -187,15 +188,7 @@ class _BusinessTaxFormPageState extends State<BusinessTaxFormPage> {
     try {
       await T2FormStorageService.instance.saveForm(_form);
       if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: const Row(
-            children: [Icon(Icons.check_circle, color: Colors.white), SizedBox(width: 8), Text('Form saved')],
-          ),
-          backgroundColor: AppColors.success,
-          duration: const Duration(seconds: 2),
-        ),
-      );
+      AppToast.success(context, 'Form saved');
     } finally {
       if (mounted) setState(() => _isSaving = false);
     }

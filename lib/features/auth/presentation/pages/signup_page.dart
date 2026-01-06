@@ -6,6 +6,7 @@ import '../../../../core/utils/smooth_scroll_physics.dart';
 import '../../../../core/utils/responsive.dart';
 import '../../../../shared/animations/smooth_animations.dart';
 import '../../../../core/theme/theme_controller.dart';
+import '../../../../core/widgets/app_toast.dart';
 import '../../data/auth_api.dart';
 
 class SignupPage extends StatefulWidget {
@@ -402,9 +403,7 @@ class _SignupPageState extends State<SignupPage> {
   Future<void> _handleSignup() async {
     if (!_formKey.currentState!.validate()) return;
     if (_selectedFilingType == null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Please select a filing type')),
-      );
+      AppToast.error(context, 'Please select a filing type');
       return;
     }
 
@@ -426,22 +425,14 @@ class _SignupPageState extends State<SignupPage> {
       await ThemeController.setFilingType(_selectedFilingType!);
 
       if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Registration successful! Verify your email.'),
-          behavior: SnackBarBehavior.floating,
-        ),
-      );
+      AppToast.success(context, 'Registration successful! Verify your email.');
 
       context.go('/otp-verification?email=${_emailController.text.trim()}&signup=true');
     } catch (e) {
       if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(e.toString().replaceFirst('Exception: ', '')),
-          backgroundColor: AppColors.error,
-          behavior: SnackBarBehavior.floating,
-        ),
+      AppToast.error(
+        context,
+        e.toString().replaceFirst('Exception: ', ''),
       );
     } finally {
       if (mounted) {

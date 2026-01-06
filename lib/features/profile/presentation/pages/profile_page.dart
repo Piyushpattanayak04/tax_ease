@@ -6,6 +6,7 @@ import '../../../../core/utils/smooth_scroll_physics.dart';
 import '../../../../core/utils/responsive.dart';
 import '../../../../core/theme/theme_controller.dart';
 import '../../../../shared/animations/smooth_animations.dart';
+import '../../../../core/widgets/app_toast.dart';
 import '../../../tax_forms/data/services/t1_form_storage_service.dart';
 import '../../../tax_forms/data/services/t2_form_storage_service.dart';
 import '../../../auth/data/auth_api.dart';
@@ -266,13 +267,7 @@ class ProfilePage extends StatelessWidget {
     } catch (e) {
       // Show error message if something goes wrong
       if (context.mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Error signing out. Please try again.'),
-            backgroundColor: AppColors.error,
-            behavior: SnackBarBehavior.floating,
-          ),
-        );
+        AppToast.error(context, 'Error signing out. Please try again.');
       }
     }
   }

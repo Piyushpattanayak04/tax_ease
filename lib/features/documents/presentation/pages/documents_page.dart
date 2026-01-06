@@ -8,6 +8,7 @@ import '../../../../core/constants/app_dimensions.dart';
 import '../../../../core/utils/smooth_scroll_physics.dart';
 import '../../../../core/utils/responsive.dart';
 import '../../../../shared/animations/smooth_animations.dart';
+import '../../../../core/widgets/app_toast.dart';
 import '../../data/files_api.dart';
 import '../../data/t1_document_requirements.dart';
 import '../../../tax_forms/data/models/t1_form_models_simple.dart';
@@ -176,9 +177,7 @@ class _DocumentsPageState extends State<DocumentsPage> {
       }
 
       final prefix = documentType != null ? '$documentType: ' : '';
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Uploaded: $prefix$name')),
-      );
+      AppToast.success(context, 'Uploaded: $prefix$name');
     } catch (e) {
       if (!mounted) return;
       setState(() {
@@ -187,9 +186,7 @@ class _DocumentsPageState extends State<DocumentsPage> {
           _uploadingDocumentTypes.remove(documentType);
         }
       });
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Upload failed: $e')),
-      );
+      AppToast.error(context, 'Upload failed: $e');
     }
   }
 
@@ -210,9 +207,7 @@ class _DocumentsPageState extends State<DocumentsPage> {
       final bytes = file.bytes;
       if (bytes == null) {
         if (!mounted) return;
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Could not read the selected file.')),
-        );
+        AppToast.error(context, 'Could not read the selected file.');
         return;
       }
 
@@ -227,9 +222,7 @@ class _DocumentsPageState extends State<DocumentsPage> {
     final path = file.path;
     if (path == null) {
       if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Could not access the selected file path.')),
-      );
+      AppToast.error(context, 'Could not access the selected file path.');
       return;
     }
 
@@ -436,102 +429,72 @@ class _DocumentsPageState extends State<DocumentsPage> {
         title: const Text('Documents'),
         automaticallyImplyLeading: false,
       ),
-      body: Stack(
-        children: [
-          ResponsiveContainer(
-            centerContent: false,
-            padding: EdgeInsets.all(Responsive.responsive(
-              context: context,
-              mobile: AppDimensions.screenPadding,
-              tablet: AppDimensions.screenPaddingLarge,
-              desktop: AppDimensions.spacingXl,
-            )),
-            child: SingleChildScrollView(
-              physics: const SmoothBouncingScrollPhysics(),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  SmoothAnimations.slideUp(
-                    child: Text(
-                      'Upload Tax Documents',
-                      style: Theme.of(context).textTheme.headlineMedium?.copyWith(
-                            fontWeight: FontWeight.bold,
-                          ),
-                    ),
-                  ),
-                  const SizedBox(height: 16),
-
-                  if (!_hasAnyDraftForm)
-                    SmoothAnimations.slideUp(
-                      delay: const Duration(milliseconds: 100),
-                      child: Container(
-                        width: double.infinity,
-                        padding: const EdgeInsets.all(AppDimensions.spacingLg),
-                        decoration: BoxDecoration(
-                          color: Theme.of(context).cardColor,
-                          borderRadius:
-                              BorderRadius.circular(AppDimensions.radiusLg),
-                          border:
-                              Border.all(color: Theme.of(context).dividerColor),
-                        ),
-                        child: const Text(
-                          'No documents needed to upload.',
-                          style: TextStyle(fontWeight: FontWeight.w600),
-                        ),
+      body: ResponsiveContainer(
+        centerContent: false,
+        padding: EdgeInsets.all(Responsive.responsive(
+          context: context,
+          mobile: AppDimensions.screenPadding,
+          tablet: AppDimensions.screenPaddingLarge,
+          desktop: AppDimensions.spacingXl,
+        )),
+        child: SingleChildScrollView(
+          physics: const SmoothBouncingScrollPhysics(),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              SmoothAnimations.slideUp(
+                child: Text(
+                  'Upload Tax Documents',
+                  style: Theme.of(context).textTheme.headlineMedium?.copyWith(
+                        fontWeight: FontWeight.bold,
                       ),
-                    )
-                  else
-                    SmoothAnimations.slideUp(
-                      delay: const Duration(milliseconds: 100),
-                      child: _buildDocumentTypeCards(),
-                    ),
-                  if (_hasAnyDraftForm) ...[
-                    const SizedBox(height: 32),
-                    SmoothAnimations.slideUp(
-                      delay: const Duration(milliseconds: 150),
-                      child: Text(
-                        'Your Documents',
-                        style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                              fontWeight: FontWeight.w600,
-                            ),
-                      ),
-                    ),
-                    const SizedBox(height: 16),
-                    if (_isUploading) const LinearProgressIndicator(minHeight: 2),
-                    const SizedBox(height: 12),
-                    SmoothAnimations.slideUp(
-                      delay: const Duration(milliseconds: 250),
-                      child: _buildDocumentsList(),
-                    ),
-                  ],
-
-                  // Extra space so content isn't hidden behind the floating nav + submit button
-                  const SizedBox(height: 160),
-                ],
-              ),
-            ),
-          ),
-          if (_showSubmitForT1)
-            Positioned(
-              left: AppDimensions.spacingMd,
-              right: AppDimensions.spacingMd,
-              // MainScaffold overlays a floating bottom nav; keep this above it.
-              bottom: 100,
-              child: SizedBox(
-                height: AppDimensions.buttonHeightXl,
-                child: ElevatedButton(
-                  onPressed: _canSubmitT1 ? _onSubmitPressed : null,
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: AppColors.primary,
-                    foregroundColor: Colors.white,
-                    disabledBackgroundColor: AppColors.grey400,
-                    disabledForegroundColor: Colors.white,
-                  ),
-                  child: const Text('Submit Form'),
                 ),
               ),
-            ),
-        ],
+              const SizedBox(height: 16),
+
+              if (!_hasAnyDraftForm)
+                SmoothAnimations.slideUp(
+                  delay: const Duration(milliseconds: 100),
+                  child: Container(
+                    width: double.infinity,
+                    padding: const EdgeInsets.all(AppDimensions.spacingLg),
+                    decoration: BoxDecoration(
+                      color: Theme.of(context).cardColor,
+                      borderRadius: BorderRadius.circular(AppDimensions.radiusLg),
+                      border: Border.all(color: Theme.of(context).dividerColor),
+                    ),
+                    child: const Text(
+                      'No documents needed to upload.',
+                      style: TextStyle(fontWeight: FontWeight.w600),
+                    ),
+                  ),
+                )
+              else
+                SmoothAnimations.slideUp(
+                  delay: const Duration(milliseconds: 100),
+                  child: _buildDocumentTypeCards(),
+                ),
+
+              const SizedBox(height: 24),
+
+              if (_showSubmitForT1)
+                SmoothAnimations.slideUp(
+                  delay: const Duration(milliseconds: 200),
+                  child: SizedBox(
+                    width: double.infinity,
+                    height: AppDimensions.buttonHeightXl,
+                    child: ElevatedButton(
+                      onPressed: _canSubmitT1 ? _onSubmitPressed : null,
+                      child: const Text('Submit Form'),
+                    ),
+                  ),
+                ),
+
+              // Extra space so content isn't hidden behind the floating nav
+              const SizedBox(height: 120),
+            ],
+          ),
+        ),
       ),
       floatingActionButton: _hasAnyDraftForm
           ? FloatingActionButton(

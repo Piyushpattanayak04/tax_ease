@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import '../../../../core/constants/app_colors.dart';
 import '../../../../core/constants/app_dimensions.dart';
+import '../../../../core/widgets/app_toast.dart';
 import '../../data/models/t1_form_models_simple.dart';
 import '../../data/services/t1_form_storage_service.dart';
 import '../../../documents/data/t1_document_requirements.dart';
@@ -104,34 +105,11 @@ class _PersonalTaxFormPageState extends State<PersonalTaxFormPage>
       final success = await T1FormStorageService.instance.saveForm(_formData);
       
       if (success && mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: const Row(
-              children: [
-                Icon(Icons.check_circle, color: Colors.white),
-                SizedBox(width: 8),
-                Text('Form saved successfully'),
-              ],
-            ),
-            backgroundColor: AppColors.success,
-            duration: const Duration(seconds: 2),
-          ),
-        );
+        AppToast.success(context, 'Form saved successfully');
       }
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Row(
-              children: [
-                const Icon(Icons.error, color: Colors.white),
-                const SizedBox(width: 8),
-                Text('Error saving form: $e'),
-              ],
-            ),
-            backgroundColor: AppColors.error,
-          ),
-        );
+        AppToast.error(context, 'Error saving form: $e');
       }
     } finally {
       setState(() {
