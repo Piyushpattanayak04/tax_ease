@@ -35,7 +35,7 @@ class AppColors {
 
   // ===== DARK THEME COLORS =====
   /// Dark theme palette with near-black scaffold and navy surfaces
-  static const Color backgroundDark = Color(0xFF050814); // Near-black with navy hue
+  static const Color backgroundDark = Color(0xFF000000); // Near-black with navy hue
   static const Color surfaceDark = Color(0xFF0E172A); // Cards / surfaces
   static const Color surfaceVariantDark = Color(0xFF1B2435);
   static const Color borderSubtleDark = Color(0xFF404556);

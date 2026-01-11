@@ -5,6 +5,7 @@ import '../../../../core/constants/app_colors.dart';
 import '../../../../core/theme/theme_controller.dart';
 import '../../../../core/constants/app_dimensions.dart';
 import '../../../../core/widgets/app_toast.dart';
+import '../../../../core/widgets/global_loading_overlay.dart';
 import '../../data/models/t1_form_models_simple.dart';
 import '../../data/services/t1_form_storage_service.dart';
 import '../../data/services/t1_remote_service.dart';
@@ -75,37 +76,36 @@ class _PersonalTaxFormPageState extends State<PersonalTaxFormPage>
   }
 
   Future<void> _loadFormData() async {
-    T1FormData? savedData;
-    
-    if (widget.formId != null) {
-      // Load specific form by ID from local storage first
-      savedData = await T1FormStorageService.instance.getFormById(widget.formId!);
+    final formId = widget.formId;
+    T1FormData? loaded;
 
-      // If not found locally, attempt to load from backend
-      if (savedData == null && ThemeController.authToken != null) {
-        try {
-          final remote = await T1RemoteService.instance.fetchForm(filingId: widget.formId!);
-          savedData = remote.copyWith(id: widget.formId!);
-          await T1FormStorageService.instance.saveForm(savedData!);
-        } catch (_) {
-          // Ignore remote failures here; we'll treat as no existing form
-        }
+    // 1) Try remote first when we have a formId and an auth token.
+    if (formId != null && formId.isNotEmpty && ThemeController.authToken != null) {
+      try {
+        final remote = await T1RemoteService.instance.fetchForm(filingId: formId);
+        loaded = remote.copyWith(id: formId);
+        await T1FormStorageService.instance.saveForm(loaded);
+      } catch (_) {
+        // Ignore remote failures here; we'll fall back to local/new.
       }
     }
-    
-    if (savedData == null) {
-      // Create a new local form if no existing form found
-      savedData = T1FormData(
-        id: widget.formId ?? '',
-        status: 'draft',
-        createdAt: DateTime.now(),
-        updatedAt: DateTime.now(),
-      );
-      await T1FormStorageService.instance.saveForm(savedData!);
+
+    // 2) If remote failed or no token, try local cache.
+    if (loaded == null && formId != null && formId.isNotEmpty) {
+      loaded = await T1FormStorageService.instance.getFormById(formId);
     }
     
+    // 3) If still nothing, create a brand-new local draft.
+    loaded ??= T1FormData(
+      id: formId ?? '',
+      status: 'draft',
+      createdAt: DateTime.now(),
+      updatedAt: DateTime.now(),
+    );
+    await T1FormStorageService.instance.saveForm(loaded);
+    
     setState(() {
-      _formData = savedData!;
+      _formData = loaded!;
       _isLoading = false;
       _rebuildSteps();
     });
@@ -272,25 +272,41 @@ class _PersonalTaxFormPageState extends State<PersonalTaxFormPage>
       return;
     }
 
+    LoadingOverlayController.show();
     try {
       // Persist latest answers then submit remotely
       await T1RemoteService.instance.saveAnswers(
         filingId: _formData.id,
         form: _formData,
       );
-      await T1RemoteService.instance.submit(filingId: _formData.id);
+      final submitResult =
+          await T1RemoteService.instance.submit(filingId: _formData.id);
 
-      // Update local status to submitted
-      _formData = _formData.copyWith(status: 'submitted', awaitingDocuments: false);
+      // Update local status to submitted using submitted_at if available
+      final submittedAtRaw = submitResult['submitted_at'];
+      DateTime? submittedAt;
+      if (submittedAtRaw is String) {
+        submittedAt = DateTime.tryParse(submittedAtRaw);
+      }
+
+      _formData = _formData.copyWith(
+        status: 'submitted',
+        awaitingDocuments: false,
+        updatedAt: submittedAt ?? DateTime.now(),
+      );
       await T1FormStorageService.instance.saveForm(_formData);
     } catch (e) {
       if (mounted) {
+        // Surface backend error message when available
+        final message = e.toString().replaceFirst('Exception: ', '');
         AppToast.error(
           context,
-          'Error submitting form. Please try again.',
+          'Error submitting form: $message',
         );
       }
       return;
+    } finally {
+      LoadingOverlayController.hide();
     }
     
     if (mounted) {

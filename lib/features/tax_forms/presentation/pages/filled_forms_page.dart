@@ -7,6 +7,8 @@ import '../../../../core/utils/responsive.dart';
 import '../../../../shared/animations/smooth_animations.dart';
 import '../../../../core/theme/theme_controller.dart';
 import '../../../../core/widgets/app_toast.dart';
+import '../../../../core/widgets/global_loading_overlay.dart';
+import '../../../auth/data/auth_api.dart';
 import '../../data/models/t1_form_models_simple.dart';
 import '../../data/models/t2_form_models.dart';
 import '../../data/services/t1_form_storage_service.dart';
@@ -21,8 +23,9 @@ class CombinedFormData {
   final DateTime? createdAt;
   final DateTime? updatedAt;
   final String displayName;
+  final int? filingYear; // from /filings for T1, or inferred
   final T1FormData? t1Form;
-final T2OnboardingData? t2Form;
+  final T2OnboardingData? t2Form;
 
   CombinedFormData({
     required this.id,
@@ -31,10 +34,11 @@ final T2OnboardingData? t2Form;
     this.createdAt,
     this.updatedAt,
     required this.displayName,
+    this.filingYear,
     this.t1Form,
     this.t2Form,
   });
-  
+
   static CombinedFormData fromT1(T1FormData form) {
     return CombinedFormData(
       id: form.id,
@@ -42,24 +46,53 @@ final T2OnboardingData? t2Form;
       status: form.status,
       createdAt: form.createdAt,
       updatedAt: form.updatedAt,
+      filingYear: (form.createdAt ?? DateTime.now()).year,
       displayName: form.personalInfo.firstName.isNotEmpty
           ? '${form.personalInfo.firstName} ${form.personalInfo.lastName}'
           : 'Personal Tax Draft',
       t1Form: form,
     );
   }
-  
-static CombinedFormData fromT2(T2OnboardingData form) {
+
+  static CombinedFormData fromT2(T2OnboardingData form) {
     return CombinedFormData(
       id: form.id,
       formType: 'T2',
       status: form.status,
       createdAt: form.createdAt,
       updatedAt: form.updatedAt,
-displayName: form.companyName.isNotEmpty
+      filingYear: (form.createdAt ?? DateTime.now()).year,
+      displayName: form.companyName.isNotEmpty
           ? form.companyName
           : 'Business On-Boarding Draft',
       t2Form: form,
+    );
+  }
+
+  /// From remote T1 forms summary response.
+  /// IMPORTANT: Backend returns both a user id and a filing id; we must use
+  /// `filing_id` as the identifier when opening `/t1-forms/{filing_id}`.
+  static CombinedFormData fromRemoteFiling(Map<String, dynamic> json) {
+    final filingYear = json['filing_year'] as int?;
+    final createdAt = json['created_at'] != null
+        ? DateTime.tryParse(json['created_at'].toString())
+        : null;
+    final updatedAt = json['updated_at'] != null
+        ? DateTime.tryParse(json['updated_at'].toString())
+        : null;
+
+    // Use filing_id explicitly; do NOT use json['id'] here as that may be user_id.
+    final filingId = (json['filing_id'] ?? '').toString();
+
+    return CombinedFormData(
+      id: filingId,
+      formType: 'T1',
+      status: (json['status'] ?? 'draft').toString(),
+      createdAt: createdAt,
+      updatedAt: updatedAt,
+      filingYear: filingYear,
+      displayName: 'T1 Personal Tax Form ${filingYear ?? (createdAt ?? DateTime.now()).year}',
+      t1Form: null,
     );
   }
 }
@@ -127,14 +160,29 @@ class _YourFormsPageState extends State<YourFormsPage> with WidgetsBindingObserv
       }
     }
 
+    LoadingOverlayController.show();
     try {
-      // Load T1 forms
-      final t1Forms = await T1FormStorageService.instance.loadAllForms();
-      final t1CombinedForms = t1Forms.map((form) => CombinedFormData.fromT1(form)).toList();
+      // Load remote T1 forms for the current user first
+      List<CombinedFormData> t1CombinedForms = [];
+      try {
+        // Fetch current user id for /t1-forms/user/{user_id}/forms
+        final profile = await AuthApi.getCurrentUser();
+        final remoteForms = await T1RemoteService.instance
+            .listUserForms(userId: profile.id);
+        t1CombinedForms = remoteForms
+            .map((f) => CombinedFormData.fromRemoteFiling(f))
+            .toList();
+      } catch (_) {
+        // Fallback: use local T1 forms if remote fails
+        final t1Forms = await T1FormStorageService.instance.loadAllForms();
+        t1CombinedForms =
+            t1Forms.map((form) => CombinedFormData.fromT1(form)).toList();
+      }
 
-      // Load T2 forms
+      // Load T2 forms from local storage
       final t2Forms = await T2FormStorageService.instance.loadAllForms();
-      final t2CombinedForms = t2Forms.map((form) => CombinedFormData.fromT2(form)).toList();
+      final t2CombinedForms =
+          t2Forms.map((form) => CombinedFormData.fromT2(form)).toList();
 
       // Combine and sort by updated date
       final allForms = [...t1CombinedForms, ...t2CombinedForms];
@@ -159,6 +207,8 @@ class _YourFormsPageState extends State<YourFormsPage> with WidgetsBindingObserv
           _isRefreshing = false;
         });
       }
+    } finally {
+      LoadingOverlayController.hide();
     }
   }
 
@@ -169,9 +219,24 @@ class _YourFormsPageState extends State<YourFormsPage> with WidgetsBindingObserv
 
   Future<void> _deleteForm(CombinedFormData form) async {
     try {
-      final bool success;
+      bool success = true;
       if (form.formType == 'T1') {
-        success = await T1FormStorageService.instance.deleteForm(form.id);
+        // Delete from backend first, then local cache
+        try {
+          await T1RemoteService.instance.deleteForm(filingId: form.id);
+        } catch (e) {
+          if (mounted) {
+            final message = e.toString().replaceFirst('Exception: ', '');
+            AppToast.error(
+              context,
+              'Failed to delete remote form: $message',
+            );
+          }
+          success = false;
+        }
+        if (success) {
+          success = await T1FormStorageService.instance.deleteForm(form.id);
+        }
       } else {
         success = await T2FormStorageService.instance.deleteForm(form.id);
       }
@@ -202,7 +267,7 @@ class _YourFormsPageState extends State<YourFormsPage> with WidgetsBindingObserv
         return AlertDialog(
           title: const Text('Delete draft form?'),
           content: Text(
-            'This will permanently delete this ${form.formType} draft from this device. '
+            'This will permanently delete this ${form.formType} draft from your account and this device. '
             'Submitted forms cannot be deleted.',
           ),
           actions: [
@@ -228,10 +293,11 @@ class _YourFormsPageState extends State<YourFormsPage> with WidgetsBindingObserv
     final filingType = ThemeController.filingType.value;
     
     if (filingType == 'T1') {
-      // T1 Personal - create a new remote filing then local form linked to it
+      // T1 Personal - create a new filing and local draft linked to it
       try {
         final filingYear = DateTime.now().year;
-        final filingId = await T1RemoteService.instance.createFiling(filingYear: filingYear);
+        final filingId = await T1RemoteService.instance
+            .createFiling(filingYear: filingYear);
 
         final newForm = T1FormData(
           id: filingId,
@@ -293,7 +359,8 @@ class _YourFormsPageState extends State<YourFormsPage> with WidgetsBindingObserv
     // Create a new T1 form backed by a remote filing
     try {
       final filingYear = DateTime.now().year;
-      final filingId = await T1RemoteService.instance.createFiling(filingYear: filingYear);
+      final filingId = await T1RemoteService.instance
+          .createFiling(filingYear: filingYear);
 
       final newForm = T1FormData(
         id: filingId,
@@ -468,9 +535,11 @@ class _YourFormsPageState extends State<YourFormsPage> with WidgetsBindingObserv
     final isT1 = form.formType == 'T1';
     final formIcon = isT1 ? Icons.person : Icons.business;
     final formColor = isT1 ? AppColors.primary : AppColors.secondary;
-    final formTitle = isT1 
-        ? 'T1 Personal Tax Form ${DateTime.now().year}'
-        : 'T2 Business Tax Form ${DateTime.now().year}';
+    final year = form.filingYear ??
+        (form.updatedAt ?? form.createdAt ?? DateTime.now()).year;
+    final formTitle = isT1
+        ? 'T1 Personal Tax Form $year'
+        : 'T2 Business Tax Form $year';
     
     return Container(
       margin: const EdgeInsets.only(bottom: 16),

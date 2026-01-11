@@ -4,6 +4,7 @@ import 'core/theme/app_theme.dart';
 import 'core/constants/app_colors.dart';
 import 'core/router/app_router.dart';
 import 'core/theme/theme_controller.dart';
+import 'core/widgets/global_loading_overlay.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -44,6 +45,7 @@ class TaxEaseApp extends StatelessWidget {
           darkTheme: AppTheme.darkTheme,
           themeMode: mode,
           routerConfig: AppRouter.router,
+          builder: (context, child) => GlobalLoadingOverlay(child: child),
         );
       },
     );

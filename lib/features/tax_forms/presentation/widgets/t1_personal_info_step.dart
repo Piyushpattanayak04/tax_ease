@@ -243,7 +243,7 @@ class _T1PersonalInfoStepState extends State<T1PersonalInfoStep> {
                 const SizedBox(height: 20),
                 _buildTextField(
                   controller: _phoneController,
-                  label: 'Phone Number *',
+                  label: 'Phone Number (+Country Code) *',
                   keyboardType: TextInputType.phone,
                   onChanged: (_) => _updatePersonalInfo(),
                 ),
@@ -393,6 +393,20 @@ class _T1PersonalInfoStepState extends State<T1PersonalInfoStep> {
                   ScaffoldMessenger.of(context).showSnackBar(
                     const SnackBar(
                       content: Text('Please complete all required personal information fields.'),
+                    ),
+                  );
+                  return;
+                }
+
+                // Phone format validation: + followed by 12 digits (13 chars total)
+                final phone = p.phoneNumber.trim();
+                final phoneRegex = RegExp(r'^\+\d{12}$');
+                if (!phoneRegex.hasMatch(phone)) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                      content: Text(
+                        'Phone number must be in format +911234567890 (13 characters, including +).',
+                      ),
                     ),
                   );
                   return;

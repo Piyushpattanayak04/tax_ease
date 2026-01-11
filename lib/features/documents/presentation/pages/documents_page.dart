@@ -9,10 +9,12 @@ import '../../../../core/utils/smooth_scroll_physics.dart';
 import '../../../../core/utils/responsive.dart';
 import '../../../../shared/animations/smooth_animations.dart';
 import '../../../../core/widgets/app_toast.dart';
+import '../../../../core/widgets/global_loading_overlay.dart';
 import '../../data/files_api.dart';
 import '../../data/t1_document_requirements.dart';
 import '../../../tax_forms/data/models/t1_form_models_simple.dart';
 import '../../../tax_forms/data/services/t1_form_storage_service.dart';
+import '../../../tax_forms/data/services/t1_remote_service.dart';
 import '../../../tax_forms/data/services/unified_form_service.dart';
 
 class DocumentsPage extends StatefulWidget {
@@ -121,10 +123,16 @@ class _DocumentsPageState extends State<DocumentsPage> {
         }
       });
 
+      // Use the active T1 form id as filing_id for the upload API.
+      final filingId = _activeT1Form?.id;
+
+      LoadingOverlayController.show();
       final resp = await FilesApi.uploadFile(
         filePath: filePath,
         bytes: bytes,
         fileName: fallbackName,
+        filingId: filingId,
+        category: documentType,
       );
 
       final derivedName = (fallbackName ??
@@ -186,7 +194,10 @@ class _DocumentsPageState extends State<DocumentsPage> {
           _uploadingDocumentTypes.remove(documentType);
         }
       });
-      AppToast.error(context, 'Upload failed: $e');
+      final message = e.toString().replaceFirst('Exception: ', '');
+      AppToast.error(context, 'Upload failed: $message');
+    } finally {
+      LoadingOverlayController.hide();
     }
   }
 
@@ -348,38 +359,75 @@ class _DocumentsPageState extends State<DocumentsPage> {
 
   Future<void> _submitT1Form() async {
     final form = _activeT1Form;
-    if (form == null) return;
+    if (form == null || form.id.isEmpty) return;
 
-    final submitted = form.copyWith(status: 'submitted', awaitingDocuments: false);
-    await T1FormStorageService.instance.saveForm(submitted);
+    LoadingOverlayController.show();
+    try {
+      // Load the full T1 form for this filing so we submit complete answers.
+      final fullForm =
+          await T1FormStorageService.instance.getFormById(form.id) ?? form;
 
-    if (!mounted) return;
+      // Persist latest answers (idempotent if already up to date), then submit.
+      await T1RemoteService.instance.saveAnswers(
+        filingId: form.id,
+        form: fullForm,
+      );
+      final submitResult =
+          await T1RemoteService.instance.submit(filingId: form.id);
 
-    showDialog(
-      context: context,
-      barrierDismissible: false,
-      builder: (context) => AlertDialog(
-        icon: Icon(
-          Icons.check_circle,
-          color: AppColors.success,
-          size: 64,
-        ),
-        title: const Text('Form Submitted Successfully!'),
-        content: const Text(
-          'Your T1 Personal Tax form has been saved and is now under review. '
-          'You can continue to edit the form until the filing deadline.',
-        ),
-        actions: [
-          TextButton(
-            onPressed: () {
-              Navigator.of(context).pop();
-              context.go('/tax-forms/filled-forms?refresh=true');
-            },
-            child: const Text('OK'),
+      final submittedAtRaw = submitResult['submitted_at'];
+      DateTime? submittedAt;
+      if (submittedAtRaw is String) {
+        submittedAt = DateTime.tryParse(submittedAtRaw);
+      }
+
+      final submitted = fullForm.copyWith(
+        status: 'submitted',
+        awaitingDocuments: false,
+        updatedAt: submittedAt ?? DateTime.now(),
+      );
+      await T1FormStorageService.instance.saveForm(submitted);
+
+      if (!mounted) return;
+
+      setState(() {
+        _activeT1Form = submitted;
+      });
+
+      showDialog(
+        context: context,
+        barrierDismissible: false,
+        builder: (context) => AlertDialog(
+          icon: Icon(
+            Icons.check_circle,
+            color: AppColors.success,
+            size: 64,
           ),
-        ],
-      ),
-    );
+          title: const Text('Form Submitted Successfully!'),
+          content: const Text(
+            'Your T1 Personal Tax form has been submitted and is now under review.',
+          ),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+                context.go('/tax-forms/filled-forms?refresh=true');
+              },
+              child: const Text('OK'),
+            ),
+          ],
+        ),
+      );
+    } catch (e) {
+      if (!mounted) return;
+      final message = e.toString().replaceFirst('Exception: ', '');
+      AppToast.error(
+        context,
+        'Error submitting form: $message',
+      );
+    } finally {
+      LoadingOverlayController.hide();
+    }
   }
 
   Future<void> _onSubmitPressed() async {

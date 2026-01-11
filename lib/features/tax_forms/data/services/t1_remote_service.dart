@@ -27,6 +27,41 @@ class T1RemoteService {
         ),
       );
 
+  /// List all T1 forms (draft and submitted) for a specific user.
+  /// GET /t1-forms/user/{user_id}/forms
+  Future<List<Map<String, dynamic>>> listUserForms({required String userId}) async {
+    try {
+      final res = await _dio().get('${ApiEndpoints.T1_FORMS}/user/$userId/forms');
+      final data = res.data;
+
+      // Expected shape from backend (per screenshot):
+      // { "user_id": "...", "total_forms": 0, "forms": [ { ...formSummary }, ... ] }
+      if (data is Map && data['forms'] is List) {
+        final forms = data['forms'] as List;
+        return forms
+            .whereType<Map>()
+            .map((e) => Map<String, dynamic>.from(e as Map))
+            .toList();
+      }
+
+      if (data is List) {
+        return data
+            .whereType<Map>()
+            .map((e) => Map<String, dynamic>.from(e as Map))
+            .toList();
+      }
+
+      if (data is Map) {
+        // Fallback: some backends may return a single object directly
+        return [Map<String, dynamic>.from(data as Map)];
+      }
+
+      return [];
+    } on DioException catch (e) {
+      throw Exception(_extractErrorMessage(e));
+    }
+  }
+
   /// Create a new filing and return its ID.
   /// POST /filings { "filing_year": <year> }
   Future<String> createFiling({required int filingYear}) async {
@@ -108,11 +143,32 @@ class T1RemoteService {
     }
   }
 
+  /// Delete a T1 form draft or submitted form by filing id.
+  /// DELETE /t1-forms/{filing_id}
+  Future<void> deleteForm({required String filingId}) async {
+    try {
+      await _dio().delete('${ApiEndpoints.T1_FORMS}/$filingId');
+    } on DioException catch (e) {
+      throw Exception(_extractErrorMessage(e));
+    }
+  }
+
   /// Submit a T1 form.
   /// POST /t1-forms/{filing_id}/submit
-  Future<void> submit({required String filingId}) async {
+  /// Returns backend payload: { success, message, t1_form_id, submitted_at }.
+  Future<Map<String, dynamic>> submit({required String filingId}) async {
     try {
-      await _dio().post('${ApiEndpoints.T1_FORMS}/$filingId/submit');
+      final res = await _dio().post('${ApiEndpoints.T1_FORMS}/$filingId/submit');
+      final data = res.data;
+      final map = data is Map<String, dynamic>
+          ? data
+          : (data is Map ? Map<String, dynamic>.from(data as Map) : <String, dynamic>{});
+
+      if (map['success'] != true) {
+        final msg = map['message']?.toString() ?? 'Failed to submit form';
+        throw Exception(msg);
+      }
+      return map;
     } on DioException catch (e) {
       throw Exception(_extractErrorMessage(e));
     }
@@ -151,7 +207,13 @@ class T1RemoteService {
           if (parsed != null) {
             result[path] = _formatDateOnly(parsed);
           } else {
-            result[path] = value;
+            // Normalise phone numbers to digits-only when key path suggests phone.
+            if (path.toLowerCase().contains('phone')) {
+              final digitsOnly = value.replaceAll(RegExp(r'[^0-9]'), '');
+              result[path] = digitsOnly;
+            } else {
+              result[path] = value;
+            }
           }
         } else {
           result[path] = value;

@@ -22,15 +22,20 @@ class FilesApi {
         ),
       );
 
-  /// Upload a file using multipart/form-data to POST /files/upload
+  /// Upload a file using multipart/form-data to POST /documents/upload
   /// Returns the decoded response map on success (201)
   ///
   /// For mobile/desktop, pass a [filePath]. For web, pass [bytes] and an optional [fileName].
+  ///
+  /// [filingId] is required by the backend to associate the document with a filing.
+  /// [category] is an optional string tag for the document type/section.
   static Future<Map<String, dynamic>> uploadFile({
     String? filePath,
     List<int>? bytes,
     String fieldName = 'file',
     String? fileName,
+    String? filingId,
+    String? category,
   }) async {
     if (filePath == null && bytes == null) {
       throw ArgumentError('Either filePath or bytes must be provided');
@@ -61,6 +66,8 @@ class FilesApi {
 
     final formData = FormData.fromMap({
       fieldName: multipartFile,
+      if (filingId != null && filingId.isNotEmpty) 'filing_id': filingId,
+      if (category != null && category.isNotEmpty) 'category': category,
     });
 
     try {
